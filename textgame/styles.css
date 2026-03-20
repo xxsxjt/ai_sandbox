@@ -1,0 +1,3067 @@
+/* 全局样式 - 赛博修仙风格 */
+:root {
+    --primary-color: #6366f1;
+    --primary-hover: #4f46e5;
+    --primary-light: #818cf8;
+    --secondary-color: #06b6d4;
+    --danger-color: #f43f5e;
+    --danger-hover: #e11d48;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --background-color: #0f172a;
+    --surface-color: #1e293b;
+    --surface-light: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #475569;
+    --glow-primary: 0 0 20px rgba(99, 102, 241, 0.5);
+    --glow-secondary: 0 0 20px rgba(6, 182, 212, 0.5);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    line-height: 1.6;
+    font-size: 16px;
+    min-height: 100vh;
+}
+
+/* 背景网格效果 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* 头部样式 - 赛博修仙风格 */
+.header {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, rgba(124, 58, 237, 0.9) 100%);
+    color: white;
+    padding: 1.5rem 1rem;
+    box-shadow: var(--shadow-lg), var(--glow-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+    animation: headerShine 8s ease-in-out infinite;
+}
+
+@keyframes headerShine {
+    0%, 100% { transform: translate(-30%, -30%); }
+    50% { transform: translate(0%, 0%); }
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.logo {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    position: relative;
+    display: inline-block;
+}
+
+.logo i {
+    margin-right: 0.5rem;
+    animation: logoGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow {
+    from { text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
+    to { text-shadow: 0 0 25px rgba(255, 255, 255, 0.8), 0 0 40px var(--primary-light); }
+}
+
+.subtitle {
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+/* 游戏状态栏样式 */
+.game-status-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    padding: 1rem 1.5rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: var(--radius-lg);
+    flex-wrap: wrap;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.status-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    transition: all 0.3s ease;
+}
+
+.status-item:hover {
+    background: rgba(99, 102, 241, 0.2);
+    transform: translateY(-2px);
+    box-shadow: var(--glow-primary);
+}
+
+.status-label {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-light);
+}
+
+.progress-bar {
+    width: 100px;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background-color: var(--success-color);
+    transition: width 0.5s ease;
+}
+
+.progress-value {
+    font-size: 0.8rem;
+}
+
+/* 主要内容区域 */
+.main-content {
+    flex: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    width: 100%;
+}
+
+/* 标签页样式 */
+.tab-container {
+    display: flex;
+    border-bottom: 2px solid var(--surface-light);
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.tab-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.tab-btn:hover::before {
+    left: 100%;
+}
+
+.tab-btn:hover {
+    color: var(--primary-light);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.tab-btn.active {
+    color: var(--primary-light);
+    background: rgba(99, 102, 241, 0.2);
+    box-shadow: 0 -2px 10px rgba(99, 102, 241, 0.3);
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.tab-content {
+    display: none;
+    position: relative;
+    z-index: 10;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 通用输入组样式 */
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--surface-light);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    background: var(--surface-color);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), var(--glow-primary);
+}
+
+.input-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* 按钮样式 - 赛博风格 */
+.primary-btn, .secondary-btn, .danger-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+    color: white;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+.primary-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.primary-btn:hover {
+    background: linear-gradient(135deg, var(--primary-hover), #6d28d9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+}
+
+.primary-btn:hover::before {
+    left: 100%;
+}
+
+.secondary-btn {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.secondary-btn:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: var(--primary-color);
+    color: var(--primary-light);
+    transform: translateY(-2px);
+}
+
+.danger-btn {
+    background: linear-gradient(135deg, var(--danger-color), #be123c);
+    color: white;
+    box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
+}
+
+.danger-btn:hover {
+    background: linear-gradient(135deg, var(--danger-hover), #9f1239);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(244, 63, 94, 0.6);
+}
+
+/* 游戏初始化界面样式 - 赛博风格 */
+.game-init-container {
+    background: linear-gradient(135deg, var(--surface-color), rgba(30, 41, 59, 0.8));
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg), 0 0 40px rgba(99, 102, 241, 0.1);
+    padding: 3rem;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.game-init-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--primary-color));
+    background-size: 200% 100%;
+    animation: borderGlow 3s linear infinite;
+}
+
+@keyframes borderGlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+.init-content h2 {
+    margin-bottom: 1rem;
+    font-size: 2.2rem;
+    background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.init-description {
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+
+.init-options {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.world-options {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    text-align: left;
+    margin-top: 2rem;
+    border: 1px solid var(--surface-light);
+}
+
+.option-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.loading-section {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+}
+
+/* 角色创建界面样式 */
+.character-creation-container {
+    background-color: var(--surface-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.character-info {
+    background-color: var(--background-color);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.character-choices {
+    background-color: var(--background-color);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+}
+
+.creation-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+/* 游戏主界面样式 - 赛博风格 */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.game-stats-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--surface-color), rgba(30, 41, 59, 0.8));
+    padding: 1.5rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    flex-wrap: wrap;
+    gap: 1rem;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.stat-group {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 150px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.health-bar, .mana-bar, .exp-bar {
+    width: 100%;
+    height: 12px;
+    background-color: var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.health-fill {
+    height: 100%;
+    width: 100%;
+    background-color: #ef4444;
+    transition: width 0.5s ease;
+}
+
+.mana-fill {
+    height: 100%;
+    width: 100%;
+    background-color: #3b82f6;
+    transition: width 0.5s ease;
+}
+
+.exp-fill {
+    height: 100%;
+    width: 0%;
+    background-color: #10b981;
+    transition: width 0.5s ease;
+}
+
+#health-value, #mana-value, #exp-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.quick-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.quick-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    border: none;
+    background-color: var(--background-color);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.quick-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* 可用行动区域样式 */
+.available-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.action-chip {
+    padding: 0.5rem 1rem;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-chip:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.action-chip.selected {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* 角色创建界面样式 */
+.info-section {
+    margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.stat-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background-color: var(--background-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+}
+
+.class-choices {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.class-option {
+    padding: 1.5rem;
+    background-color: var(--background-color);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.class-option:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.class-option.selected {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.talent-list, .equipment-list, .inventory-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.talent-item, .equipment-item, .inventory-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--background-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+}
+
+.talent-item i {
+    color: var(--warning-color);
+}
+
+.equipment-item i {
+    color: var(--primary-color);
+}
+
+.inventory-item i {
+    color: var(--secondary-color);
+}
+
+/* 模态框内容样式 */
+.modal-content-wrapper {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* 地图样式 */
+.map-container {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.map-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background-color: var(--background-color);
+    border-radius: var(--radius-sm);
+}
+
+.map-grid {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1rem;
+    background-color: #f1f5f9;
+    border-radius: var(--radius-md);
+}
+
+.map-tile {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.player-tile {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-hover);
+}
+
+.discovered-tile {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+}
+
+.discovered-tile.empty-tile {
+    background-color: #e2e8f0;
+}
+
+.discovered-tile.clickable.travelable {
+    background-color: var(--success-color);
+    color: white;
+    cursor: pointer;
+}
+
+.discovered-tile.clickable.travelable:hover {
+    background-color: #059669;
+    transform: scale(1.05);
+}
+
+.undiscovered-tile {
+    background-color: #64748b;
+    color: white;
+}
+
+.map-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.legend-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+}
+
+.map-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+/* 任务系统样式 */
+.quest-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.quest-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.quest-item {
+    background-color: var(--surface-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.quest-item.active {
+    border-left: 4px solid var(--primary-color);
+}
+
+.quest-item.available {
+    border-left: 4px solid var(--success-color);
+}
+
+.quest-item.completed {
+    border-left: 4px solid var(--secondary-color);
+    opacity: 0.8;
+}
+
+.quest-item h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.quest-description {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.quest-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.quest-progress .progress-bar {
+    flex: 1;
+    height: 8px;
+    background-color: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.quest-progress .progress-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    min-width: 40px;
+}
+
+.quest-objective {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.quest-giver {
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.quest-completed {
+    color: var(--success-color);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.quest-rewards {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.quest-rewards p {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--text-secondary);
+}
+
+.accept-quest-btn {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.accept-quest-btn:hover {
+    background-color: #059669;
+}
+
+.inventory-grid, .equipment-grid, .skills-grid, .talents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.skill-item {
+    padding: 1rem;
+    background-color: var(--background-color);
+    border-radius: var(--radius-md);
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+/* 可点击物品和技能样式 */
+.inventory-item.clickable,
+.equipment-item.clickable,
+.skill-item.clickable,
+.talent-item.clickable {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.inventory-item.clickable:hover,
+.equipment-item.clickable:hover,
+.skill-item.clickable:hover,
+.talent-item.clickable:hover {
+    background-color: #f1f5f9;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.inventory-item.clickable:active,
+.equipment-item.clickable:active,
+.skill-item.clickable:active,
+.talent-item.clickable:active {
+    transform: translateY(0);
+}
+
+.location-info, .world-info {
+    background-color: var(--background-color);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+}
+
+.game-scene {
+    background: linear-gradient(135deg, var(--surface-color), rgba(30, 41, 59, 0.8));
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    position: relative;
+}
+
+.game-scene::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.scene-background {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+}
+
+.scene-background img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.scene-content {
+    padding: 2rem;
+}
+
+.scene-content h2 {
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+    color: var(--primary-light);
+}
+
+.scene-text {
+    line-height: 1.8;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.game-interaction {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.player-input-section {
+    background: linear-gradient(135deg, var(--surface-color), rgba(30, 41, 59, 0.8));
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.ai-response-section {
+    background: linear-gradient(135deg, var(--surface-color), rgba(30, 41, 59, 0.8));
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.response-text {
+    background-color: var(--background-color);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    min-height: 200px;
+    font-size: 1.05rem;
+}
+
+.game-options {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.response-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.analyzer-options {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.option-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+#analyze-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem;
+    font-size: 1.1rem;
+}
+
+.results-section {
+    background-color: var(--surface-color);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.result-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.summary-item .label {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.suspicion-meter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.meter-bar {
+    flex: 1;
+    height: 20px;
+    background-color: var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.meter-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 1s ease-in-out;
+    background: linear-gradient(90deg, var(--success-color), var(--warning-color), var(--danger-color));
+}
+
+.score-value, .count-value, .time-value {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.result-details h3 {
+    margin: 1.5rem 0 1rem 0;
+    font-size: 1.2rem;
+}
+
+.analysis-text {
+    background-color: var(--background-color);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    white-space: pre-wrap;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.issues-list {
+    margin-bottom: 1.5rem;
+}
+
+.issue-item {
+    background-color: var(--background-color);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 0.75rem;
+    border-left: 4px solid var(--warning-color);
+}
+
+.issue-item .issue-title {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.issue-item .issue-description {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.result-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* 存档管理页面样式 - 赛博风格 */
+.save-management {
+    background: linear-gradient(135deg, var(--surface-color), rgba(30, 41, 59, 0.8));
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2rem;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.save-management::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.save-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+}
+
+.search-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-container input {
+    flex: 1;
+}
+
+.filter-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.range-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.range-filter input {
+    flex: 1;
+    padding: 0.25rem 0;
+}
+
+.saves-table-section {
+    background: linear-gradient(135deg, var(--surface-color), rgba(30, 41, 59, 0.8));
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.table-header h3 {
+    color: var(--primary-light);
+}
+
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.saves-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.saves-table th, .saves-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--surface-light);
+}
+
+.saves-table th {
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+}
+
+.saves-table tr {
+    transition: all 0.3s ease;
+}
+
+.saves-table tr:hover {
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.suspicion-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: white;
+}
+
+.suspicion-low {
+    background-color: var(--success-color);
+}
+
+.suspicion-medium {
+    background-color: var(--warning-color);
+}
+
+.suspicion-high {
+    background-color: var(--danger-color);
+}
+
+.tag-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    background-color: var(--background-color);
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-buttons button {
+    padding: 0.5rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    background-color: var(--background-color);
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.action-buttons button:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.no-results {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+}
+
+.no-results i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+    gap: 0.5rem;
+}
+
+.pagination button {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.pagination button.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.pagination button:hover:not(.active) {
+    background-color: var(--background-color);
+}
+
+/* 设置页面样式 - 赛博风格 */
+.api-settings, .storage-settings, .data-management {
+    background: linear-gradient(135deg, var(--surface-color), rgba(30, 41, 59, 0.8));
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2rem;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.api-settings::before, .storage-settings::before, .data-management::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+}
+
+.setting-group {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.setting-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--primary-light);
+}
+
+.setting-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}
+
+.input-with-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.input-with-toggle input {
+    flex: 1;
+}
+
+.toggle-btn {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+
+.management-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* 模态框样式 - 赛博风格 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: linear-gradient(135deg, var(--surface-color), rgba(30, 41, 59, 0.95));
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    animation: modalFadeIn 0.3s;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    box-shadow: 0 0 50px rgba(99, 102, 241, 0.2);
+}
+
+.modal-content.wide {
+    max-width: 800px;
+}
+
+@keyframes modalFadeIn {
+    from {opacity: 0; transform: translateY(-30px) scale(0.95);}
+    to {opacity: 1; transform: translateY(0) scale(1);}
+}
+
+.close {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.close:hover {
+    color: var(--danger-color);
+    background: rgba(244, 63, 94, 0.1);
+}
+
+/* 加载指示器 */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loading-spinner {
+    text-align: center;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(79, 70, 229, 0.2);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    to {transform: rotate(360deg);}
+}
+
+/* 页脚样式 - 赛博风格 */
+.footer {
+    background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.9));
+    padding: 2rem 1.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+    border-top: 1px solid rgba(99, 102, 241, 0.2);
+    margin-top: 3rem;
+}
+
+.footer p {
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .header-content {
+        text-align: left;
+    }
+    
+    .logo {
+        font-size: 1.5rem;
+    }
+    
+    .analyzer-options {
+        flex-direction: column;
+    }
+    
+    .result-summary {
+        grid-template-columns: 1fr;
+    }
+    
+    .game-interaction {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-container {
+        flex-direction: column;
+    }
+    
+    .filter-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .saves-table {
+        font-size: 0.9rem;
+    }
+    
+    .saves-table th, .saves-table td {
+        padding: 0.5rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .game-status-bar {
+        gap: 1rem;
+    }
+    
+    .game-options {
+        flex-direction: column;
+    }
+    
+    .response-actions {
+        flex-direction: column;
+    }
+    
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+        padding: 1.5rem;
+    }
+    
+    .management-actions {
+        flex-direction: column;
+    }
+    
+    .primary-btn, .secondary-btn, .danger-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 1rem 0.5rem;
+    }
+    
+    .input-section, .results-section, .search-section, .results-table-section, 
+    .api-settings, .storage-settings, .data-management,
+    .player-input-section, .ai-response-section, .save-management, .saves-table-section {
+        padding: 1rem;
+    }
+    
+    .tab-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* 物品卡片样式 */
+.inventory-item-card {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border: 1px solid #475569;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.2s ease;
+}
+
+.inventory-item-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.inventory-item-card .item-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.inventory-item-card .item-name {
+    font-weight: 600;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+}
+
+.inventory-item-card .item-qty {
+    background: #3b82f6;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.inventory-item-card .item-desc {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.inventory-item-card .item-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.inventory-item-card .item-btn {
+    background: #475569;
+    border: none;
+    color: #e2e8f0;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.inventory-item-card .item-btn:hover {
+    background: #64748b;
+}
+
+.inventory-item-card .item-btn.use-btn {
+    background: #059669;
+}
+
+.inventory-item-card .item-btn.use-btn:hover {
+    background: #10b981;
+}
+
+.inventory-item-card .item-btn.equip-btn {
+    background: #7c3aed;
+}
+
+.inventory-item-card .item-btn.equip-btn:hover {
+    background: #8b5cf6;
+}
+
+.inventory-item-card .item-btn.discard-btn {
+    background: #dc2626;
+    padding: 6px 10px;
+}
+
+.inventory-item-card .item-btn.discard-btn:hover {
+    background: #ef4444;
+}
+
+/* 新版背包列表样式 */
+.equipment-section {
+    margin-bottom: 20px;
+}
+
+.equipment-section h3, .inventory-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #e2e8f0;
+    margin-bottom: 12px;
+    font-size: 1rem;
+}
+
+.equipment-slots {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.equipment-slot {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border: 2px solid #475569;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+}
+
+.equipment-slot .slot-header {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.equipment-slot .slot-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.equipment-slot .equip-name {
+    color: #a5b4fc;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.equipment-slot .equip-stats {
+    color: #10b981;
+    font-size: 0.75rem;
+}
+
+.equipment-slot .unequip-btn {
+    background: #475569;
+    border: none;
+    color: #e2e8f0;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    margin-top: 4px;
+}
+
+.equipment-slot .unequip-btn:hover {
+    background: #64748b;
+}
+
+.equipment-slot .slot-empty {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+/* 背包物品列表 */
+.inventory-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inventory-item-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 10px 12px;
+    transition: all 0.2s ease;
+}
+
+.inventory-item-row:hover {
+    border-color: #3b82f6;
+    background: #1e3a5f;
+}
+
+.inventory-item-row.consumable { border-left: 3px solid #10b981; }
+.inventory-item-row.equipment { border-left: 3px solid #8b5cf6; }
+.inventory-item-row.material { border-left: 3px solid #f59e0b; }
+.inventory-item-row.quest { border-left: 3px solid #fbbf24; }
+
+.inventory-item-row .item-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #334155;
+    border-radius: 6px;
+    color: #94a3b8;
+}
+
+.inventory-item-row .item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.inventory-item-row .item-name {
+    color: #e2e8f0;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.inventory-item-row .item-desc {
+    color: #64748b;
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.inventory-item-row .item-qty {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    min-width: 40px;
+    text-align: center;
+}
+
+.inventory-item-row .item-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.inventory-item-row .item-btn {
+    background: #475569;
+    border: none;
+    color: #e2e8f0;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+}
+
+.inventory-item-row .item-btn:hover {
+    background: #64748b;
+}
+
+.inventory-item-row .item-btn.use-btn { background: #059669; }
+.inventory-item-row .item-btn.use-btn:hover { background: #10b981; }
+.inventory-item-row .item-btn.equip-btn { background: #7c3aed; }
+.inventory-item-row .item-btn.equip-btn:hover { background: #8b5cf6; }
+.inventory-item-row .item-btn.discard-btn { background: #dc2626; }
+.inventory-item-row .item-btn.discard-btn:hover { background: #ef4444; }
+
+.empty-hint {
+    color: #64748b;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9rem;
+}
+
+/* 物品详情模态框 */
+.item-detail-modal {
+    padding: 10px;
+}
+
+.item-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #334155;
+}
+
+.item-detail-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.item-detail-type {
+    background: #3b82f6;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.item-detail-info {
+    margin-bottom: 20px;
+}
+
+.item-detail-desc {
+    color: #94a3b8;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.item-detail-qty {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.item-detail-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.item-detail-stats span {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.item-detail-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.item-detail-actions .action-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.item-detail-actions .action-btn.primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+}
+
+.item-detail-actions .action-btn.primary:hover {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+}
+
+.item-detail-actions .action-btn.danger {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+}
+
+.item-detail-actions .action-btn.danger:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.item-detail-actions .action-btn.secondary {
+    background: #475569;
+    color: #e2e8f0;
+}
+
+.item-detail-actions .action-btn.secondary:hover {
+    background: #64748b;
+}
+
+/* 物品行悬停效果 */
+.inventory-item-row {
+    cursor: pointer;
+}
+
+.inventory-item-row:hover {
+    background: #1e3a5f;
+}
+
+
+/* 物品类型图标颜色 */
+.inventory-item-card i.fa-flask { color: #10b981; }
+.inventory-item-card i.fa-shield-alt { color: #8b5cf6; }
+.inventory-item-card i.fa-cube { color: #f59e0b; }
+.inventory-item-card i.fa-scroll { color: #fbbf24; }
+
+/* 返回首页按钮 - 赛博风格 */
+.back-home {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 44px;
+    height: 44px;
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid var(--primary-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-light);
+    z-index: 100;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    box-shadow: var(--shadow-md), 0 0 15px rgba(99, 102, 241, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.back-home:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-light);
+    transform: translateX(-4px) scale(1.05);
+    box-shadow: var(--shadow-lg), 0 0 25px rgba(99, 102, 241, 0.6);
+}
+
+/* ==================== AI炼丹炉样式 ==================== */
+.alchemy-container {
+    padding: 2rem;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    min-height: 600px;
+    position: relative;
+    overflow: hidden;
+}
+
+.alchemy-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.alchemy-container > * {
+    position: relative;
+    z-index: 1;
+}
+
+.alchemy-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.alchemy-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #f59e0b, #ef4444, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.alchemy-header h2 i {
+    -webkit-text-fill-color: #f59e0b;
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5)); }
+    50% { filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.8)); }
+}
+
+.alchemy-intro {
+    color: #94a3b8;
+    font-size: 1.05rem;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* 模式切换器 */
+.mode-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.mode-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid rgba(99, 102, 241, 0.3);
+    border-radius: 12px;
+    background: rgba(30, 41, 59, 0.8);
+    color: #94a3b8;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mode-btn:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    background: rgba(30, 41, 59, 0.95);
+    color: #e2e8f0;
+    transform: translateY(-2px);
+}
+
+.mode-btn.active {
+    border-color: #6366f1;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+    color: #f1f5f9;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+}
+
+/* 炼丹统计 */
+.alchemy-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 1rem 0;
+    border-top: 1px solid rgba(99, 102, 241, 0.2);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+    margin-top: 1.5rem;
+}
+
+.alchemy-stats .stat-item {
+    text-align: center;
+}
+
+.alchemy-stats .stat-label {
+    display: block;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.alchemy-stats .stat-value {
+    display: block;
+    color: #f59e0b;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* 丹方选择 */
+.alchemy-formulas {
+    margin-bottom: 2.5rem;
+}
+
+.alchemy-formulas h3,
+.alchemy-input-section h3,
+.alchemy-style-section h3 {
+    margin-bottom: 1.25rem;
+    color: #e2e8f0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alchemy-formulas h3::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: linear-gradient(180deg, #f59e0b, #ef4444);
+    border-radius: 2px;
+}
+
+.formula-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.formula-card {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.formula-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.formula-card:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+}
+
+.formula-card:hover::before {
+    opacity: 1;
+}
+
+.formula-card.active {
+    border-color: #f59e0b;
+    background: linear-gradient(145deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.1));
+    box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+}
+
+.formula-card.active::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    border-radius: 50%;
+    animation: pop 0.3s ease-out;
+}
+
+@keyframes pop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.formula-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: transform 0.3s;
+}
+
+.formula-card:hover .formula-icon {
+    transform: scale(1.1);
+}
+
+.formula-card h4 {
+    margin-bottom: 0.5rem;
+    color: #f1f5f9;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.formula-card p {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+/* 配方卡片删除按钮 */
+.delete-formula-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(244, 63, 94, 0.8);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.delete-formula-btn:hover {
+    background: rgba(244, 63, 94, 1);
+    transform: scale(1.1);
+}
+
+/* 选中炉鼎样式 */
+.selected-cauldron .selected-material-item {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.2));
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.selected-cauldron .selected-material-item i {
+    color: #f59e0b;
+}
+
+/* 放入背包按钮样式 */
+#add-pill-to-inventory-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+}
+
+#add-pill-to-inventory-btn:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* 炼丹输入 */
+.alchemy-input-section {
+    margin-bottom: 2rem;
+}
+
+.input-area {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+.input-area textarea {
+    width: 100%;
+    min-height: 180px;
+    padding: 1.25rem;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    transition: all 0.3s;
+    background: rgba(15, 23, 42, 0.8);
+    color: #e2e8f0;
+    line-height: 1.7;
+}
+
+.input-area textarea::placeholder {
+    color: #64748b;
+}
+
+.input-area textarea:focus {
+    outline: none;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15), 0 0 30px rgba(245, 158, 11, 0.1);
+}
+
+.input-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    justify-content: flex-end;
+}
+
+/* 风格选择 */
+.alchemy-style-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 16px;
+}
+
+.style-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.style-tag {
+    padding: 0.6rem 1.25rem;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+.style-tag:hover {
+    border-color: #f59e0b;
+    color: #f59e0b;
+    transform: translateY(-2px);
+}
+
+.style-tag.active {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+/* 炼丹按钮 */
+.alchemy-action {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.primary-btn.large {
+    padding: 1.25rem 3.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    border: none;
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+}
+
+.primary-btn.large::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.primary-btn.large:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(245, 158, 11, 0.5);
+}
+
+.primary-btn.large:hover::before {
+    left: 100%;
+}
+
+.primary-btn.large i {
+    margin-right: 0.5rem;
+    animation: fire-flicker 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes fire-flicker {
+    0% { opacity: 0.8; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.1); }
+}
+
+/* 炼丹结果 */
+.alchemy-result-section {
+    margin-top: 2rem;
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result-container {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.15));
+    border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.result-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
+}
+
+.secondary-btn.small {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e2e8f0;
+}
+
+.secondary-btn.small:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.result-content {
+    padding: 2rem;
+    min-height: 200px;
+    max-height: 450px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.9;
+    color: #e2e8f0;
+    font-size: 1rem;
+    background: 
+        linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.95)),
+        repeating-linear-gradient(
+            transparent,
+            transparent 31px,
+            rgba(99, 102, 241, 0.1) 32px
+        );
+    background-position: 0 0;
+}
+
+.result-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.result-content::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 4px;
+}
+
+.result-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #f59e0b, #ef4444);
+    border-radius: 4px;
+}
+
+.result-actions {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid rgba(99, 102, 241, 0.2);
+    justify-content: center;
+}
+
+.result-actions .secondary-btn {
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    color: #a5b4fc;
+}
+
+.result-actions .secondary-btn:hover {
+    background: rgba(99, 102, 241, 0.3);
+    border-color: rgba(99, 102, 241, 0.5);
+}
+
+.result-actions .primary-btn {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.result-actions .primary-btn:hover {
+    background: linear-gradient(135deg, #818cf8, #a78bfa);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+/* 炼丹加载动画 */
+.alchemy-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem;
+}
+
+.alchemy-spinner {
+    text-align: center;
+}
+
+.cauldron {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 2rem;
+}
+
+.cauldron-body {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 70px;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-radius: 0 0 50px 50px;
+    border: 3px solid #334155;
+    box-shadow: 
+        0 0 30px rgba(245, 158, 11, 0.3),
+        inset 0 -10px 20px rgba(245, 158, 11, 0.2);
+}
+
+.cauldron-body::before {
+    content: '';
+    position: absolute;
+    top: -18px;
+    left: -10px;
+    width: 120px;
+    height: 36px;
+    background: linear-gradient(135deg, #334155, #1e293b);
+    border-radius: 50%;
+    border: 3px solid #334155;
+}
+
+.cauldron-body::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    right: 10px;
+    height: 20px;
+    background: linear-gradient(180deg, 
+        rgba(245, 158, 11, 0.8), 
+        rgba(239, 68, 68, 0.6), 
+        rgba(245, 158, 11, 0.4));
+    border-radius: 50%;
+    animation: liquid-glow 2s ease-in-out infinite;
+}
+
+@keyframes liquid-glow {
+    0%, 100% { 
+        opacity: 0.8;
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+    }
+    50% { 
+        opacity: 1;
+        box-shadow: 0 0 40px rgba(245, 158, 11, 0.8);
+    }
+}
+
+.flame {
+    position: absolute;
+    bottom: 60px;
+    width: 20px;
+    height: 45px;
+    background: linear-gradient(to top, #f59e0b, #ef4444, #fbbf24, transparent);
+    border-radius: 50% 50% 20% 20%;
+    animation: flicker 0.4s infinite alternate;
+    filter: blur(1px);
+}
+
+.flame-1 {
+    left: 20px;
+    animation-delay: 0s;
+}
+
+.flame-2 {
+    left: 50px;
+    height: 55px;
+    animation-delay: 0.1s;
+}
+
+.flame-3 {
+    left: 80px;
+    animation-delay: 0.2s;
+}
+
+.flame::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 30px;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.8), transparent);
+    border-radius: 50%;
+    filter: blur(5px);
+}
+
+@keyframes flicker {
+    0% {
+        transform: scaleY(1) scaleX(1) rotate(-2deg);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scaleY(1.3) scaleX(0.7) rotate(2deg);
+        opacity: 0.6;
+    }
+}
+
+.alchemy-spinner p {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* 按钮样式优化 */
+.alchemy-container .secondary-btn {
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    color: #a5b4fc;
+    padding: 0.6rem 1.25rem;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.alchemy-container .secondary-btn:hover {
+    background: rgba(99, 102, 241, 0.25);
+    border-color: rgba(99, 102, 241, 0.5);
+    transform: translateY(-2px);
+}
+
+.alchemy-container .secondary-btn i {
+    margin-right: 0.4rem;
+}
+
+/* ==================== 炼丹炉新增样式 ==================== */
+
+/* 模拟模式输入区域 */
+.simulation-mode-section {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.simulation-mode-section h3 {
+    color: #e2e8f0;
+    font-size: 1.2rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.simulation-inputs {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.simulation-inputs .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.simulation-inputs label {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.simulation-inputs input {
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.8);
+    color: #f1f5f9;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.simulation-inputs input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+}
+
+/* 游戏模式区域 */
+.game-mode-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* 材料选择区域 */
+.alchemy-materials-section {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.section-header h3 {
+    color: #e2e8f0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.section-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.selected-summary {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.selected-summary span {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+/* 已选材料展示 */
+.selected-materials {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.selected-materials h4 {
+    color: #e2e8f0;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.selected-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    min-height: 60px;
+}
+
+.selected-material-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    color: #f1f5f9;
+    font-size: 0.9rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.selected-material-item button {
+    background: none;
+    border: none;
+    color: #f43f5e;
+    cursor: pointer;
+    padding: 2px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.selected-material-item button:hover {
+    opacity: 1;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.empty-hint {
+    color: #64748b;
+    font-style: italic;
+    padding: 1rem;
+}
+
+/* 炉鼎选择区域 */
+.cauldron-selection-section {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+.cauldron-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.cauldron-item {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+    border: 2px solid rgba(99, 102, 241, 0.2);
+    border-radius: 12px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.cauldron-item:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
+}
+
+.cauldron-item.selected {
+    border-color: #f59e0b;
+    background: linear-gradient(145deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.1));
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+.cauldron-item .cauldron-icon {
+    font-size: 2.5rem;
+    color: #f59e0b;
+    margin-bottom: 0.75rem;
+}
+
+.cauldron-item .cauldron-name {
+    color: #e2e8f0;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.cauldron-item .cauldron-desc {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+/* 炼制参数区域 */
+.alchemy-params-section {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+.alchemy-params-section h3 {
+    color: #e2e8f0;
+    font-size: 1.2rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.params-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.param-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.param-group label {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.param-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.param-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.6);
+    color: #94a3b8;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.param-btn:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+    background: rgba(30, 41, 59, 0.8);
+    color: #e2e8f0;
+}
+
+.param-btn.active {
+    border-color: #6366f1;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+    color: #f1f5f9;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+}
+
+.param-select {
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.8);
+    color: #f1f5f9;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.param-select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+}
+
+.param-desc {
+    color: #64748b;
+    font-size: 0.8rem;
+    font-style: italic;
+    margin-top: 0.25rem;
+}
+
+/* 背包选择模态框内容 */
+.alchemy-inventory-content {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.alchemy-inventory-content .inventory-item-row {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.alchemy-inventory-content .inventory-item-row:hover {
+    background: rgba(99, 102, 241, 0.15);
+}
+
+.alchemy-inventory-content .inventory-item-row.selected {
+    background: rgba(99, 102, 241, 0.25);
+    border-color: #6366f1;
+}

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>狼人杀AI模拟器</title>
+    <link rel="stylesheet" href="werewolf.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1><i class="fas fa-skull"></i> 狼人杀AI模拟</h1>
+            <p class="subtitle">AI角色自动进行狼人杀游戏</p>
+        </header>
+
+        <main class="main-content">
+            <aside class="settings-panel">
+                <section class="panel-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-users"></i> 玩家</h2>
+                        <div>
+                            <button id="generate-players-btn" class="btn-small" title="一键生成"><i class="fas fa-magic"></i> 生成</button>
+                            <button id="add-player-btn" class="btn-small"><i class="fas fa-plus"></i> 添加</button>
+                        </div>
+                    </div>
+                    <div id="players-list" class="players-list"></div>
+                </section>
+
+                <section class="panel-section">
+                    <h2><i class="fas fa-cog"></i> 游戏设置</h2>
+                    <div class="form-group">
+                        <label>发言间隔（秒）</label>
+                        <input type="number" id="interval-seconds" value="3" min="1" max="30">
+                    </div>
+                    <div class="form-group">
+                        <label>主持人模型</label>
+                        <select id="host-model">
+                            <option value="llama3.1">Llama3.1</option>
+                            <option value="qwen3:8b">Qwen3:8b</option>
+                            <option value="deepseek-r1:8b">DeepSeek-R1:8b</option>
+                            <option value="gemma3:12b">Gemma3:12b</option>
+                            <option value="__random__">🔀 全局随机</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>玩家默认模型</label>
+                        <select id="player-default-model">
+                            <option value="__random__">🔀 全局随机</option>
+                            <option value="__each_round__">🎲 每轮随机</option>
+                            <option value="llama3.1">Llama3.1</option>
+                            <option value="qwen3:8b">Qwen3:8b</option>
+                            <option value="deepseek-r1:8b">DeepSeek-R1:8b</option>
+                            <option value="gemma3:12b">Gemma3:12b</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox" id="random-order"> 随机发言顺序</label>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox" id="user-join"> 用户参与游戏</label>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox" id="ai-knows-models" checked> AI能看到其他AI模型</label>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox" id="host-mode"> 主持人模式（夜间私聊互动）</label>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox" id="show-model-info" checked> 显示模型信息</label>
+                    </div>
+                    <div class="form-group">
+                        <button id="host-panel-btn" class="btn-secondary" style="width:100%"><i class="fas fa-crown"></i> 主持人后台</button>
+                    </div>
+                </section>
+
+                <div class="control-buttons">
+                    <button id="start-btn" class="btn-primary"><i class="fas fa-play"></i> 开始游戏</button>
+                    <button id="pause-btn" class="btn-secondary" disabled><i class="fas fa-pause"></i> 暂停</button>
+                    <button id="stop-btn" class="btn-danger" disabled><i class="fas fa-stop"></i> 停止</button>
+                    <button id="next-phase-btn" class="btn-secondary" disabled><i class="fas fa-step-forward"></i> 下一阶段</button>
+                </div>
+
+                <div id="game-status" class="game-status">
+                    <div class="status-title">游戏状态</div>
+                    <div class="status-info">
+                        <span id="phase-display">等待开始</span>
+                        <span id="day-display">第0天</span>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="chat-area">
+                <div class="chat-header">
+                    <h2><i class="fas fa-scroll"></i> 游戏记录</h2>
+                    <div class="chat-actions">
+                        <button id="export-btn" class="btn-small"><i class="fas fa-download"></i> 导出</button>
+                        <button id="import-btn" class="btn-small"><i class="fas fa-upload"></i> 导入</button>
+                        <button id="clear-btn" class="btn-small"><i class="fas fa-trash"></i> 清空</button>
+                        <input type="file" id="import-file" accept=".md,.json" style="display:none;">
+                    </div>
+                </div>
+                <div id="game-messages" class="chat-messages">
+                    <div class="empty-state">
+                        <i class="fas fa-scroll"></i>
+                        <p>添加AI玩家并设置后，点击"开始游戏"</p>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="user-msg-input" placeholder="用户参与游戏时输入发言..." disabled>
+                    <button id="send-user-msg-btn" class="btn-primary" disabled><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="player-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>添加AI玩家</h2>
+            <form id="player-form">
+                <div class="form-group">
+                    <label>玩家名称 *</label>
+                    <input type="text" id="player-name" required placeholder="如：预言家小明">
+                </div>
+                <div class="form-group">
+                    <label>玩家身份 *</label>
+                    <select id="player-role" required>
+                        <option value="">选择身份...</option>
+                        <option value="预言家">预言家</option>
+                        <option value="女巫">女巫</option>
+                        <option value="猎人">猎人</option>
+                        <option value="守卫">守卫</option>
+                        <option value="白痴">白痴</option>
+                        <option value="平民">平民</option>
+                        <option value="狼人">狼人</option>
+                        <option value="白狼王">白狼王</option>
+                        <option value="狼美人">狼美人</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>玩家性格/策略 *</label>
+                    <textarea id="player-desc" rows="3" required placeholder="描述这个玩家的性格、发言风格..."></textarea>
+                    <button type="button" class="btn-small" style="margin-top:8px;" onclick="generatePlayer()"><i class="fas fa-magic"></i> AI自动生成</button>
+                </div>
+                <div class="form-group">
+                    <label>AI模型</label>
+                    <select id="player-model">
+                        <option value="llama3.1">Llama3.1</option>
+                        <option value="qwen3:8b">Qwen3:8b</option>
+                        <option value="deepseek-r1:8b">DeepSeek-R1:8b</option>
+                        <option value="gemma3:12b">Gemma3:12b</option>
+                        <option value="__random__">🔀 全局随机</option>
+                        <option value="__each_round__">🎲 每轮随机</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>API端点</label>
+                    <input type="text" id="player-endpoint" value="http://localhost:11434/v1">
+                </div>
+                <div class="form-group">
+                    <label>API密钥</label>
+                    <input type="password" id="player-api-key" value="ollama">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 主持人后台面板 -->
+    <div id="host-modal" class="modal">
+        <div class="modal-content" style="max-width:1000px;width:95%;">
+            <span class="close" onclick="closeHostModal()">&times;</span>
+            <h2><i class="fas fa-crown"></i> 主持人后台</h2>
+            <div class="host-panel">
+                <div class="host-sidebar">
+                    <h3>夜间行动</h3>
+                    <div id="host-night-actions" class="host-night-actions">
+                        <button class="btn-small" onclick="triggerWolfKill()">🐺 狼人杀人</button>
+                        <button class="btn-small" onclick="triggerSeerCheck()">🔮 预言家验人</button>
+                        <button class="btn-small" onclick="triggerWitchAction()">🧪 女巫行动</button>
+                        <button class="btn-small" onclick="triggerGuardProtect()">🛡️ 守卫守护</button>
+                        <button class="btn-primary" onclick="finishNightPhase()">✅ 天亮</button>
+                    </div>
+                    <h3 style="margin-top:15px;">玩家列表</h3>
+                    <div id="host-players-list" class="host-players-list"></div>
+                </div>
+                <div class="host-main">
+                    <div id="host-chat-area" class="host-chat-area">
+                        <div class="empty-state"><i class="fas fa-hand-point-left"></i><p>选择一名玩家查看私聊记录</p></div>
+                    </div>
+                    <div class="host-input-area">
+                        <select id="host-msg-type">
+                            <option value="private">私聊消息</option>
+                            <option value="public">公开发言</option>
+                        </select>
+                        <input type="text" id="host-msg-input" placeholder="输入消息...">
+                        <button id="host-send-btn" class="btn-primary"><i class="fas fa-paper-plane"></i> 发送</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="werewolf.js"></script>
+</body>
+</html>

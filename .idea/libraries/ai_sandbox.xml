@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="ai_sandbox">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/b1_ai_sandbox.zip!/" />
+      <root url="jar://$PROJECT_DIR$/ai_sandbox.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

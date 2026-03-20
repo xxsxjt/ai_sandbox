@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公开记录库 - AI分析工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles-server.css">
+    <style>
+        .public-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+        
+        .public-header h1 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .public-header p {
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 1.5rem;
+            gap: 0.5rem;
+        }
+        
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .tab-btn.active, .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .content-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .search-btn {
+            padding: 0.8rem 1.5rem;
+            background-color: #6a11cb;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .search-btn:hover {
+            background-color: #5611b3;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .results-count {
+            font-size: 1.1rem;
+            color: #555;
+        }
+        
+        .sort-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sort-select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .case-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+        
+        .case-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .case-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .case-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .case-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .case-date {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .suspicion-score {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .case-content {
+            margin-bottom: 1rem;
+        }
+        
+        .case-excerpt {
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .case-issues {
+            margin-bottom: 1rem;
+        }
+        
+        .case-issue {
+            background: #f8f9fa;
+            border-left: 3px solid #6a11cb;
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .case-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .summary-header {
+            margin-bottom: 1rem;
+        }
+        
+        .summary-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-content {
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .summary-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #666;
+        }
+        
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ccc;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        
+        .page-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .page-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .page-btn.active {
+            background: #6a11cb;
+            color: white;
+            border-color: #6a11cb;
+        }
+        
+        .back-to-home {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #6a11cb;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 1000;
+        }
+        
+        .back-to-home:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <header class="public-header">
+        <h1><i class="fas fa-book-open"></i> 公开记录库</h1>
+        <p>浏览社区用户自愿分享的分析结果和总结，共同学习，共同进步</p>
+        
+        <div class="tabs-container">
+            <button class="tab-btn active" data-tab="analyses">分析记录</button>
+            <button class="tab-btn" data-tab="summaries">总结记录</button>
+        </div>
+    </header>
+    
+    <div class="content-container">
+        <!-- 分析记录标签页 -->
+        <div id="analyses" class="tab-content active">
+            <div class="search-container">
+                <input type="text" class="search-input" id="analyses-search" placeholder="搜索内容或摘要...">
+                <button class="search-btn" id="analyses-search-btn"><i class="fas fa-search"></i> 搜索</button>
+            </div>
+            
+            <div class="results-header">
+                <div class="results-count" id="analyses-results-count">加载中...</div>
+                <div class="sort-controls">
+                    <label>排序:</label>
+                    <select class="sort-select" id="analyses-sort">
+                        <option value="newest">最新发布</option>
+                        <option value="oldest">最早发布</option>
+                        <option value="highest-suspicion">可疑度从高到低</option>
+                        <option value="lowest-suspicion">可疑度从低到高</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="analyses-container">
+                <!-- 分析记录将通过JS动态加载 -->
+            </div>
+            
+            <div class="pagination" id="analyses-pagination">
+                <!-- 分页按钮将通过JS动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 总结记录标签页 -->
+        <div id="summaries" class="tab-content">
+            <div class="search-container">
+                <input type="text" class="search-input" id="summaries-search" placeholder="搜索标题或内容...">
+                <button class="search-btn" id="summaries-search-btn"><i class="fas fa-search"></i> 搜索</button>
+            </div>
+            
+            <div class="results-header">
+                <div class="results-count" id="summaries-results-count">加载中...</div>
+                <div class="sort-controls">
+                    <label>排序:</label>
+                    <select class="sort-select" id="summaries-sort">
+                        <option value="newest">最新发布</option>
+                        <option value="oldest">最早发布</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="summaries-container">
+                <!-- 总结记录将通过JS动态加载 -->
+            </div>
+            
+            <div class="pagination" id="summaries-pagination">
+                <!-- 分页按钮将通过JS动态生成 -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="back-to-home" onclick="window.location.href='index-server.html'">
+        <i class="fas fa-home"></i>
+    </div>
+    
+    <!-- 加载遮罩 -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>加载中...</p>
+        </div>
+    </div>
+    
+    <!-- 详情模态框 -->
+    <div id="details-modal" class="modal">
+        <div class="modal-content large">
+            <span class="close">&times;</span>
+            <div id="details-modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // 公开记录库脚本
+        const API_BASE_URL = window.location.origin + '/api';
+        
+        // 应用状态
+        const PublicState = {
+            currentTab: 'analyses',
+            currentPage: {
+                analyses: 1,
+                summaries: 1
+            },
+            analyses: [],
+            summaries: [],
+            search: {
+                analyses: '',
+                summaries: ''
+            },
+            sort: {
+                analyses: 'newest',
+                summaries: 'newest'
+            }
+        };
+        
+        // DOM元素
+        const PublicElements = {
+            // 标签页
+            tabBtns: document.querySelectorAll('.tab-btn'),
+            tabContents: document.querySelectorAll('.tab-content'),
+            
+            // 分析记录
+            analysesSearch: document.getElementById('analyses-search'),
+            analysesSearchBtn: document.getElementById('analyses-search-btn'),
+            analysesResultsCount: document.getElementById('analyses-results-count'),
+            analysesSort: document.getElementById('analyses-sort'),
+            analysesContainer: document.getElementById('analyses-container'),
+            analysesPagination: document.getElementById('analyses-pagination'),
+            
+            // 总结记录
+            summariesSearch: document.getElementById('summaries-search'),
+            summariesSearchBtn: document.getElementById('summaries-search-btn'),
+            summariesResultsCount: document.getElementById('summaries-results-count'),
+            summariesSort: document.getElementById('summaries-sort'),
+            summariesContainer: document.getElementById('summaries-container'),
+            summariesPagination: document.getElementById('summaries-pagination'),
+            
+            // 模态框
+            detailsModal: document.getElementById('details-modal'),
+            detailsModalBody: document.getElementById('details-modal-body'),
+            closeButtons: document.querySelectorAll('.close'),
+            
+            // 加载指示器
+            loadingOverlay: document.getElementById('loading-overlay')
+        };
+        
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePublicApp();
+        });
+        
+        function initializePublicApp() {
+            // 设置事件监听器
+            setupPublicEventListeners();
+            
+            // 加载初始数据
+            loadAnalyses();
+        }
+        
+        // 设置事件监听器
+        function setupPublicEventListeners() {
+            // 标签页切换
+            PublicElements.tabBtns.forEach(button => {
+                button.addEventListener('click', () => switchTab(button.dataset.tab));
+            });
+            
+            // 搜索按钮
+            PublicElements.analysesSearchBtn.addEventListener('click', () => {
+                PublicState.search.analyses = PublicElements.analysesSearch.value.trim();
+                PublicState.currentPage.analyses = 1;
+                loadAnalyses();
+            });
+            
+            PublicElements.summariesSearchBtn.addEventListener('click', () => {
+                PublicState.search.summaries = PublicElements.summariesSearch.value.trim();
+                PublicState.currentPage.summaries = 1;
+                loadSummaries();
+            });
+            
+            // 搜索输入框回车
+            PublicElements.analysesSearch.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    PublicState.search.analyses = e.target.value.trim();
+                    PublicState.currentPage.analyses = 1;
+                    loadAnalyses();
+                }
+            });
+            
+            PublicElements.summariesSearch.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    PublicState.search.summaries = e.target.value.trim();
+                    PublicState.currentPage.summaries = 1;
+                    loadSummaries();
+                }
+            });
+            
+            // 排序选择
+            PublicElements.analysesSort.addEventListener('change', (e) => {
+                PublicState.sort.analyses = e.target.value;
+                sortAnalyses();
+                renderAnalyses();
+            });
+            
+            PublicElements.summariesSort.addEventListener('change', (e) => {
+                PublicState.sort.summaries = e.target.value;
+                sortSummaries();
+                renderSummaries();
+            });
+            
+            // 模态框关闭
+            PublicElements.closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    PublicElements.detailsModal.style.display = 'none';
+                });
+            });
+            
+            // 点击模态框外部关闭
+            window.addEventListener('click', function(event) {
+                if (event.target === PublicElements.detailsModal) {
+                    PublicElements.detailsModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // 切换标签页
+        function switchTab(tabName) {
+            // 更新标签按钮状态
+            PublicElements.tabBtns.forEach(button => {
+                button.classList.toggle('active', button.dataset.tab === tabName);
+            });
+            
+            // 更新标签内容显示
+            PublicElements.tabContents.forEach(content => {
+                content.classList.toggle('active', content.id === tabName);
+            });
+            
+            PublicState.currentTab = tabName;
+            
+            // 根据标签页加载数据
+            if (tabName === 'analyses' && PublicState.analyses.length === 0) {
+                loadAnalyses();
+            } else if (tabName === 'summaries' && PublicState.summaries.length === 0) {
+                loadSummaries();
+            }
+        }
+        
+        // 加载分析记录
+        async function loadAnalyses() {
+            showLoading(true);
+            
+            try {
+                const search = PublicState.search.analyses;
+                const page = PublicState.currentPage.analyses;
+                const limit = 10; // 每页显示10条
+                
+                const response = await fetch(`${API_BASE_URL}/public/analyses?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`);
+                
+                if (!response.ok) {
+                    throw new Error('加载公开分析记录失败');
+                }
+                
+                const analyses = await response.json();
+                PublicState.analyses = analyses;
+                
+                renderAnalyses();
+                renderAnalysesPagination();
+            } catch (error) {
+                console.error('加载分析记录失败:', error);
+                PublicElements.analysesContainer.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>加载公开分析记录失败，请稍后再试</p>
+                    </div>
+                `;
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 加载总结记录
+        async function loadSummaries() {
+            showLoading(true);
+            
+            try {
+                const search = PublicState.search.summaries;
+                const page = PublicState.currentPage.summaries;
+                const limit = 10; // 每页显示10条
+                
+                const response = await fetch(`${API_BASE_URL}/public/summaries?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`);
+                
+                if (!response.ok) {
+                    throw new Error('加载公开总结记录失败');
+                }
+                
+                const summaries = await response.json();
+                PublicState.summaries = summaries;
+                
+                renderSummaries();
+                renderSummariesPagination();
+            } catch (error) {
+                console.error('加载总结记录失败:', error);
+                PublicElements.summariesContainer.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>加载公开总结记录失败，请稍后再试</p>
+                    </div>
+                `;
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 渲染分析记录
+        function renderAnalyses() {
+            if (PublicState.analyses.length === 0) {
+                PublicElements.analysesContainer.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <p>暂无公开的分析记录</p>
+                    </div>
+                `;
+                PublicElements.analysesResultsCount.textContent = '共找到 0 个分析记录';
+                return;
+            }
+            
+            PublicElements.analysesResultsCount.textContent = `共找到 ${PublicState.analyses.length} 个分析记录`;
+            
+            PublicElements.analysesContainer.innerHTML = PublicState.analyses.map(analysis => `
+                <div class="case-card">
+                    <div class="case-header">
+                        <div>
+                            <div class="case-title">内容分析</div>
+                            <div class="case-meta">
+                                <div class="case-author">
+                                    <i class="fas fa-user"></i>
+                                    <span>${analysis.username}</span>
+                                </div>
+                                <div class="case-date">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>${new Date(analysis.created_at).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="suspicion-score">
+                            <span class="suspicion-badge ${getSuspicionClass(analysis.suspicion_score)}">
+                                ${analysis.suspicion_score}%
+                            </span>
+                            <span>可疑度</span>
+                        </div>
+                    </div>
+                    
+                    <div class="case-content">
+                        <div class="case-excerpt">
+                            ${analysis.content.substring(0, 300)}${analysis.content.length > 300 ? '...' : ''}
+                        </div>
+                    </div>
+                    
+                    ${analysis.issues && analysis.issues.length > 0 ? `
+                        <div class="case-issues">
+                            <h4>检测到的问题</h4>
+                            ${analysis.issues.slice(0, 2).map(issue => `
+                                <div class="case-issue">
+                                    <strong>${getIssueTypeLabel(issue.type)}:</strong> ${issue.description}
+                                </div>
+                            `).join('')}
+                            ${analysis.issues.length > 2 ? `<p>...还有 ${analysis.issues.length - 2} 个问题</p>` : ''}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="case-actions">
+                        <button class="primary-btn" onclick="viewAnalysisDetails(${analysis.id})">
+                            <i class="fas fa-eye"></i> 查看详情
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 渲染总结记录
+        function renderSummaries() {
+            if (PublicState.summaries.length === 0) {
+                PublicElements.summariesContainer.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <p>暂无公开的总结记录</p>
+                    </div>
+                `;
+                PublicElements.summariesResultsCount.textContent = '共找到 0 个总结记录';
+                return;
+            }
+            
+            PublicElements.summariesResultsCount.textContent = `共找到 ${PublicState.summaries.length} 个总结记录`;
+            
+            PublicElements.summariesContainer.innerHTML = PublicState.summaries.map(summary => `
+                <div class="summary-card">
+                    <div class="summary-header">
+                        <div class="summary-title">${summary.title}</div>
+                        <div class="case-meta">
+                            <div class="case-author">
+                                <i class="fas fa-user"></i>
+                                <span>${summary.username}</span>
+                            </div>
+                            <div class="case-date">
+                                <i class="fas fa-calendar"></i>
+                                <span>${new Date(summary.created_at).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-content">
+                        ${summary.content.substring(0, 500)}${summary.content.length > 500 ? '...' : ''}
+                    </div>
+                    
+                    <div class="summary-footer">
+                        <div>关联了 ${summary.analysisIds ? summary.analysisIds.length : 0} 个分析记录</div>
+                        <div>
+                            <button class="primary-btn" onclick="viewSummaryDetails(${summary.id})">
+                                <i class="fas fa-eye"></i> 查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 渲染分析记录分页
+        function renderAnalysesPagination() {
+            // 简化的分页逻辑，实际应用中需要根据总数计算
+            const currentPage = PublicState.currentPage.analyses;
+            const totalPages = 5; // 假设总共5页
+            
+            let paginationHTML = '';
+            
+            for (let i = 1; i <= totalPages; i++) {
+                paginationHTML += `
+                    <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToAnalysesPage(${i})">${i}</button>
+                `;
+            }
+            
+            PublicElements.analysesPagination.innerHTML = paginationHTML;
+        }
+        
+        // 渲染总结记录分页
+        function renderSummariesPagination() {
+            // 简化的分页逻辑，实际应用中需要根据总数计算
+            const currentPage = PublicState.currentPage.summaries;
+            const totalPages = 5; // 假设总共5页
+            
+            let paginationHTML = '';
+            
+            for (let i = 1; i <= totalPages; i++) {
+                paginationHTML += `
+                    <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToSummariesPage(${i})">${i}</button>
+                `;
+            }
+            
+            PublicElements.summariesPagination.innerHTML = paginationHTML;
+        }
+        
+        // 分析记录排序
+        function sortAnalyses() {
+            const sortType = PublicState.sort.analyses;
+            
+            switch (sortType) {
+                case 'newest':
+                    PublicState.analyses.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    break;
+                case 'oldest':
+                    PublicState.analyses.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                    break;
+                case 'highest-suspicion':
+                    PublicState.analyses.sort((a, b) => b.suspicion_score - a.suspicion_score);
+                    break;
+                case 'lowest-suspicion':
+                    PublicState.analyses.sort((a, b) => a.suspicion_score - b.suspicion_score);
+                    break;
+            }
+        }
+        
+        // 总结记录排序
+        function sortSummaries() {
+            const sortType = PublicState.sort.summaries;
+            
+            switch (sortType) {
+                case 'newest':
+                    PublicState.summaries.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    break;
+                case 'oldest':
+                    PublicState.summaries.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                    break;
+            }
+        }
+        
+        // 分页跳转
+        function goToAnalysesPage(page) {
+            PublicState.currentPage.analyses = page;
+            loadAnalyses();
+        }
+        
+        function goToSummariesPage(page) {
+            PublicState.currentPage.summaries = page;
+            loadSummaries();
+        }
+        
+        // 查看分析详情
+        function viewAnalysisDetails(analysisId) {
+            const analysis = PublicState.analyses.find(a => a.id === analysisId);
+            if (!analysis) return;
+            
+            PublicElements.detailsModalBody.innerHTML = `
+                <h2>分析详情</h2>
+                <div class="case-detail">
+                    <div class="detail-section">
+                        <h3>基本信息</h3>
+                        <p><strong>作者:</strong> ${analysis.username}</p>
+                        <p><strong>分析类型:</strong> ${getAnalysisTypeLabel(analysis.analysis_type)}</p>
+                        <p><strong>严格程度:</strong> ${getStrictnessLabel(analysis.strictness)}</p>
+                        <p><strong>可疑度评分:</strong> <span class="suspicion-badge ${getSuspicionClass(analysis.suspicion_score)}">${analysis.suspicion_score}%</span></p>
+                        <p><strong>总体评级:</strong> ${getRatingLabel(analysis.overall_rating)}</p>
+                        <p><strong>创建时间:</strong> ${new Date(analysis.created_at).toLocaleString()}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>上下文</h3>
+                        <p>${analysis.context || '无'}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>完整内容</h3>
+                        <p>${analysis.content}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>分析摘要</h3>
+                        <p>${analysis.summary}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>检测到的问题</h3>
+                        ${analysis.issues && analysis.issues.length > 0 ? 
+                            analysis.issues.map(issue => `
+                                <div class="issue-item">
+                                    <div class="issue-title">
+                                        <span class="tag-badge">${getIssueTypeLabel(issue.type)}</span>
+                                        <span class="tag-badge ${issue.severity}">${getSeverityLabel(issue.severity)}</span>
+                                    </div>
+                                    <div class="issue-description">${issue.description}</div>
+                                    ${issue.suggestion ? `<div class="issue-suggestion">建议: ${issue.suggestion}</div>` : ''}
+                                </div>
+                            `).join('') : 
+                            '<p>未检测到明显问题</p>'
+                        }
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>优点</h3>
+                        ${analysis.strengths && analysis.strengths.length > 0 ?
+                            `<ul>${analysis.strengths.map(strength => `<li>${strength}</li>`).join('')}</ul>` :
+                            '<p>无记录的优点</p>'
+                        }
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>标签</h3>
+                        <div>${analysis.tags.map(tag => `<span class="tag-badge">${getTagLabel(tag)}</span>`).join('')}</div>
+                    </div>
+                </div>
+            `;
+            
+            PublicElements.detailsModal.style.display = 'block';
+        }
+        
+        // 查看总结详情
+        function viewSummaryDetails(summaryId) {
+            const summary = PublicState.summaries.find(s => s.id === summaryId);
+            if (!summary) return;
+            
+            PublicElements.detailsModalBody.innerHTML = `
+                <h2>总结详情</h2>
+                <div class="case-detail">
+                    <div class="detail-section">
+                        <h3>基本信息</h3>
+                        <p><strong>作者:</strong> ${summary.username}</p>
+                        <p><strong>标题:</strong> ${summary.title}</p>
+                        <p><strong>创建时间:</strong> ${new Date(summary.created_at).toLocaleString()}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>总结内容</h3>
+                        <div class="analysis-text">${summary.content}</div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>关联的分析</h3>
+                        <p>共关联了 ${summary.analysisIds ? summary.analysisIds.length : 0} 个分析记录</p>
+                    </div>
+                </div>
+            `;
+            
+            PublicElements.detailsModal.style.display = 'block';
+        }
+        
+        // 工具函数
+        function showLoading(show) {
+            PublicElements.loadingOverlay.style.display = show ? 'flex' : 'none';
+        }
+        
+        // 标签和分类的辅助函数
+        function getIssueTypeLabel(type) {
+            const labels = {
+                'factual-error': '事实错误',
+                'bias': '偏见',
+                'uncertainty': '表述不明确',
+                'outdated': '信息过时',
+                'parsing-error': '解析错误'
+            };
+            return labels[type] || type;
+        }
+        
+        function getSeverityLabel(severity) {
+            const labels = {
+                'low': '低',
+                'medium': '中',
+                'high': '高'
+            };
+            return labels[severity] || severity;
+        }
+        
+        function getSuspicionClass(score) {
+            if (score > 70) return 'suspicion-high';
+            if (score > 40) return 'suspicion-medium';
+            return 'suspicion-low';
+        }
+        
+        function getAnalysisTypeLabel(type) {
+            const labels = {
+                'general': '常规分析',
+                'factual': '事实核查',
+                'bias': '偏见检测',
+                'comprehensive': '综合分析'
+            };
+            return labels[type] || type;
+        }
+        
+        function getStrictnessLabel(strictness) {
+            const labels = {
+                'low': '宽松',
+                'medium': '中等',
+                'high': '严格'
+            };
+            return labels[strictness] || strictness;
+        }
+        
+        function getRatingLabel(rating) {
+            const labels = {
+                'excellent': '优秀',
+                'good': '良好',
+                'fair': '一般',
+                'poor': '较差'
+            };
+            return labels[rating] || rating;
+        }
+        
+        function getTagLabel(tag) {
+            const labels = {
+                'factual-error': '事实错误',
+                'bias': '偏见',
+                'uncertainty': '表述不明确',
+                'outdated': '信息过时',
+                'high-suspicion': '高可疑度',
+                'medium-suspicion': '中可疑度',
+                'low-suspicion': '低可疑度'
+            };
+            return labels[tag] || tag;
+        }
+    </script>
+</body>
+</html>

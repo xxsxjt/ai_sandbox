@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI文字游戏</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 返回首页 -->
+    <a href="../index.html" class="back-home" title="返回首页">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </a>
+
+    <div class="app-container">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo"><i class="fas fa-gamepad"></i> AI文字游戏</h1>
+                <p class="subtitle">与AI共同创造精彩的故事</p>
+            </div>
+            
+            <!-- 游戏状态栏 -->
+            <div class="game-status-bar">
+                <div class="status-item">
+                    <span class="status-label">角色</span>
+                    <span id="player-name" class="status-value">冒险者</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">等级</span>
+                    <span id="player-level" class="status-value">Lv.1</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">章节</span>
+                    <span id="current-chapter" class="status-value">序章</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">冒险时长</span>
+                    <span id="play-time" class="status-value">0分钟</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="tab-container">
+                <button class="tab-btn active" data-tab="game">
+                    <i class="fas fa-play"></i> 游戏
+                </button>
+                <button class="tab-btn" data-tab="saves">
+                    <i class="fas fa-save"></i> 存档
+                </button>
+                <button class="tab-btn" data-tab="settings">
+                    <i class="fas fa-cog"></i> 设置
+                </button>
+                <button class="tab-btn" data-tab="alchemy">
+                    <i class="fas fa-flask"></i> AI炼丹炉
+                </button>
+            </div>
+
+            <!-- 游戏标签页 -->
+            <div class="tab-content active" id="game">
+                <!-- 游戏初始化界面 -->
+                <section class="game-init-container" id="game-init-container">
+                    <div class="init-content">
+                        <h2>创建新的冒险</h2>
+                        <p class="init-description">开始一场全新的冒险，AI将为你生成一个独特的世界和角色</p>
+                        
+                        <div class="init-options">
+                            <button id="new-random-world-btn" class="primary-btn">
+                                <i class="fas fa-dice"></i> 随机生成世界
+                            </button>
+                            <button id="load-existing-game-btn" class="secondary-btn">
+                                <i class="fas fa-folder-open"></i> 加载已有存档
+                            </button>
+                        </div>
+                        
+                        <div class="world-options" id="world-options" style="display: none;">
+                            <h3>世界设置</h3>
+                            <div class="option-grid">
+                                <div class="option-group">
+                                    <label for="world-theme">世界主题</label>
+                                    <select id="world-theme">
+                                        <option value="random">完全随机</option>
+                                        <option value="fantasy">奇幻魔法</option>
+                                        <option value="scifi">科幻未来</option>
+                                        <option value="apocalyptic">末日废土</option>
+                                        <option value="historical">历史武侠</option>
+                                        <option value="modern">现代都市</option>
+                                    </select>
+                                </div>
+                                <div class="option-group">
+                                    <label for="world-difficulty">游戏难度</label>
+                                    <select id="world-difficulty">
+                                        <option value="easy">轻松休闲</option>
+                                        <option value="normal">标准冒险</option>
+                                        <option value="hard">硬核挑战</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                            <button id="generate-world-btn" class="primary-btn">
+                                <i class="fas fa-magic"></i> 生成世界与角色
+                            </button>
+                        </div>
+                        
+                        <div class="loading-section" id="world-loading" style="display: none;">
+                            <div class="loading-spinner">
+                                <div class="spinner"></div>
+                                <p>正在生成独特的世界和角色...</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 角色创建界面 -->
+                <section class="character-creation-container" id="character-creation-container" style="display: none;">
+                    <div class="creation-content">
+                        <h2>创建你的角色</h2>
+                        <div class="character-info" id="character-info">
+                            <!-- 角色信息将通过JavaScript动态填充 -->
+                        </div>
+                        
+                        <div class="character-choices" id="character-choices">
+                            <!-- 角色选择将通过JavaScript动态填充 -->
+                        </div>
+                        
+                        <div class="creation-actions">
+                            <button id="reroll-character-btn" class="secondary-btn">
+                                <i class="fas fa-dice"></i> 重新生成
+                            </button>
+                            <button id="confirm-character-btn" class="primary-btn">
+                                <i class="fas fa-check"></i> 确认角色
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 游戏主界面 -->
+                <section class="game-container" id="game-container" style="display: none;">
+                    <!-- 游戏状态栏 -->
+                    <div class="game-stats-bar">
+                        <div class="stat-group">
+                            <div class="stat-item">
+                                <span class="stat-label">生命值</span>
+                                <div class="health-bar">
+                                    <div id="health-bar" class="health-fill"></div>
+                                    <span id="health-value">100/100</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">法力值</span>
+                                <div class="mana-bar">
+                                    <div id="mana-bar" class="mana-fill"></div>
+                                    <span id="mana-value">50/50</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">经验值</span>
+                                <div class="exp-bar">
+                                    <div id="exp-bar" class="exp-fill"></div>
+                                    <span id="exp-value">0/100</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-actions">
+                            <button id="inventory-btn" class="quick-btn" title="背包">
+                                <i class="fas fa-backpack"></i>
+                            </button>
+                            <button id="skills-btn" class="quick-btn" title="技能">
+                                <i class="fas fa-book"></i>
+                            </button>
+                            <button id="quests-btn" class="quick-btn" title="任务">
+                                <i class="fas fa-scroll"></i>
+                            </button>
+                            <button id="map-btn" class="quick-btn" title="地图">
+                                <i class="fas fa-map"></i>
+                            </button>
+                            <button id="save-quick-btn" class="quick-btn" title="保存">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 游戏场景 -->
+                    <div class="game-scene">
+                        <div class="scene-background">
+                            <img id="scene-image" src="" alt="游戏场景" style="display: none;">
+                            <div id="scene-placeholder" class="scene-placeholder">
+                                <i class="fas fa-image"></i>
+                                <p>场景描述中</p>
+                            </div>
+                        </div>
+                        <div class="scene-content">
+                            <h2 id="scene-title">神秘的森林</h2>
+                            <div id="scene-description" class="scene-text">
+                                你站在一片古老的森林入口，前方是蜿蜒的小径，阳光透过树叶洒下斑驳的光影。远处似乎传来神秘的呼唤声，你可以感觉到空气中弥漫着魔法的气息。你将如何选择你的道路？
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 游戏互动区 -->
+                    <div class="game-interaction">
+                        <!-- 玩家输入区 -->
+                        <div class="player-input-section">
+                            <h3>你的选择</h3>
+                            <div class="input-group">
+                                <textarea id="player-action" placeholder="描述你想做的事情或想说的话..."></textarea>
+                            </div>
+                            <div class="available-actions" id="available-actions">
+                                <!-- 可用行动将通过JavaScript动态填充 -->
+                            </div>
+                            <div class="game-options">
+                                <div class="option-group">
+                                    <label for="action-type">行动类型</label>
+                                    <select id="action-type">
+                                        <option value="explore">探索</option>
+                                        <option value="interact">互动</option>
+                                        <option value="combat">战斗</option>
+                                        <option value="talk">对话</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button id="submit-action-btn" class="primary-btn">
+                                <i class="fas fa-paper-plane"></i> 提交行动
+                            </button>
+                        </div>
+                        
+                        <!-- AI回应区 -->
+                        <div class="ai-response-section" id="ai-response-section" style="display: none;">
+                            <h3>游戏回应</h3>
+                            <div id="ai-response" class="response-text">
+                                <!-- AI生成的内容将显示在这里 -->
+                            </div>
+                            <div class="response-actions">
+                                <button id="regenerate-action-btn" class="secondary-btn">
+                                    <i class="fas fa-redo"></i> 重新生成
+                                </button>
+                                <button id="save-game-btn" class="secondary-btn">
+                                    <i class="fas fa-save"></i> 保存游戏
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 存档标签页 -->
+            <div class="tab-content" id="saves">
+                <section class="save-management">
+                    <h2>游戏存档管理</h2>
+                    <div class="save-actions">
+                        <button id="create-new-save-btn" class="primary-btn">
+                            <i class="fas fa-plus"></i> 创建新存档
+                        </button>
+                        <button id="import-save-btn" class="secondary-btn">
+                            <i class="fas fa-upload"></i> 导入存档
+                        </button>
+                        <button id="export-all-saves-btn" class="secondary-btn">
+                            <i class="fas fa-download"></i> 导出所有存档
+                        </button>
+                    </div>
+                </section>
+
+                <section class="saves-table-section">
+                    <div class="table-header">
+                        <h3>存档列表</h3>
+                        <div class="table-actions">
+                            <span id="saves-count">共找到 0 个存档</span>
+                            <button id="sort-saves-btn" class="secondary-btn">
+                                <i class="fas fa-sort"></i> 排序
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="saves-table">
+                            <thead>
+                                <tr>
+                                    <th>存档名称</th>
+                                    <th>角色</th>
+                                    <th>等级</th>
+                                    <th>章节</th>
+                                    <th>冒险时长</th>
+                                    <th>保存时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="saves-tbody">
+                                <!-- 存档数据将通过JavaScript动态添加 -->
+                            </tbody>
+                        </table>
+                        <div id="no-saves" class="no-results" style="display: none;">
+                            <i class="fas fa-save"></i>
+                            <p>暂无存档，开始游戏并保存进度吧！</p>
+                        </div>
+                    </div>
+                    <div class="pagination" id="saves-pagination">
+                        <!-- 分页控件将通过JavaScript动态添加 -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- 设置标签页 -->
+            <div class="tab-content" id="settings">
+                <section class="api-settings">
+                    <h2>游戏设置</h2>
+                    <div class="setting-group">
+                        <label for="api-key">API密钥</label>
+                        <div class="input-with-toggle">
+                            <input type="password" id="api-key" placeholder="sk-...">
+                            <button id="toggle-api-key" class="toggle-btn">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <p class="setting-description">您的API密钥将仅保存在本地浏览器中，不会上传到任何服务器</p>
+                    </div>
+                    <div class="setting-group">
+                        <label for="api-model">AI模型</label>
+                        <select id="api-model">
+                            <optgroup label="本地模型" id="local-models-group"></optgroup>
+                            <optgroup label="云端模型" id="cloud-models-group"></optgroup>
+                        </select>
+                        <p class="setting-description">选择用于生成游戏内容的AI模型</p>
+                    </div>
+                    <div class="setting-group">
+                        <label for="api-endpoint">自定义API端点（可选）</label>
+                        <input type="text" id="api-endpoint" placeholder="http://localhost:11434/v1">
+                        <p class="setting-description">本地Ollama: http://localhost:11434/v1</p>
+                    </div>
+                </section>
+
+                <section class="game-settings">
+                    <h2>游戏参数</h2>
+                    <div class="setting-group">
+                        <label for="player-name-input">角色名称</label>
+                        <input type="text" id="player-name-input" value="冒险者">
+                        <p class="setting-description">设置你在游戏中的角色名称</p>
+                    </div>
+                    <div class="setting-group">
+                        <label for="auto-save">自动保存</label>
+                        <select id="auto-save">
+                            <option value="enabled">开启</option>
+                            <option value="disabled">关闭</option>
+                        </select>
+                        <p class="setting-description">开启后，游戏进度将自动保存</p>
+                    </div>
+                    <div class="setting-group">
+                        <label for="max-saves">最大存档数量</label>
+                        <input type="number" id="max-saves" value="20" min="5" max="100">
+                        <p class="setting-description">本地存储的最大存档数量，超过后将删除最早的存档</p>
+                    </div>
+                    <div class="setting-group">
+                        <label for="show-scene-images">显示场景图片</label>
+                        <select id="show-scene-images">
+                            <option value="enabled">开启</option>
+                            <option value="disabled">关闭</option>
+                        </select>
+                        <p class="setting-description">是否显示游戏场景图片，关闭可以提高加载速度</p>
+                    </div>
+                    <div class="setting-group">
+                        <label for="alchemy-cheat-mode" style="color: var(--danger-color);">
+                            <i class="fas fa-flask"></i> 炼丹作弊模式
+                        </label>
+                        <select id="alchemy-cheat-mode">
+                            <option value="disabled">关闭</option>
+                            <option value="enabled">开启</option>
+                        </select>
+                        <p class="setting-description" style="color: var(--danger-color);">
+                            开启后，模拟模式下也能保存配方，游戏模式下不受限制
+                        </p>
+                    </div>
+                </section>
+
+                <section class="data-management">
+                    <h2>数据管理</h2>
+                    <div class="management-actions">
+                        <button id="export-all-btn" class="secondary-btn">
+                            <i class="fas fa-download"></i> 导出所有数据
+                        </button>
+                        <button id="import-btn" class="secondary-btn">
+                            <i class="fas fa-upload"></i> 导入数据
+                        </button>
+                        <button id="clear-data-btn" class="danger-btn">
+                            <i class="fas fa-trash"></i> 清除所有数据
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- AI炼丹炉标签页 -->
+            <div class="tab-content" id="alchemy">
+                <section class="alchemy-container">
+                    <div class="alchemy-header">
+                        <h2><i class="fas fa-flask"></i> 修仙炼丹炉</h2>
+                        <p class="alchemy-intro">投入灵材，掌控火候，炼制仙丹！成功炼制后可记录配方，下次直接使用。</p>
+
+                        <!-- 模式切换 -->
+                        <div class="mode-switcher">
+                            <button class="mode-btn active" data-mode="game">
+                                <i class="fas fa-gamepad"></i> 游戏模式
+                            </button>
+                            <button class="mode-btn" data-mode="simulation">
+                                <i class="fas fa-vial"></i> 模拟模式
+                            </button>
+                        </div>
+
+                        <div class="alchemy-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">炼制次数</span>
+                                <span id="alchemy-count" class="stat-value">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">成功率</span>
+                                <span id="alchemy-rate" class="stat-value">0%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">已掌握配方</span>
+                                <span id="formula-count" class="stat-value">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 配方选择 -->
+                    <div class="alchemy-formulas-section" id="formulas-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-book"></i> 配方库</h3>
+                            <div class="selected-summary">
+                                已掌握: <span id="formula-count-display">0</span> 个配方
+                            </div>
+                        </div>
+                        <div class="formula-grid" id="formula-grid">
+                            <div class="formula-empty" id="formula-empty">
+                                <i class="fas fa-scroll"></i>
+                                <p>暂无配方，炼制成功后可保存配方</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 模拟模式输入区域 -->
+                    <div class="simulation-mode-section" id="simulation-mode-section" style="display: none;">
+                        <h3><i class="fas fa-edit"></i> 自由输入</h3>
+                        <div class="simulation-inputs">
+                            <div class="input-group">
+                                <label>药材名称（多药材用逗号分隔）</label>
+                                <input type="text" id="sim-herbs" placeholder="如: 灵芝, 人参, 当归">
+                            </div>
+                            <div class="input-group">
+                                <label>丹炉名称</label>
+                                <input type="text" id="sim-cauldron" placeholder="如: 九转炼丹炉">
+                            </div>
+                            <div class="input-group">
+                                <label>期望炼制的丹药（可选）</label>
+                                <input type="text" id="sim-expected-pill" placeholder="如: 长生丹">
+                            </div>
+                            <div class="input-group">
+                                <label>炼制时长描述（可选）</label>
+                                <input type="text" id="sim-duration" placeholder="如: 七七四十九天">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 游戏模式：从背包选择 -->
+                    <div class="game-mode-section" id="game-mode-section">
+                        <!-- 材料选择区域 -->
+                        <div class="alchemy-materials-section" id="materials-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-leaf"></i> 选择材料</h3>
+                                <div class="section-actions">
+                                    <button id="open-inventory-btn" class="secondary-btn small">
+                                        <i class="fas fa-backpack"></i> 从背包选择
+                                    </button>
+                                </div>
+                                <div class="selected-summary">
+                                    已选: <span id="selected-count">0</span> 种材料
+                                </div>
+                            </div>
+
+                            <!-- 已选材料展示 -->
+                            <div class="selected-materials" id="selected-materials">
+                                <div class="selected-list" id="selected-list">
+                                    <div class="empty-hint">尚未选择任何材料，点击"从背包选择"添加</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 炉鼎选择区域 -->
+                        <div class="cauldron-selection-section" id="cauldron-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-mountain"></i> 选择炉鼎</h3>
+                                <div class="section-actions">
+                                    <button id="open-cauldron-inventory-btn" class="secondary-btn small">
+                                        <i class="fas fa-backpack"></i> 从背包选择
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="selected-cauldron" id="selected-cauldron">
+                                <div class="empty-hint">
+                                    <i class="fas fa-fire-burner"></i>
+                                    <p>尚未选择炉鼎，点击"从背包选择"添加</p>
+                                    <p style="font-size: 0.8rem; margin-top: 0.5rem;">提示：通过探索或完成任务获取炉鼎</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 炼制参数（游戏模式） -->
+                    <div class="alchemy-params-section game-params" id="game-params-section">
+                        <h3><i class="fas fa-sliders-h"></i> 炼制参数</h3>
+                        <div class="params-grid">
+                            <div class="param-group">
+                                <label>火候控制</label>
+                                <div class="param-buttons" id="fire-level">
+                                    <button class="param-btn active" data-value="wen">文火</button>
+                                    <button class="param-btn" data-value="wu">武火</button>
+                                    <button class="param-btn" data-value="tian">天火</button>
+                                </div>
+                                <p class="param-desc">文火温和，武火猛烈，天火不可控</p>
+                            </div>
+                            <div class="param-group">
+                                <label>炼制时间</label>
+                                <select id="duration" class="param-select">
+                                    <option value="1">一个时辰 (成功率低)</option>
+                                    <option value="2" selected>两个时辰 (适中)</option>
+                                    <option value="3">三个时辰 (成功率高)</option>
+                                    <option value="4">四个时辰 (耗时久)</option>
+                                </select>
+                                <p class="param-desc">时间越长，成功率越高，但也可能失败</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 炼丹按钮 -->
+                    <div class="alchemy-action">
+                        <button id="start-alchemy-btn" class="primary-btn large">
+                            <i class="fas fa-fire"></i> 开始炼丹
+                        </button>
+                    </div>
+
+                    <!-- 炼制过程 -->
+                    <div class="alchemy-process-section" id="process-section" style="display: none;">
+                        <h3><i class="fas fa-spinner fa-spin"></i> 炼制过程</h3>
+                        <div class="process-log" id="process-log">
+                            <!-- 炼制过程日志 -->
+                        </div>
+                        <div class="process-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <p id="progress-text">正在加热...</p>
+                        </div>
+                    </div>
+
+                    <!-- 炼制结果 -->
+                    <div class="alchemy-result-section" id="result-section" style="display: none;">
+                        <h3>炼制结果</h3>
+                        <div class="result-card" id="result-card">
+                            <div class="result-icon" id="result-icon"><i class="fas fa-question"></i></div>
+                            <h4 id="result-title">待定</h4>
+                            <p id="result-desc">...</p>
+                            <div class="result-quality" id="result-quality">
+                                <span class="quality-badge" data-quality="unknown">品质未知</span>
+                            </div>
+                            <div class="result-actions">
+                                <button id="save-formula-btn" class="primary-btn" style="display: none;">
+                                    <i class="fas fa-save"></i> 保存配方
+                                </button>
+                                <button id="add-pill-to-inventory-btn" class="secondary-btn" style="display: none;">
+                                    <i class="fas fa-plus"></i> 放入背包
+                                </button>
+                                <button id="retry-alchemy-btn" class="secondary-btn">
+                                    <i class="fas fa-redo"></i> 重新炼制
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 配方保存成功提示 -->
+                    <div class="formula-saved-toast" id="formula-saved-toast" style="display: none;">
+                        <i class="fas fa-check-circle"></i>
+                        <span>配方已保存到配方库</span>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2025 AI文字游戏 - 与AI共同创造精彩的故事</p>
+        </footer>
+    </div>
+
+    <!-- 模态框 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- 案例详情模态框 -->
+    <div id="case-modal" class="modal">
+        <div class="modal-content wide">
+            <span class="close">&times;</span>
+            <div id="case-modal-body"></div>
+        </div>
+    </div>
+
+    <!-- 加载指示器 -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>正在分析中，请稍候...</p>
+        </div>
+    </div>
+
+    <script src="../shared.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员后台 - AI分析工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles-server.css">
+    <style>
+        .admin-header {
+            background-color: #6a11cb;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-nav {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .admin-nav button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .admin-nav button:hover, .admin-nav button.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .admin-content {
+            padding: 2rem;
+        }
+        
+        .admin-section {
+            display: none;
+        }
+        
+        .admin-section.active {
+            display: block;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #6a11cb;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #666;
+        }
+        
+        .user-list {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .user-table th, .user-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .user-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .checkbox-container {
+            margin: 1rem 0;
+        }
+        
+        .filter-controls {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .filter-controls input, .filter-controls button {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .filter-controls button {
+            background-color: #6a11cb;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1><i class="fas fa-cog"></i> 管理员后台</h1>
+        <div class="admin-nav">
+            <button id="stats-nav" class="active"><i class="fas fa-chart-bar"></i> 统计信息</button>
+            <button id="users-nav"><i class="fas fa-users"></i> 用户管理</button>
+            <button id="analyses-nav"><i class="fas fa-search"></i> 分析记录</button>
+            <button id="summaries-nav"><i class="fas fa-file-alt"></i> 总结记录</button>
+            <button id="back-nav"><i class="fas fa-arrow-left"></i> 返回应用</button>
+        </div>
+        <div id="admin-user-info"></div>
+    </div>
+    
+    <div class="admin-content">
+        <!-- 统计信息 -->
+        <div id="stats-section" class="admin-section active">
+            <h2>系统统计信息</h2>
+            <div class="stats-grid" id="stats-grid">
+                <!-- 统计卡片将通过JS动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 用户管理 -->
+        <div id="users-section" class="admin-section">
+            <h2>用户管理</h2>
+            <div class="user-list">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>邮箱</th>
+                            <th>注册时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                        <!-- 用户列表将通过JS动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 分析记录 -->
+        <div id="analyses-section" class="admin-section">
+            <h2>分析记录（总记录库）</h2>
+            <div class="filter-controls">
+                <input type="text" id="admin-analyses-search" placeholder="搜索内容或摘要">
+                <div class="checkbox-container">
+                    <label>
+                        <input type="checkbox" id="include-deleted-analyses"> 包含已删除的记录
+                    </label>
+                </div>
+                <button id="admin-analyses-search-btn"><i class="fas fa-search"></i> 搜索</button>
+            </div>
+            <div class="results-container">
+                <div id="admin-analyses-results-count"></div>
+                <div class="user-list">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户</th>
+                                <th>内容</th>
+                                <th>可疑度</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-analyses-tbody">
+                            <!-- 分析记录将通过JS动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 总结记录 -->
+        <div id="summaries-section" class="admin-section">
+            <h2>总结记录（总记录库）</h2>
+            <div class="filter-controls">
+                <input type="text" id="admin-summaries-search" placeholder="搜索标题或内容">
+                <div class="checkbox-container">
+                    <label>
+                        <input type="checkbox" id="include-deleted-summaries"> 包含已删除的记录
+                    </label>
+                </div>
+                <button id="admin-summaries-search-btn"><i class="fas fa-search"></i> 搜索</button>
+            </div>
+            <div class="results-container">
+                <div id="admin-summaries-results-count"></div>
+                <div class="user-list">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户</th>
+                                <th>标题</th>
+                                <th>内容摘要</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-summaries-tbody">
+                            <!-- 总结记录将通过JS动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载遮罩 -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>加载中...</p>
+        </div>
+    </div>
+
+    <!-- 消息模态框 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- 详情模态框 -->
+    <div id="details-modal" class="modal">
+        <div class="modal-content large">
+            <span class="close">&times;</span>
+            <div id="details-modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // 管理员端脚本
+        const API_BASE_URL = window.location.origin + '/api';
+        
+        // 应用状态
+        const AdminState = {
+            currentSection: 'stats',
+            token: localStorage.getItem('token') || null,
+            user: null,
+            users: [],
+            analyses: [],
+            summaries: [],
+            stats: {}
+        };
+        
+        // DOM元素
+        const AdminElements = {
+            // 导航按钮
+            statsNav: document.getElementById('stats-nav'),
+            usersNav: document.getElementById('users-nav'),
+            analysesNav: document.getElementById('analyses-nav'),
+            summariesNav: document.getElementById('summaries-nav'),
+            backNav: document.getElementById('back-nav'),
+            
+            // 内容区域
+            statsSection: document.getElementById('stats-section'),
+            usersSection: document.getElementById('users-section'),
+            analysesSection: document.getElementById('analyses-section'),
+            summariesSection: document.getElementById('summaries-section'),
+            
+            // 统计信息
+            statsGrid: document.getElementById('stats-grid'),
+            
+            // 用户管理
+            usersTbody: document.getElementById('users-tbody'),
+            
+            // 分析记录
+            adminAnalysesSearch: document.getElementById('admin-analyses-search'),
+            includeDeletedAnalyses: document.getElementById('include-deleted-analyses'),
+            adminAnalysesSearchBtn: document.getElementById('admin-analyses-search-btn'),
+            adminAnalysesResultsCount: document.getElementById('admin-analyses-results-count'),
+            adminAnalysesTbody: document.getElementById('admin-analyses-tbody'),
+            
+            // 总结记录
+            adminSummariesSearch: document.getElementById('admin-summaries-search'),
+            includeDeletedSummaries: document.getElementById('include-deleted-summaries'),
+            adminSummariesSearchBtn: document.getElementById('admin-summaries-search-btn'),
+            adminSummariesResultsCount: document.getElementById('admin-summaries-results-count'),
+            adminSummariesTbody: document.getElementById('admin-summaries-tbody'),
+            
+            // 用户信息
+            adminUserInfo: document.getElementById('admin-user-info'),
+            
+            // 模态框
+            modal: document.getElementById('modal'),
+            detailsModal: document.getElementById('details-modal'),
+            modalBody: document.getElementById('modal-body'),
+            detailsModalBody: document.getElementById('details-modal-body'),
+            closeButtons: document.querySelectorAll('.close'),
+            
+            // 加载指示器
+            loadingOverlay: document.getElementById('loading-overlay')
+        };
+        
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAdminApp();
+        });
+        
+        async function initializeAdminApp() {
+            // 设置事件监听器
+            setupAdminEventListeners();
+            
+            // 检查管理员权限
+            try {
+                const response = await apiAdminRequest('/stats', 'GET');
+                AdminState.user = { username: '管理员' }; // 简化处理
+                AdminElements.adminUserInfo.textContent = `欢迎，${AdminState.user.username}`;
+                
+                // 加载初始数据
+                loadStats();
+                loadUsers();
+            } catch (error) {
+                console.error('管理员权限验证失败:', error);
+                showMessage('您没有管理员权限，将返回主页面', 'error');
+                setTimeout(() => {
+                    window.location.href = 'index-server.html';
+                }, 2000);
+            }
+        }
+        
+        // 设置事件监听器
+        function setupAdminEventListeners() {
+            // 导航按钮
+            AdminElements.statsNav.addEventListener('click', () => switchAdminSection('stats'));
+            AdminElements.usersNav.addEventListener('click', () => switchAdminSection('users'));
+            AdminElements.analysesNav.addEventListener('click', () => switchAdminSection('analyses'));
+            AdminElements.summariesNav.addEventListener('click', () => switchAdminSection('summaries'));
+            AdminElements.backNav.addEventListener('click', () => {
+                window.location.href = 'index-server.html';
+            });
+            
+            // 搜索按钮
+            AdminElements.adminAnalysesSearchBtn.addEventListener('click', loadAnalyses);
+            AdminElements.adminSummariesSearchBtn.addEventListener('click', loadSummaries);
+            
+            // 搜索输入框回车
+            AdminElements.adminAnalysesSearch.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') loadAnalyses();
+            });
+            AdminElements.adminSummariesSearch.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') loadSummaries();
+            });
+            
+            // 模态框关闭
+            AdminElements.closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    AdminElements.modal.style.display = 'none';
+                    AdminElements.detailsModal.style.display = 'none';
+                });
+            });
+        }
+        
+        // 切换管理面板部分
+        function switchAdminSection(sectionName) {
+            // 更新导航按钮状态
+            AdminElements.statsNav.classList.toggle('active', sectionName === 'stats');
+            AdminElements.usersNav.classList.toggle('active', sectionName === 'users');
+            AdminElements.analysesNav.classList.toggle('active', sectionName === 'analyses');
+            AdminElements.summariesNav.classList.toggle('active', sectionName === 'summaries');
+            
+            // 更新内容区域显示
+            AdminElements.statsSection.classList.toggle('active', sectionName === 'stats');
+            AdminElements.usersSection.classList.toggle('active', sectionName === 'users');
+            AdminElements.analysesSection.classList.toggle('active', sectionName === 'analyses');
+            AdminElements.summariesSection.classList.toggle('active', sectionName === 'summaries');
+            
+            AdminState.currentSection = sectionName;
+            
+            // 根据部分加载数据
+            switch(sectionName) {
+                case 'stats':
+                    loadStats();
+                    break;
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'analyses':
+                    loadAnalyses();
+                    break;
+                case 'summaries':
+                    loadSummaries();
+                    break;
+            }
+        }
+        
+        // 管理员API请求
+        async function apiAdminRequest(endpoint, method = 'GET', data = null) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+            
+            if (AdminState.token) {
+                options.headers.Authorization = `Bearer ${AdminState.token}`;
+            }
+            
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+            
+            const response = await fetch(`${API_BASE_URL}/admin${endpoint}`, options);
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || '请求失败');
+            }
+            
+            return result;
+        }
+        
+        // 加载统计信息
+        async function loadStats() {
+            showLoading(true);
+            
+            try {
+                const stats = await apiAdminRequest('/stats');
+                AdminState.stats = stats;
+                
+                AdminElements.statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.totalUsers}</div>
+                        <div class="stat-label">用户总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.totalAnalyses}</div>
+                        <div class="stat-label">分析总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.publicAnalyses}</div>
+                        <div class="stat-label">公开分析数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.totalSummaries}</div>
+                        <div class="stat-label">总结总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.publicSummaries}</div>
+                        <div class="stat-label">公开总结数</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('加载统计信息失败:', error);
+                showMessage('加载统计信息失败', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 加载用户列表
+        async function loadUsers() {
+            showLoading(true);
+            
+            try {
+                const users = await apiAdminRequest('/users');
+                AdminState.users = users;
+                
+                AdminElements.usersTbody.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>${new Date(user.created_at).toLocaleString()}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button title="查看分析" onclick="viewUserAnalyses(${user.id})">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <button title="查看总结" onclick="viewUserSummaries(${user.id})">
+                                    <i class="fas fa-file-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('加载用户列表失败:', error);
+                showMessage('加载用户列表失败', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 加载分析记录
+        async function loadAnalyses() {
+            showLoading(true);
+            
+            try {
+                const search = AdminElements.adminAnalysesSearch.value.trim();
+                const includeDeleted = AdminElements.includeDeletedAnalyses.checked;
+                
+                const analyses = await apiAdminRequest(`/analyses?search=${encodeURIComponent(search)}&includeDeleted=${includeDeleted}`);
+                AdminState.analyses = analyses;
+                
+                AdminElements.adminAnalysesResultsCount.textContent = `共找到 ${analyses.length} 个分析记录`;
+                
+                AdminElements.adminAnalysesTbody.innerHTML = analyses.map(analysis => `
+                    <tr>
+                        <td>${analysis.id}</td>
+                        <td>${analysis.username}</td>
+                        <td>${analysis.content.substring(0, 50)}${analysis.content.length > 50 ? '...' : ''}</td>
+                        <td>
+                            <span class="suspicion-badge ${getSuspicionClass(analysis.suspicion_score)}">
+                                ${analysis.suspicion_score}%
+                            </span>
+                        </td>
+                        <td>
+                            ${analysis.deleted_by_user === 1 ? '<span class="tag-badge">已删除</span>' : ''}
+                            ${analysis.is_public === 1 ? '<span class="tag-badge">公开</span>' : '<span class="tag-badge">私有</span>'}
+                        </td>
+                        <td>${new Date(analysis.created_at).toLocaleString()}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button title="查看详情" onclick="viewAnalysisDetails(${analysis.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('加载分析记录失败:', error);
+                showMessage('加载分析记录失败', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 加载总结记录
+        async function loadSummaries() {
+            showLoading(true);
+            
+            try {
+                const search = AdminElements.adminSummariesSearch.value.trim();
+                const includeDeleted = AdminElements.includeDeletedSummaries.checked;
+                
+                const summaries = await apiAdminRequest(`/summaries?search=${encodeURIComponent(search)}&includeDeleted=${includeDeleted}`);
+                AdminState.summaries = summaries;
+                
+                AdminElements.adminSummariesResultsCount.textContent = `共找到 ${summaries.length} 个总结记录`;
+                
+                AdminElements.adminSummariesTbody.innerHTML = summaries.map(summary => `
+                    <tr>
+                        <td>${summary.id}</td>
+                        <td>${summary.username}</td>
+                        <td>${summary.title}</td>
+                        <td>${summary.content.substring(0, 50)}${summary.content.length > 50 ? '...' : ''}</td>
+                        <td>
+                            ${summary.deleted_by_user === 1 ? '<span class="tag-badge">已删除</span>' : ''}
+                            ${summary.is_public === 1 ? '<span class="tag-badge">公开</span>' : '<span class="tag-badge">私有</span>'}
+                        </td>
+                        <td>${new Date(summary.created_at).toLocaleString()}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button title="查看详情" onclick="viewSummaryDetails(${summary.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('加载总结记录失败:', error);
+                showMessage('加载总结记录失败', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 查看用户分析
+        async function viewUserAnalyses(userId) {
+            showLoading(true);
+            
+            try {
+                const analyses = await apiAdminRequest(`/users/${userId}/analyses`);
+                const user = AdminState.users.find(u => u.id === userId);
+                
+                AdminElements.detailsModalBody.innerHTML = `
+                    <h2>用户分析记录 - ${user.username}</h2>
+                    <div class="user-list">
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>内容</th>
+                                    <th>可疑度</th>
+                                    <th>状态</th>
+                                    <th>创建时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${analyses.map(analysis => `
+                                    <tr>
+                                        <td>${analysis.id}</td>
+                                        <td>${analysis.content.substring(0, 100)}${analysis.content.length > 100 ? '...' : ''}</td>
+                                        <td>
+                                            <span class="suspicion-badge ${getSuspicionClass(analysis.suspicion_score)}">
+                                                ${analysis.suspicion_score}%
+                                            </span>
+                                        </td>
+                                        <td>
+                                            ${analysis.deleted_by_user === 1 ? '<span class="tag-badge">已删除</span>' : ''}
+                                            ${analysis.is_public === 1 ? '<span class="tag-badge">公开</span>' : '<span class="tag-badge">私有</span>'}
+                                        </td>
+                                        <td>${new Date(analysis.created_at).toLocaleString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                AdminElements.detailsModal.style.display = 'block';
+            } catch (error) {
+                console.error('查看用户分析失败:', error);
+                showMessage('查看用户分析失败', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 查看用户总结
+        async function viewUserSummaries(userId) {
+            showLoading(true);
+            
+            try {
+                const summaries = await apiAdminRequest(`/users/${userId}/summaries`);
+                const user = AdminState.users.find(u => u.id === userId);
+                
+                AdminElements.detailsModalBody.innerHTML = `
+                    <h2>用户总结记录 - ${user.username}</h2>
+                    <div class="user-list">
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>标题</th>
+                                    <th>内容</th>
+                                    <th>状态</th>
+                                    <th>创建时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${summaries.map(summary => `
+                                    <tr>
+                                        <td>${summary.id}</td>
+                                        <td>${summary.title}</td>
+                                        <td>${summary.content.substring(0, 100)}${summary.content.length > 100 ? '...' : ''}</td>
+                                        <td>
+                                            ${summary.deleted_by_user === 1 ? '<span class="tag-badge">已删除</span>' : ''}
+                                            ${summary.is_public === 1 ? '<span class="tag-badge">公开</span>' : '<span class="tag-badge">私有</span>'}
+                                        </td>
+                                        <td>${new Date(summary.created_at).toLocaleString()}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                AdminElements.detailsModal.style.display = 'block';
+            } catch (error) {
+                console.error('查看用户总结失败:', error);
+                showMessage('查看用户总结失败', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 查看分析详情
+        function viewAnalysisDetails(analysisId) {
+            const analysis = AdminState.analyses.find(a => a.id === analysisId);
+            if (!analysis) return;
+            
+            AdminElements.detailsModalBody.innerHTML = `
+                <h2>分析详情</h2>
+                <div class="case-detail">
+                    <div class="detail-section">
+                        <h3>基本信息</h3>
+                        <p><strong>用户:</strong> ${analysis.username}</p>
+                        <p><strong>分析类型:</strong> ${getAnalysisTypeLabel(analysis.analysis_type)}</p>
+                        <p><strong>严格程度:</strong> ${getStrictnessLabel(analysis.strictness)}</p>
+                        <p><strong>可疑度评分:</strong> <span class="suspicion-badge ${getSuspicionClass(analysis.suspicion_score)}">${analysis.suspicion_score}%</span></p>
+                        <p><strong>总体评级:</strong> ${getRatingLabel(analysis.overall_rating)}</p>
+                        <p><strong>状态:</strong> 
+                            ${analysis.deleted_by_user === 1 ? '<span class="tag-badge">已删除</span>' : ''}
+                            ${analysis.is_public === 1 ? '<span class="tag-badge">公开</span>' : '<span class="tag-badge">私有</span>'}
+                        </p>
+                        <p><strong>创建时间:</strong> ${new Date(analysis.created_at).toLocaleString()}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>上下文</h3>
+                        <p>${analysis.context || '无'}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>完整内容</h3>
+                        <p>${analysis.content}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>分析摘要</h3>
+                        <p>${analysis.summary}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>检测到的问题</h3>
+                        ${analysis.issues && analysis.issues.length > 0 ? 
+                            analysis.issues.map(issue => `
+                                <div class="issue-item">
+                                    <div class="issue-title">
+                                        <span class="tag-badge">${getIssueTypeLabel(issue.type)}</span>
+                                        <span class="tag-badge ${issue.severity}">${getSeverityLabel(issue.severity)}</span>
+                                    </div>
+                                    <div class="issue-description">${issue.description}</div>
+                                    ${issue.suggestion ? `<div class="issue-suggestion">建议: ${issue.suggestion}</div>` : ''}
+                                </div>
+                            `).join('') : 
+                            '<p>未检测到明显问题</p>'
+                        }
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>优点</h3>
+                        ${analysis.strengths && analysis.strengths.length > 0 ?
+                            `<ul>${analysis.strengths.map(strength => `<li>${strength}</li>`).join('')}</ul>` :
+                            '<p>无记录的优点</p>'
+                        }
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>标签</h3>
+                        <div>${analysis.tags.map(tag => `<span class="tag-badge">${getTagLabel(tag)}</span>`).join('')}</div>
+                    </div>
+                </div>
+            `;
+            
+            AdminElements.detailsModal.style.display = 'block';
+        }
+        
+        // 查看总结详情
+        function viewSummaryDetails(summaryId) {
+            const summary = AdminState.summaries.find(s => s.id === summaryId);
+            if (!summary) return;
+            
+            AdminElements.detailsModalBody.innerHTML = `
+                <h2>总结详情</h2>
+                <div class="case-detail">
+                    <div class="detail-section">
+                        <h3>基本信息</h3>
+                        <p><strong>用户:</strong> ${summary.username}</p>
+                        <p><strong>标题:</strong> ${summary.title}</p>
+                        <p><strong>状态:</strong> 
+                            ${summary.deleted_by_user === 1 ? '<span class="tag-badge">已删除</span>' : ''}
+                            ${summary.is_public === 1 ? '<span class="tag-badge">公开</span>' : '<span class="tag-badge">私有</span>'}
+                        </p>
+                        <p><strong>创建时间:</strong> ${new Date(summary.created_at).toLocaleString()}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>总结内容</h3>
+                        <div class="analysis-text">${summary.content}</div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>关联的分析</h3>
+                        <p>共关联了 ${summary.analysisIds ? summary.analysisIds.length : 0} 个分析记录</p>
+                    </div>
+                </div>
+            `;
+            
+            AdminElements.detailsModal.style.display = 'block';
+        }
+        
+        // 工具函数
+        function showLoading(show) {
+            AdminElements.loadingOverlay.style.display = show ? 'flex' : 'none';
+        }
+        
+        function showMessage(message, type = 'info') {
+            AdminElements.modalBody.innerHTML = `
+                <div class="message ${type}">
+                    <div class="message-icon">
+                        ${type === 'success' ? '<i class="fas fa-check-circle"></i>' : 
+                          type === 'error' ? '<i class="fas fa-exclamation-circle"></i>' : 
+                          '<i class="fas fa-info-circle"></i>'}
+                    </div>
+                    <div class="message-text">${message}</div>
+                </div>
+            `;
+            
+            AdminElements.modal.style.display = 'block';
+            
+            // 自动关闭成功和信息消息
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    AdminElements.modal.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // 标签和分类的辅助函数
+        function getIssueTypeLabel(type) {
+            const labels = {
+                'factual-error': '事实错误',
+                'bias': '偏见',
+                'uncertainty': '表述不明确',
+                'outdated': '信息过时',
+                'parsing-error': '解析错误'
+            };
+            return labels[type] || type;
+        }
+        
+        function getSeverityLabel(severity) {
+            const labels = {
+                'low': '低',
+                'medium': '中',
+                'high': '高'
+            };
+            return labels[severity] || severity;
+        }
+        
+        function getSuspicionClass(score) {
+            if (score > 70) return 'suspicion-high';
+            if (score > 40) return 'suspicion-medium';
+            return 'suspicion-low';
+        }
+        
+        function getAnalysisTypeLabel(type) {
+            const labels = {
+                'general': '常规分析',
+                'factual': '事实核查',
+                'bias': '偏见检测',
+                'comprehensive': '综合分析'
+            };
+            return labels[type] || type;
+        }
+        
+        function getStrictnessLabel(strictness) {
+            const labels = {
+                'low': '宽松',
+                'medium': '中等',
+                'high': '严格'
+            };
+            return labels[strictness] || strictness;
+        }
+        
+        function getRatingLabel(rating) {
+            const labels = {
+                'excellent': '优秀',
+                'good': '良好',
+                'fair': '一般',
+                'poor': '较差'
+            };
+            return labels[rating] || rating;
+        }
+        
+        function getTagLabel(tag) {
+            const labels = {
+                'factual-error': '事实错误',
+                'bias': '偏见',
+                'uncertainty': '表述不明确',
+                'outdated': '信息过时',
+                'high-suspicion': '高可疑度',
+                'medium-suspicion': '中可疑度',
+                'low-suspicion': '低可疑度'
+            };
+            return labels[tag] || tag;
+        }
+    </script>
+</body>
+</html>
