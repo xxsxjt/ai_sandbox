@@ -60,22 +60,7 @@
                     <div class="generate-controls">
                         <button id="generate-fighters-btn" class="btn-small"><i class="fas fa-dice"></i> 随机生成</button>
                         <button id="ai-generate-btn" class="btn-small btn-cloud"><i class="fas fa-magic"></i> AI生成</button>
-                        <select id="generate-model" class="generate-model-select">
-                            <option value="__random_all__">🔀 随机(全部)</option>
-                            <option value="__random_local__">🏠 随机(本地)</option>
-                            <option value="__random_cloud__">☁️ 随机(云端)</option>
-                            <optgroup label="本地模型">
-                                <option value="llama3.1:latest">Llama3.1</option>
-                                <option value="qwen3:8b" selected>Qwen3:8b</option>
-                                <option value="deepseek-r1:8b">DeepSeek-R1:8b</option>
-                                <option value="gemma3:12b">Gemma3:12b</option>
-                            </optgroup>
-                            <optgroup label="云端模型">
-                                <option value="deepseek-v3.2:cloud">DeepSeek-V3.2</option>
-                                <option value="gpt-oss:cloud">GPT-OSS</option>
-                                <option value="minimax-m2.5:cloud">MiniMax-M2.5</option>
-                            </optgroup>
-                        </select>
+                        <select id="generate-model" class="generate-model-select"></select>
                         <select id="generate-count" class="generate-count-select">
                             <option value="2">2人</option>
                             <option value="3">3人</option>
@@ -114,32 +99,7 @@
                     <h2><i class="fas fa-microphone"></i> 主持人模型</h2>
                     <div class="form-group">
                         <label>选择模型</label>
-                        <select id="host-model">
-                            <optgroup label="本地模型">
-                                <option value="llama3.1:latest">Llama3.1 (latest)</option>
-                                <option value="qwen3:8b" selected>Qwen3:8b</option>
-                                <option value="deepseek-r1:8b">DeepSeek-R1:8b</option>
-                                <option value="gemma3:12b">Gemma3:12b</option>
-                                <option value="openchat:latest">OpenChat</option>
-                                <option value="rnj-1:latest">RNJ-1</option>
-                                <option value="olmo-3:latest">OLMo-3</option>
-                                <option value="ministral-3:8b">Ministral-3:8b</option>
-                                <option value="granite4:latest">Granite4</option>
-                            </optgroup>
-                            <optgroup label="云端模型">
-                                <option value="deepseek-v3.2:cloud">DeepSeek-V3.2</option>
-                                <option value="gpt-oss:120b-cloud">GPT-OSS 120B</option>
-                                <option value="minimax-m2.5:cloud">MiniMax-M2.5</option>
-                                <option value="cogito-2.1:671b-cloud">Cogito-2.1 671B</option>
-                                <option value="mistral-large-3:675b-cloud">Mistral-Large-3 675B</option>
-                                <option value="devstral-2:123b-cloud">Devstral-2 123B</option>
-                                <option value="nemotron-3-nano:30b-cloud">Nemotron-3-Nano 30B</option>
-                                <option value="qwen3.5:397b-cloud">Qwen3.5 397B</option>
-                                <option value="ministral-3:14b-cloud">Ministral-3 14B</option>
-                                <option value="kimi-k2.5:cloud">Kimi-K2.5</option>
-                                <option value="glm-5:cloud">GLM-5</option>
-                            </optgroup>
-                        </select>
+                        <select id="host-model"></select>
                     </div>
                     <div class="form-group">
                         <label>API Endpoint</label>
@@ -211,24 +171,7 @@
                 </div>
                 <div class="form-group">
                     <label>AI模型</label>
-                    <select id="fighter-model" size="6" class="model-select-scroll">
-                        <optgroup label="全部模型">
-                            <option value="__random_all__">🔀 随机(全部)</option>
-                            <option value="__random_local__">🏠 随机(本地)</option>
-                            <option value="__random_cloud__">☁️ 随机(云端)</option>
-                        </optgroup>
-                        <optgroup label="本地模型">
-                            <option value="llama3.1:latest">Llama3.1</option>
-                            <option value="qwen3:8b">Qwen3:8b</option>
-                            <option value="deepseek-r1:8b">DeepSeek-R1:8b</option>
-                            <option value="gemma3:12b">Gemma3:12b</option>
-                        </optgroup>
-                        <optgroup label="云端模型">
-                            <option value="deepseek-v3.2:cloud">DeepSeek-V3.2</option>
-                            <option value="gpt-oss:120b-cloud">GPT-OSS</option>
-                            <option value="minimax-m2.5:cloud">MiniMax-M2.5</option>
-                        </optgroup>
-                    </select>
+                    <select id="fighter-model" size="6" class="model-select-scroll"></select>
                 </div>
                 <div class="form-group">
                     <label>API端点</label>

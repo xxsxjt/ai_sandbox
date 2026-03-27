@@ -94,6 +94,11 @@ const elements = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 动态填充模型下拉框
+    populateModelSelect(document.getElementById('generate-model'), false, 'qwen3:8b');
+    populateModelSelect(document.getElementById('host-model'), false, 'qwen3:8b');
+    populateModelSelect(document.getElementById('fighter-model'), false, '__random_all__');
+
     initEventListeners();
     loadFromStorage();
     renderFighters();
@@ -276,15 +281,8 @@ async function generateMultipleFighters() {
     
     // 根据选择确定模型
     let model = selectedModel;
-    if (selectedModel === '__random_all__') {
-        const allModels = ['llama3.1:latest', 'qwen3:8b', 'deepseek-r1:8b', 'gemma3:12b', 'deepseek-v3.2:cloud'];
-        model = allModels[Math.floor(Math.random() * allModels.length)];
-    } else if (selectedModel === '__random_local__') {
-        const localModels = ['llama3.1:latest', 'qwen3:8b', 'deepseek-r1:8b', 'gemma3:12b'];
-        model = localModels[Math.floor(Math.random() * localModels.length)];
-    } else if (selectedModel === '__random_cloud__') {
-        const cloudModels = ['deepseek-v3.2:cloud', 'gpt-oss:cloud', 'minimax-m2.5:cloud'];
-        model = cloudModels[Math.floor(Math.random() * cloudModels.length)];
+    if (selectedModel === '__random_all__' || selectedModel === '__random_local__' || selectedModel === '__random_cloud__') {
+        model = resolveModel(selectedModel);
     }
 
     for (let i = 0; i < count; i++) {
@@ -337,18 +335,9 @@ async function AIGenerateFighters() {
         let model = selectedModel;
         let isCloudModel = false;
 
-        if (selectedModel === '__random_all__') {
-            const allModels = ['llama3.1:latest', 'qwen3:8b', 'deepseek-r1:8b', 'deepseek-v3.2:cloud'];
-            model = allModels[Math.floor(Math.random() * allModels.length)];
+        if (selectedModel === '__random_all__' || selectedModel === '__random_local__' || selectedModel === '__random_cloud__') {
+            model = resolveModel(selectedModel);
             isCloudModel = model.includes(':cloud');
-        } else if (selectedModel === '__random_local__') {
-            const localModels = ['llama3.1:latest', 'qwen3:8b', 'deepseek-r1:8b'];
-            model = localModels[Math.floor(Math.random() * localModels.length)];
-            isCloudModel = false;
-        } else if (selectedModel === '__random_cloud__') {
-            const cloudModels = ['deepseek-v3.2:cloud', 'gpt-oss:cloud'];
-            model = cloudModels[Math.floor(Math.random() * cloudModels.length)];
-            isCloudModel = true;
         } else {
             isCloudModel = selectedModel.includes(':cloud');
         }

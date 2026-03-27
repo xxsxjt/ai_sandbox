@@ -96,6 +96,10 @@ const elements = {
 
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', () => {
+    // 动态填充模型下拉框
+    populateModelSelect(document.getElementById('user-model-select'), false, '__random_cloud__');
+    populateModelSelect(document.getElementById('host-model'), false, '__random_cloud__');
+
     initEventListeners();
     loadFromStorage();
     renderPlayers();

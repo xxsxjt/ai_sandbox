@@ -43,25 +43,28 @@ const CLOUD_FALLBACK_CONFIG = {
 // ==================== 模型列表 ====================
 // 本地模型
 const LOCAL_MODELS = [
-    'llama3.1:latest',
-    'qwen3:8b',
+    'qwen3.5:latest',
     'deepseek-r1:8b',
-    'gemma3:12b',
-    'openchat:latest',
-    'rnj-1:latest',
-    'olmo-3:latest',
+    'granite4:latest',
     'ministral-3:8b',
-    'granite4:latest'
+    'olmo-3:latest',
+    'rnj-1:latest',
+    'openchat:latest',
+    'gemma3:12b',
+    'qwen3:8b',
+    'llama3.1:latest'
 ];
 
 // 云端模型
 const CLOUD_MODELS = [
-    'deepseek-v3.2:cloud',
-    'gpt-oss:120b-cloud',
-    'minimax-m2.5:cloud',
+    'minimax-m2.7:cloud',
+    'qwen3-coder-next:cloud',
     'cogito-2.1:671b-cloud',
     'mistral-large-3:675b-cloud',
     'devstral-2:123b-cloud',
+    'deepseek-v3.2:cloud',
+    'deepseek-v3.1:671b-cloud',
+    'gpt-oss:120b-cloud',
     'nemotron-3-nano:30b-cloud',
     'qwen3.5:397b-cloud',
     'ministral-3:14b-cloud',
@@ -71,6 +74,59 @@ const CLOUD_MODELS = [
 
 // 全部模型
 const AVAILABLE_MODELS = [...LOCAL_MODELS, ...CLOUD_MODELS];
+
+// ==================== 动态填充模型下拉框 ====================
+function populateModelSelect(selectElement, includeRandomRound = false, defaultModel) {
+    selectElement.innerHTML = '';
+
+    // 随机选项组
+    const randomGroup = document.createElement('optgroup');
+    randomGroup.label = '全部模型';
+    [
+        ['__random_all__', '🔀 随机(全部)'],
+        ['__random_local__', '🏠 随机(本地)'],
+        ['__random_cloud__', '☁️ 随机(云端)']
+    ].forEach(([val, text]) => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = text;
+        randomGroup.appendChild(opt);
+    });
+    if (includeRandomRound) {
+        const opt = document.createElement('option');
+        opt.value = '__random_round__';
+        opt.textContent = '🎲 每轮随机(全部)';
+        randomGroup.appendChild(opt);
+    }
+    selectElement.appendChild(randomGroup);
+
+    // 本地模型组
+    const localGroup = document.createElement('optgroup');
+    localGroup.label = '本地模型';
+    LOCAL_MODELS.forEach(model => {
+        const opt = document.createElement('option');
+        opt.value = model;
+        opt.textContent = model;
+        localGroup.appendChild(opt);
+    });
+    selectElement.appendChild(localGroup);
+
+    // 云端模型组
+    const cloudGroup = document.createElement('optgroup');
+    cloudGroup.label = '云端模型';
+    CLOUD_MODELS.forEach(model => {
+        const opt = document.createElement('option');
+        opt.value = model;
+        opt.textContent = model;
+        cloudGroup.appendChild(opt);
+    });
+    selectElement.appendChild(cloudGroup);
+
+    // 设置默认选中
+    if (defaultModel) {
+        selectElement.value = defaultModel;
+    }
+}
 
 // ==================== 随机模型选择 ====================
 function getRandomModel() {

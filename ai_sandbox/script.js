@@ -1,77 +1,3 @@
-// ==================== 可用模型 ====================
-// 本地模型
-const LOCAL_MODELS = [
-    'llama3.1:latest',
-    'qwen3:8b',
-    'deepseek-r1:8b',
-    'gemma3:12b',
-    'openchat:latest',
-    'rnj-1:latest',
-    'olmo-3:latest',
-    'ministral-3:8b',
-    'granite4:latest'
-];
-
-// 云端模型
-const CLOUD_MODELS = [
-    'deepseek-v3.1:671b-cloud',
-    'deepseek-v3.2:cloud',
-    'gpt-oss:120b-cloud',
-    'minimax-m2.5:cloud',
-    'cogito-2.1:671b-cloud',
-    'mistral-large-3:675b-cloud',
-    'devstral-2:123b-cloud',
-    'nemotron-3-nano:30b-cloud',
-    'qwen3.5:397b-cloud',
-    'ministral-3:14b-cloud',
-    'kimi-k2.5:cloud',
-    'glm-5:cloud'
-];
-
-// 全部模型
-const AVAILABLE_MODELS = [...LOCAL_MODELS, ...CLOUD_MODELS];
-
-function getRandomModel() {
-    return AVAILABLE_MODELS[Math.floor(Math.random() * AVAILABLE_MODELS.length)];
-}
-
-function getRandomLocalModel() {
-    return LOCAL_MODELS[Math.floor(Math.random() * LOCAL_MODELS.length)];
-}
-
-function getRandomCloudModel() {
-    return CLOUD_MODELS[Math.floor(Math.random() * CLOUD_MODELS.length)];
-}
-
-function resolveModel(model) {
-    if (model === '__random_all__') {
-        return getRandomModel();
-    } else if (model === '__random_local__') {
-        return getRandomLocalModel();
-    } else if (model === '__random_cloud__') {
-        return getRandomCloudModel();
-    } else if (model === '__random__') {
-        return getRandomModel();
-    } else if (model === '__random_round__') {
-        return getRandomModel();
-    }
-    return model;
-}
-
-function getDisplayModel(originalModel, actualModel) {
-    if (originalModel.startsWith('__random')) {
-        const labels = {
-            '__random_all__': '随机(全部)',
-            '__random_local__': '随机(本地)',
-            '__random_cloud__': '随机(云端)',
-            '__random__': '随机',
-            '__random_round__': '每轮随机'
-        };
-        return `${labels[originalModel] || '随机'}(${actualModel})`;
-    }
-    return actualModel;
-}
-
 // ==================== 状态管理 ====================
 const state = {
     characters: [],
@@ -144,6 +70,10 @@ const elements = {
 
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', () => {
+    // 动态填充模型下拉框
+    populateModelSelect(document.getElementById('generate-model'), false, 'qwen3:8b');
+    populateModelSelect(document.getElementById('char-model'), true);
+
     initEventListeners();
     loadFromStorage();
     renderCharacters();

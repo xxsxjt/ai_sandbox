@@ -151,6 +151,10 @@ const elements = {
 
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', () => {
+    // 动态填充模型下拉框
+    populateModelSelect(elements.generateModel, false, 'qwen3:8b');
+    populateModelSelect(elements.charModel, true);
+
     initEventListeners();
     loadFromStorage();
     renderCharacters();
@@ -947,9 +951,81 @@ function importConversation(e) {
             let currentSender = '';
             let currentText = '';
             let currentModel = '';
+            let inCharacterList = false;
+            let inSceneBackground = false;
+            let inDiscussionTopic = false;
             const importedMessages = [];
 
             lines.forEach(line => {
+                const trimmedLine = line.trim();
+
+                // 检测角色列表
+                if (trimmedLine === '## 角色列表') {
+                    inCharacterList = true;
+                    return;
+                }
+
+                // 检测场景背景
+                if (trimmedLine === '## 场景背景') {
+                    inCharacterList = false;
+                    inSceneBackground = true;
+                    return;
+                }
+
+                // 检测讨论主题
+                if (trimmedLine === '## 讨论主题') {
+                    inCharacterList = false;
+                    inSceneBackground = false;
+                    inDiscussionTopic = true;
+                    return;
+                }
+
+                // 到达分隔线，结束所有标记
+                if (trimmedLine === '---') {
+                    inCharacterList = false;
+                    inSceneBackground = false;
+                    inDiscussionTopic = false;
+                    return;
+                }
+
+                // 解析角色列表
+                if (inCharacterList && trimmedLine.startsWith('- ')) {
+                    // 格式: - 角色名 (模型: xxx)
+                    const charMatch = trimmedLine.match(/- (.+?) \s*\(\s*模型:\s*([^)]+)\)/);
+                    if (charMatch) {
+                        const charName = charMatch[1].trim();
+                        const charModel = charMatch[2].trim();
+                        // 检查角色是否已存在
+                        const existingIndex = state.characters.findIndex(c => c.name === charName);
+                        if (existingIndex === -1) {
+                            // 角色不存在，添加新角色
+                            state.characters.push({
+                                id: Date.now().toString() + Math.random().toString(36).substring(2, 11),
+                                name: charName,
+                                description: '从导入文件恢复的角色',
+                                model: charModel,
+                                customModel: '',
+                                endpoint: 'http://localhost:11434/v1',
+                                apiKey: 'ollama'
+                            });
+                        }
+                    }
+                    return;
+                }
+
+                // 解析场景背景
+                if (inSceneBackground) {
+                    elements.sceneBackground.value += (elements.sceneBackground.value ? '\n' : '') + line;
+                    return;
+                }
+
+                // 解析讨论主题
+                if (inDiscussionTopic) {
+                    elements.discussionTopic.value += (elements.discussionTopic.value ? '\n' : '') + line;
+                    return;
+                }
+
+                // 解析对话消息
                 const senderMatch = line.match(/^\*\*(.+?)\*\*(?:\[([^\]]+)\])?\s*(?:\(([^)]+)\))?$/);
                 if (senderMatch) {
                     if (currentSender && currentText) {
@@ -965,7 +1041,7 @@ function importConversation(e) {
                     currentSender = senderMatch[1];
                     currentModel = senderMatch[2] || '';
                     currentText = '';
-                } else if (line.trim() && !line.startsWith('---') && !line.startsWith('## ')) {
+                } else if (trimmedLine && !trimmedLine.startsWith('---') && !trimmedLine.startsWith('## ')) {
                     currentText += line + '\n';
                 }
             });
@@ -981,11 +1057,12 @@ function importConversation(e) {
                 });
             }
 
-            if (importedMessages.length > 0) {
+            if (importedMessages.length > 0 || state.characters.length > 0) {
                 state.messages = importedMessages;
                 saveToStorage();
+                renderCharacters();
                 renderMessages();
-                alert(`成功导入 ${importedMessages.length} 条记录`);
+                alert(`成功导入 ${importedMessages.length} 条对话和 ${state.characters.length} 个角色`);
             } else {
                 alert('无法解析文件内容');
             }

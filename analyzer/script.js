@@ -100,6 +100,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
+    // 动态填充模型下拉框（分析器不需要随机选项，但兼容也无妨）
+    populateModelSelect(document.getElementById('api-model'), false, 'qwen3.5:latest');
+
     loadSettings();
     loadCases();
     loadSummaries();

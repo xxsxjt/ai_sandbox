@@ -114,6 +114,12 @@ const elements = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 动态填充模型下拉框
+    populateModelSelect(document.getElementById('generate-model'), false, 'llama3.1:latest');
+    populateModelSelect(document.getElementById('host-model'), false);
+    populateModelSelect(document.getElementById('player-default-model'), true);
+    populateModelSelect(document.getElementById('player-model'), true);
+
     initEventListeners();
     loadFromStorage();
     renderPlayers();
