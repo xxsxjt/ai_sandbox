@@ -1,9 +1,20 @@
 // ==================== AI战斗模拟器 ====================
 // 模型和API函数已在 shared.js 中定义
+// 新的战斗系统在 combat-system.js 中定义
+
+// 引入战斗系统
+let combatSystem = null;
+let combatAI = null;
+let battleFlow = null;
+let teamBattle = null;
+let battleRoyale = null;
+let tacticalAI = null;
+let gameModeManager = null;
+let replaySystem = null;
 
 // 战斗行动
 const BATTLE_ACTIONS = [
-    '攻击', '防御', '闪避', '反击', '暴击', '格挡', '冲锋', '撤退'
+    '攻击', '防御', '闪避', '反击', '暴击', '格挡', '冲锋', '撤退', '治疗', '蓄力', '突袭'
 ];
 
 // 战斗模式配置
@@ -56,7 +67,11 @@ const gameState = {
     phaseInterval: null,
     editingFighterId: null,
     roundActions: {},  // 每回合各角色的行动
-    pendingJudgment: null  // 待判定的数据（主持失败时保存）
+    pendingJudgment: null,  // 待判定的数据（主持失败时保存）
+    battleHistory: [],  // 完整战斗历史
+    currentCombat: null,  // 当前回合战斗结果
+    statusEffects: new Map(),  // 全局状态效果
+    teamScores: new Map()  // 团队得分
 };
 
 const elements = {
@@ -69,6 +84,7 @@ const elements = {
     fighterName: document.getElementById('fighter-name'),
     fighterDesc: document.getElementById('fighter-desc'),
     fighterHp: document.getElementById('fighter-hp'),
+    fighterClass: document.getElementById('fighter-class'),
     fighterModel: document.getElementById('fighter-model'),
     fighterEndpoint: document.getElementById('fighter-endpoint'),
     fighterApiKey: document.getElementById('fighter-api-key'),
@@ -94,6 +110,15 @@ const elements = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 初始化战斗系统
+    combatSystem = new CombatSystem();
+    combatAI = new EnhancedBattleAI(combatSystem); // 使用增强战术AI
+    battleFlow = new BattleFlowManager(combatSystem, combatAI);
+    teamBattle = new TeamBattleSystem();
+    battleRoyale = new BattleRoyaleSystem();
+    gameModeManager = new GameModeManager();
+    replaySystem = new ReplaySystem();
+
     // 动态填充模型下拉框
     populateModelSelect(document.getElementById('generate-model'), false, 'qwen3:8b');
     populateModelSelect(document.getElementById('host-model'), false, 'qwen3:8b');
@@ -105,6 +130,56 @@ document.addEventListener('DOMContentLoaded', () => {
     renderMessages();
     updateHealthBars();
     renderBattleField();
+
+    // 添加角色类选择下拉框
+    addClassSelectOptions();
+
+    // 添加角色类选择下拉框
+    function addClassSelectOptions() {
+        if (elements.fighterClass) {
+            const classes = [
+                { value: 'warrior', text: '战士', desc: '高攻击力和生命值' },
+                { value: 'mage', text: '法师', desc: '高暴击和魔法伤害' },
+                { value: 'assassin', text: '刺客', desc: '高速度和闪避' },
+                { value: 'tank', text: '坦克', desc: '高防御和格挡' },
+                { value: 'healer', text: '治疗师', desc: '可以治疗队友' }
+            ];
+
+            elements.fighterClass.innerHTML = classes.map(c =>
+                `<option value="${c.value}">${c.text}</option>`
+            ).join('');
+        }
+    }
+
+    // 将战斗风格映射到角色类
+    function mapStyleToClass(style) {
+        const styleMap = {
+            '剑客': 'warrior',
+            '战士': 'warrior',
+            '法师': 'mage',
+            '魔法师': 'mage',
+            '刺客': 'assassin',
+            '弓手': 'assassin',
+            '射手': 'assassin',
+            '坦克': 'tank',
+            '重甲': 'tank',
+            '治疗师': 'healer',
+            '牧师': 'healer',
+            '圣骑士': 'healer',
+            '刺客大师': 'assassin',
+            '元素使': 'mage',
+            '狂战士': 'warrior'
+        };
+
+        const lowerStyle = style.toLowerCase();
+        for (const [key, value] of Object.entries(styleMap)) {
+            if (lowerStyle.includes(key.toLowerCase())) {
+                return value;
+            }
+        }
+
+        return getRandomClass();
+    }
 });
 
 // ==================== 事件监听 ====================
@@ -270,7 +345,7 @@ function getFighterById(id) { return gameState.fighters.find(f => f.id === id); 
 async function generateMultipleFighters() {
     const count = parseInt(document.getElementById('generate-count').value) || 4;
     const selectedModel = document.getElementById('generate-model').value;
-    
+
     const names = ['剑圣', '刺客', '战士', '法师', '弓手', '骑士', '恶魔', '天使', '龙', '凤凰', '狼', '熊', '虎', '豹', '蛇', '鹰'];
     const descs = [
         '擅长近身战斗，一剑封喉', '速度极快，来无影去无踪', '力量型选手，一力降十会',
@@ -278,7 +353,7 @@ async function generateMultipleFighters() {
         '黑暗力量，诡异莫测', '光明之力，净化一切', '喷火吐息，毁天灭地',
         '浴火重生，不死之身', '凶猛野兽本能', '王者之气，睥睨天下'
     ];
-    
+
     // 根据选择确定模型
     let model = selectedModel;
     if (selectedModel === '__random_all__' || selectedModel === '__random_local__' || selectedModel === '__random_cloud__') {
@@ -288,20 +363,23 @@ async function generateMultipleFighters() {
     for (let i = 0; i < count; i++) {
         const name = names[Math.floor(Math.random() * names.length)] + (i + 1);
         const desc = descs[Math.floor(Math.random() * descs.length)];
-        
+        const classType = getRandomClass();
+
         const fighter = {
             id: Date.now().toString() + i,
             name: name,
             description: desc,
-            maxHp: 80 + Math.floor(Math.random() * 40),
-            hp: 80 + Math.floor(Math.random() * 40),
+            class: classType,
+            team: i % 2 === 0 ? 'team1' : 'team2', // 自动分配团队
             model: model,
             endpoint: gameState.gameEndpoint,
             apiKey: gameState.gameApiKey,
             alive: true,
             action: null
         };
-        fighter.hp = fighter.maxHp;
+
+        // 使用战斗系统初始化属性
+        combatSystem.initializeFighter(fighter);
         gameState.fighters.push(fighter);
     }
 
@@ -367,19 +445,23 @@ async function AIGenerateFighters() {
 
         for (let i = 0; i < characters.length; i++) {
             const char = characters[i];
+            const classType = char.style ? mapStyleToClass(char.style) : getRandomClass();
+
             const fighter = {
                 id: Date.now().toString() + i,
                 name: char.name || '未知角色',
                 description: char.description || char.style || '战斗者',
-                maxHp: 80 + Math.floor(Math.random() * 40),
-                hp: 80 + Math.floor(Math.random() * 40),
+                class: classType,
+                team: i % 2 === 0 ? 'team1' : 'team2',
                 model: model,
                 endpoint: gameState.gameEndpoint,
                 apiKey: gameState.gameApiKey,
                 alive: true,
                 action: null
             };
-            fighter.hp = fighter.maxHp;
+
+            // 使用战斗系统初始化属性
+            combatSystem.initializeFighter(fighter);
             gameState.fighters.push(fighter);
         }
 

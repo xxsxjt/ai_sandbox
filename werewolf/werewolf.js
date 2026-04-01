@@ -1,5 +1,10 @@
 // ==================== 狼人杀游戏逻辑 - 主持人模式 ====================
 // 模型和API函数已在 shared.js 中定义
+// 高级角色系统在 roles.js 中定义
+
+// 引入角色能力系统和AI增强系统
+let roleAbilitySystem = null;
+let aiImprovements = null;
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -8,6 +13,45 @@ function shuffleArray(array) {
     }
     return array;
 }
+
+// 高级角色配置
+const ADVANCED_ROLES = {
+    elder: {
+        name: '长老',
+        team: 'good',
+        description: '投票被淘汰时存活一次，需再次投票'
+    },
+    silencer: {
+        name: '禁言长老',
+        team: 'good',
+        description: '每晚可禁言一名玩家'
+    },
+    knight: {
+        name: '骑士',
+        team: 'good',
+        description: '每天可守护一名玩家免受狼击'
+    },
+    magician: {
+        name: '魔术师',
+        team: 'good',
+        description: '可复活一名死亡的玩家'
+    },
+    dreamEater: {
+        name: '摄梦人',
+        team: 'neutral',
+        description: '可修改投票结果'
+    },
+    whiteWolfKing: {
+        name: '白狼王',
+        team: 'wolf',
+        description: '自爆时可以带走一名玩家'
+    },
+    wolfBeauty: {
+        name: '狼美人',
+        team: 'wolf',
+        description: '击杀目标后获得护身符'
+    }
+};
 
 const PHASE = {
     SETUP: 'setup',
@@ -50,7 +94,15 @@ const gameState = {
     wolfTeamMessages: [],  // 狼人团队聊天记录
     nightRoundRecords: [],  // 每轮夜间记录（用于导出）
     nightActions: {},  // 夜间行动决定
-    currentNightActor: null  // 当前夜间行动的玩家
+    currentNightActor: null,  // 当前夜间行动的玩家
+    currentNightRecord: [],  // 当前夜晚行动记录
+    suspicionMap: new Map(),  // 玩家可疑度
+    dreamEaterUsed: false,  // 摄梦人是否已使用能力
+    elderLivedOnce: false,  // 长老是否已触发过
+    magicianRevived: false,  // 魔术师是否已复活
+    knightProtected: null,  // 骑士守护目标
+    voteOverride: null,  // 摄梦人修改投票
+    wolfBeautyAlive: false  // 狼美人护身符状态
 };
 
 const elements = {
@@ -2443,6 +2495,61 @@ function resumeFromUserAction() {
     updateControlButtons();
 }
 
+// 初始化角色能力系统
+function initializeRoleSystem() {
+    roleAbilitySystem = new RoleAbilitySystem(gameState);
+    aiImprovements = new WerewolfAIImprovements();
+
+    // 添加角色能力说明到界面
+    addRoleAbilityDescriptions();
+}
+
+// 添加角色能力说明
+function addRoleAbilityDescriptions() {
+    const roleDescriptions = document.createElement('div');
+    roleDescriptions.className = 'role-ability-section';
+    roleDescriptions.innerHTML = `
+        <h3><i class="fas fa-info-circle"></i> 高级角色能力说明</h3>
+        <div class="role-grid">
+            ${Object.entries(ADVANCED_ROLES).map(([key, role]) => `
+                <div class="role-card ${role.team}">
+                    <h4>${role.name}</h4>
+                    <p>${role.description}</p>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    // 插入到游戏设置面板
+    const settingsSection = document.querySelector('.settings-panel');
+    if (settingsSection && !document.querySelector('.role-ability-section')) {
+        settingsSection.appendChild(roleDescriptions);
+    }
+}
+
+// 启动游戏时初始化
+function startGame() {
+    initializeRoleSystem();
+    // ... 其他启动逻辑
+}
+
+// 游戏开始
+document.addEventListener('DOMContentLoaded', () => {
+    initializeRoleSystem();
+
+    // 绑定AI增强的API调用
+    if (typeof callAPI !== 'undefined') {
+        // 覆盖原始callAPI以使用增强版本
+        const originalCallAPI = callAPI;
+        callAPI = async (options) => {
+            // 这里可以添加全局的AI增强逻辑
+            return await originalCallAPI(options);
+        };
+    }
+
+    // ... 其他初始化代码
+});
+
 // 导出夜间行动函数到全局
 window.triggerWolfKill = triggerWolfKill;
 window.triggerSeerCheck = triggerSeerCheck;
@@ -2452,3 +2559,5 @@ window.triggerHunterShoot = triggerHunterShoot;
 window.finishNightPhase = finishNightPhase;
 window.closeUserModal = closeUserModal;
 window.switchUserTab = switchUserTab;
+window.initializeRoleSystem = initializeRoleSystem;
+window.startGame = startGame;

@@ -366,3 +366,144 @@ function safeHtml(text) {
     if (text == null) return '';
     return escapeHtml(String(text));
 }
+
+// ==================== UI辅助工具函数 ====================
+
+// 创建和显示Toast提示
+function showToast(message, type = 'info', duration = 3000) {
+    if (window.UIEnhancements && window.UIEnhancements.Toast) {
+        const toast = new UIEnhancements.Toast();
+        toast.show(message, type, duration);
+    } else {
+        // 如果UI增强未加载，使用简单的alert
+        alert(message);
+    }
+}
+
+// 显示加载动画
+function showLoading(element = document.body, message = '加载中...') {
+    if (window.UIEnhancements && window.UIEnhancements.Loading) {
+        const loading = new UIEnhancements.Loading();
+        loading.show(message);
+        return loading;
+    } else {
+        // 简单的加载提示
+        const loadingDiv = document.createElement('div');
+        loadingDiv.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            z-index: 1000;
+        `;
+        loadingDiv.textContent = message;
+        document.body.appendChild(loadingDiv);
+        return { hide: () => loadingDiv.remove() };
+    }
+}
+
+// 创建模态框
+function createModal(options = {}) {
+    if (window.UIEnhancements && window.UIEnhancements.Modal) {
+        return new UIEnhancements.Modal(options);
+    } else {
+        // 简单的模态框实现
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        `;
+
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        `;
+
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+
+        // 点击外部关闭
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+
+        return {
+            show: () => {},
+            close: () => modal.remove(),
+            setHeader: (title) => {
+                const header = document.createElement('h2');
+                header.textContent = title;
+                content.insertBefore(header, content.firstChild);
+            },
+            setBody: (html) => {
+                content.innerHTML = html;
+            },
+            setFooter: (html) => {
+                const footer = document.createElement('div');
+                footer.innerHTML = html;
+                content.appendChild(footer);
+            }
+        };
+    }
+}
+
+// 格式化时间
+function formatTime(date) {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+}
+
+// 深拷贝对象
+function deepClone(obj) {
+    if (obj === null || typeof obj !== 'object') return obj;
+    if (obj instanceof Date) return new Date(obj.getTime());
+    if (obj instanceof Array) return obj.map(item => deepClone(item));
+    if (obj instanceof Object) {
+        const cloned = {};
+        Object.keys(obj).forEach(key => {
+            cloned[key] = deepClone(obj[key]);
+        });
+        return cloned;
+    }
+}
+
+// 防抖函数
+function debounce(func, delay) {
+    let timeoutId;
+    return function(...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+// 节流函数
+function throttle(func, delay) {
+    let lastCall = 0;
+    return function(...args) {
+        const now = Date.now();
+        if (now - lastCall >= delay) {
+            lastCall = now;
+            func.apply(this, args);
+        }
+    };
+}

@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI战斗模拟器</title>
     <link rel="stylesheet" href="battle.css">
+    <script src="shared.js"></script>
+    <script src="combat-system.js"></script>
+    <script src="battle-flow.js"></script>
+    <script src="tactical-ai.js"></script>
+    <script src="game-modes.js"></script>
+    <script src="../ui-enhancements.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         onerror="this.href='https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/css/all.min.css'">
@@ -137,6 +143,14 @@
                     <div class="empty-state">
                         <i class="fas fa-khanda"></i>
                         <p>添加战斗角色后，点击"开始战斗"</p>
+                    </div>
+                </div>
+
+                <!-- 战斗回放列表 -->
+                <div class="replay-section">
+                    <h3><i class="fas fa-history"></i> 战斗回放</h3>
+                    <div id="replay-list" class="replay-list">
+                        <!-- 回放列表将在这里动态生成 -->
                     </div>
                 </div>
 
