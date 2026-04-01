@@ -421,8 +421,8 @@ function displayResults() {
                     <span class="tag-badge">${getIssueTypeLabel(issue.type)}</span>
                     <span class="tag-badge ${issue.severity}">${getSeverityLabel(issue.severity)}</span>
                 </div>
-                <div class="issue-description">${issue.description}</div>
-                ${issue.suggestion ? `<div class="issue-suggestion">建议: ${issue.suggestion}</div>` : ''}
+                <div class="issue-description">${escapeHtml(issue.description)}</div>
+                ${issue.suggestion ? `<div class="issue-suggestion">建议: ${escapeHtml(issue.suggestion)}</div>` : ''}
             </div>
         `).join('');
     } else {
@@ -953,26 +953,26 @@ function viewCase(caseId) {
         <div class="case-detail">
             <div class="detail-section">
                 <h3>基本信息</h3>
-                <p><strong>时间:</strong> ${new Date(caseEntry.timestamp).toLocaleString()}</p>
-                <p><strong>分析类型:</strong> ${getAnalysisTypeLabel(caseEntry.analysisType)}</p>
-                <p><strong>严格程度:</strong> ${getStrictnessLabel(caseEntry.strictness)}</p>
-                <p><strong>可疑度评分:</strong> <span class="suspicion-badge ${getSuspicionClass(caseEntry.suspicionScore)}">${caseEntry.suspicionScore}%</span></p>
-                <p><strong>总体评级:</strong> ${getRatingLabel(caseEntry.overallRating)}</p>
+                <p><strong>时间:</strong> ${escapeHtml(new Date(caseEntry.timestamp).toLocaleString())}</p>
+                <p><strong>分析类型:</strong> ${escapeHtml(getAnalysisTypeLabel(caseEntry.analysisType))}</p>
+                <p><strong>严格程度:</strong> ${escapeHtml(getStrictnessLabel(caseEntry.strictness))}</p>
+                <p><strong>可疑度评分:</strong> <span class="suspicion-badge ${getSuspicionClass(caseEntry.suspicionScore)}">${escapeHtml(caseEntry.suspicionScore + '%')}</span></p>
+                <p><strong>总体评级:</strong> ${escapeHtml(getRatingLabel(caseEntry.overallRating))}</p>
             </div>
             
             <div class="detail-section">
                 <h3>上下文</h3>
-                <p>${caseEntry.context || '无'}</p>
+                <p>${escapeHtml(caseEntry.context || '无')}</p>
             </div>
             
             <div class="detail-section">
                 <h3>完整内容</h3>
-                <p>${caseEntry.fullAnswer}</p>
+                <p>${escapeHtml(caseEntry.fullAnswer)}</p>
             </div>
             
             <div class="detail-section">
                 <h3>分析摘要</h3>
-                <p>${caseEntry.summary}</p>
+                <p>${escapeHtml(caseEntry.summary)}</p>
             </div>
             
             <div class="detail-section">
@@ -984,8 +984,8 @@ function viewCase(caseId) {
                                 <span class="tag-badge">${getIssueTypeLabel(issue.type)}</span>
                                 <span class="tag-badge ${issue.severity}">${getSeverityLabel(issue.severity)}</span>
                             </div>
-                            <div class="issue-description">${issue.description}</div>
-                            ${issue.suggestion ? `<div class="issue-suggestion">建议: ${issue.suggestion}</div>` : ''}
+                            <div class="issue-description">${escapeHtml(issue.description)}</div>
+                            ${issue.suggestion ? `<div class="issue-suggestion">建议: ${escapeHtml(issue.suggestion)}</div>` : ''}
                         </div>
                     `).join('') : 
                     '<p>未检测到明显问题</p>'
@@ -995,14 +995,14 @@ function viewCase(caseId) {
             <div class="detail-section">
                 <h3>优点</h3>
                 ${caseEntry.strengths && caseEntry.strengths.length > 0 ?
-                    `<ul>${caseEntry.strengths.map(strength => `<li>${strength}</li>`).join('')}</ul>` :
+                    `<ul>${caseEntry.strengths.map(strength => `<li>${escapeHtml(strength)}</li>`).join('')}</ul>` :
                     '<p>无记录的优点</p>'
                 }
             </div>
             
             <div class="detail-section">
                 <h3>标签</h3>
-                <div>${caseEntry.tags.map(tag => `<span class="tag-badge">${getTagLabel(tag)}</span>`).join('')}</div>
+                <div>${caseEntry.tags.map(tag => `<span class="tag-badge">${escapeHtml(getTagLabel(tag))}</span>`).join('')}</div>
             </div>
         </div>
         
@@ -1994,7 +1994,7 @@ function showMessage(message, type = 'info') {
                   type === 'error' ? '<i class="fas fa-exclamation-circle"></i>' : 
                   '<i class="fas fa-info-circle"></i>'}
             </div>
-            <div class="message-text">${message}</div>
+            <div class="message-text">${escapeHtml(message)}</div>
         </div>
     `;
     

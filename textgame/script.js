@@ -541,71 +541,73 @@ function displayCharacterCreation() {
     const world = AppState.worldData;
     
     // 显示角色基本信息
-    Elements.characterInfo.innerHTML = `
+    const characterInfoHTML = `
         <div class="info-section">
             <h3>世界信息</h3>
-            <p><strong>世界名称:</strong> ${world.name}</p>
-            <p><strong>世界描述:</strong> ${world.description}</p>
-            <p><strong>起始地点:</strong> ${world.startingLocation.name}</p>
+            <p><strong>世界名称:</strong> ${escapeHtml(world.name)}</p>
+            <p><strong>世界描述:</strong> ${escapeHtml(world.description)}</p>
+            <p><strong>起始地点:</strong> ${escapeHtml(world.startingLocation.name)}</p>
         </div>
-        
+
         <div class="info-section">
             <h3>角色属性</h3>
-            <p><strong>姓名:</strong> ${character.name}</p>
-            <p><strong>背景:</strong> ${character.background}</p>
+            <p><strong>姓名:</strong> ${escapeHtml(character.name)}</p>
+            <p><strong>背景:</strong> ${escapeHtml(character.background)}</p>
             <div class="stats-grid">
-                <div class="stat-bar"><span>生命值:</span> <strong>${character.stats.health}</strong></div>
-                <div class="stat-bar"><span>法力值:</span> <strong>${character.stats.mana}</strong></div>
-                <div class="stat-bar"><span>力量:</span> <strong>${character.stats.strength}/10</strong></div>
-                <div class="stat-bar"><span>智力:</span> <strong>${character.stats.intelligence}/10</strong></div>
-                <div class="stat-bar"><span>敏捷:</span> <strong>${character.stats.agility}/10</strong></div>
-                <div class="stat-bar"><span>魅力:</span> <strong>${character.stats.charisma}/10</strong></div>
+                <div class="stat-bar"><span>生命值:</span> <strong>${escapeHtml(character.stats.health)}</strong></div>
+                <div class="stat-bar"><span>法力值:</span> <strong>${escapeHtml(character.stats.mana)}</strong></div>
+                <div class="stat-bar"><span>力量:</span> <strong>${escapeHtml(character.stats.strength)}/10</strong></div>
+                <div class="stat-bar"><span>智力:</span> <strong>${escapeHtml(character.stats.intelligence)}/10</strong></div>
+                <div class="stat-bar"><span>敏捷:</span> <strong>${escapeHtml(character.stats.agility)}/10</strong></div>
+                <div class="stat-bar"><span>魅力:</span> <strong>${escapeHtml(character.stats.charisma)}/10</strong></div>
             </div>
         </div>
     `;
+    Elements.characterInfo.innerHTML = characterInfoHTML;
     
     // 显示角色选择选项
-    Elements.characterChoices.innerHTML = `
+    const characterChoicesHTML = `
         <h3>选择你的职业</h3>
         <div class="class-choices">
             ${character.class.map(cls => `
-                <div class="class-option" data-class="${cls}">
-                    <h4>${cls}</h4>
-                    <p>点击选择${cls}作为你的职业</p>
+                <div class="class-option" data-class="${escapeHtml(cls)}">
+                    <h4>${escapeHtml(cls)}</h4>
+                    <p>点击选择${escapeHtml(cls)}作为你的职业</p>
                 </div>
             `).join('')}
         </div>
-        
+
         <h3>角色天赋</h3>
         <div class="talent-list">
             ${character.talents.map(talent => `
                 <div class="talent-item">
                     <i class="fas fa-star"></i>
-                    <span>${talent}</span>
+                    <span>${escapeHtml(talent)}</span>
                 </div>
             `).join('')}
         </div>
-        
+
         <h3>初始装备</h3>
         <div class="equipment-list">
             ${character.equipment.map(item => `
                 <div class="equipment-item">
                     <i class="fas fa-shield-alt"></i>
-                    <span>${item}</span>
+                    <span>${escapeHtml(item)}</span>
                 </div>
             `).join('')}
         </div>
-        
+
         <h3>初始物品</h3>
         <div class="inventory-list">
             ${character.inventory.map(item => `
                 <div class="inventory-item">
                     <i class="fas fa-box"></i>
-                    <span>${item}</span>
+                    <span>${escapeHtml(item)}</span>
                 </div>
             `).join('')}
         </div>
     `;
+    Elements.characterChoices.innerHTML = characterChoicesHTML;
     
     // 添加职业选择事件
     document.querySelectorAll('.class-option').forEach(option => {
@@ -810,8 +812,8 @@ function updateAvailableActions() {
     const actionType = Elements.actionType.value;
     const actions = getActionsByType(actionType);
     
-    Elements.availableActions.innerHTML = actions.map(action => 
-        `<div class="action-chip" data-action="${action}">${action}</div>`
+    Elements.availableActions.innerHTML = actions.map(action =>
+        `<div class="action-chip" data-action="${escapeHtml(action)}">${escapeHtml(action)}</div>`
     ).join('');
     
     // 添加点击事件
@@ -2005,8 +2007,8 @@ function discoverNewTile(x, y, name, description, level, imagePrompt) {
 
 // 显示模态框
 function showModal(title, content) {
-    Elements.modalBody.innerHTML = `
-        <h2>${title}</h2>
+    const modalHTML = `
+        <h2>${escapeHtml(title)}</h2>
         <div class="modal-content-wrapper">
             ${content}
         </div>
@@ -2014,6 +2016,7 @@ function showModal(title, content) {
             <button class="secondary-btn" onclick="closeModal()">关闭</button>
         </div>
     `;
+    Elements.modalBody.innerHTML = modalHTML;
     
     Elements.modal.style.display = 'block';
 }
@@ -2255,11 +2258,11 @@ function displayResults() {
         Elements.detectedIssues.innerHTML = data.issues.map(issue => `
             <div class="issue-item">
                 <div class="issue-title">
-                    <span class="tag-badge">${getIssueTypeLabel(issue.type)}</span>
-                    <span class="tag-badge ${issue.severity}">${getSeverityLabel(issue.severity)}</span>
+                    <span class="tag-badge">${escapeHtml(getIssueTypeLabel(issue.type))}</span>
+                    <span class="tag-badge ${issue.severity}">${escapeHtml(getSeverityLabel(issue.severity))}</span>
                 </div>
-                <div class="issue-description">${issue.description}</div>
-                ${issue.suggestion ? `<div class="issue-suggestion">建议: ${issue.suggestion}</div>` : ''}
+                <div class="issue-description">${escapeHtml(issue.description)}</div>
+                ${issue.suggestion ? `<div class="issue-suggestion">建议: ${escapeHtml(issue.suggestion)}</div>` : ''}
             </div>
         `).join('');
     } else {
@@ -2403,18 +2406,18 @@ function updateSavesDisplay() {
         var playTime = calculatePlayTime(gameState);
 
         return '<tr>' +
-            '<td>' + save.name + '</td>' +
-            '<td>' + (gameState.playerName || '冒险者') + '</td>' +
-            '<td>Lv.' + (gameState.level || 1) + '</td>' +
-            '<td>' + (gameState.chapter || '序章') + '</td>' +
-            '<td>' + playTime + '</td>' +
-            '<td>' + saveDate.toLocaleString() + '</td>' +
+            '<td>' + escapeHtml(save.name) + '</td>' +
+            '<td>' + escapeHtml(gameState.playerName || '冒险者') + '</td>' +
+            '<td>Lv.' + escapeHtml(gameState.level || 1) + '</td>' +
+            '<td>' + escapeHtml(gameState.chapter || '序章') + '</td>' +
+            '<td>' + escapeHtml(playTime) + '</td>' +
+            '<td>' + escapeHtml(saveDate.toLocaleString()) + '</td>' +
             '<td>' +
                 '<div class="action-buttons">' +
-                    '<button title="加载存档" onclick="loadSave(\'' + save.id + '\')"><i class="fas fa-upload"></i></button>' +
-                    '<button title="查看详情" onclick="viewSave(\'' + save.id + '\')"><i class="fas fa-eye"></i></button>' +
-                    '<button title="导出存档" onclick="exportSave(\'' + save.id + '\')"><i class="fas fa-download"></i></button>' +
-                    '<button title="删除存档" onclick="deleteSave(\'' + save.id + '\')"><i class="fas fa-trash"></i></button>' +
+                    '<button title="加载存档" onclick="loadSave(\'' + escapeHtml(save.id) + '\')"><i class="fas fa-upload"></i></button>' +
+                    '<button title="查看详情" onclick="viewSave(\'' + escapeHtml(save.id) + '\')"><i class="fas fa-eye"></i></button>' +
+                    '<button title="导出存档" onclick="exportSave(\'' + escapeHtml(save.id) + '\')"><i class="fas fa-download"></i></button>' +
+                    '<button title="删除存档" onclick="deleteSave(\'' + escapeHtml(save.id) + '\')"><i class="fas fa-trash"></i></button>' +
                 '</div>' +
             '</td>' +
         '</tr>';

@@ -1,46 +1,62 @@
 // ==================== 联网搜索功能 ====================
-// 使用 DuckDuckGo HTML 版本（免费无需API Key）
+// 使用 Bing 搜索（国内可访问）
 async function webSearch(query) {
     try {
         const encodedQuery = encodeURIComponent(query);
-        const url = `https://html.duckduckgo.com/html/?q=${encodedQuery}`;
-        
-        const response = await fetch(url);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        const response = await fetch(`https://www.bing.com/search?q=${encodedQuery}&count=5`, {
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
         if (!response.ok) throw new Error('搜索请求失败');
-        
+
         const html = await response.text();
-        
-        // 解析搜索结果
+
+        // 解析 Bing 搜索结果
         const results = [];
-        const regex = /<a class="result__a" href="[^"]*"[^>]*>([^<]*)<\/a>[\s\S]*?<a class="result__snippet"[^>]*>([^<]*)<\/a>/g;
+        const regex = /<li class="b_algo"[^>]*>[\s\S]*?<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/g;
         let match;
         let count = 0;
-        
+
         while ((match = regex.exec(html)) !== null && count < 5) {
-            const title = match[1].replace(/<[^>]+>/g, '').trim();
-            const snippet = match[2].replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').trim();
+            const title = match[2].replace(/<[^>]+>/g, '').trim();
+            const snippet = match[3].replace(/<[^>]+>/g, '').trim();
             if (title && snippet) {
                 results.push({ title, snippet });
                 count++;
             }
         }
-        
+
         if (results.length === 0) {
-            // 备用解析方式
-            const altRegex = /<result[^>]*>[\s\S]*?url":"([^"]*)"[\s\S]*?title":"([^"]*)"[\s\S]*?snippet":"([^"]*)"/g;
+            // 备用解析
+            const altRegex = /<h2[^>]*><a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a><\/h2>[\s\S]*?<div class="b_caption"[^>]*>[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/g;
             while ((match = altRegex.exec(html)) !== null && count < 5) {
-                const title = match[2].replace(/\\"/g, '"').trim();
-                const snippet = match[3].replace(/\\"/g, '"').trim();
+                const title = match[2].replace(/<[^>]+>/g, '').trim();
+                const snippet = match[3].replace(/<[^>]+>/g, '').trim();
                 if (title && snippet) {
                     results.push({ title, snippet });
                     count++;
                 }
             }
         }
-        
+
         return results;
     } catch (error) {
         console.error('搜索失败:', error);
+
+        // 如果是CORS错误，自动禁用搜索功能
+        if (error instanceof TypeError && error.message.includes('CORS')) {
+            console.warn('检测到CORS错误，自动禁用联网搜索功能');
+            if (elements.enableSearch) {
+                elements.enableSearch.checked = false;
+                state.enableSearch = false;
+                showMessage('由于浏览器安全限制，已自动禁用联网搜索功能', 'warning');
+            }
+        }
+
         return [];
     }
 }
@@ -191,27 +207,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ==================== 云模型自动加载（内置，无需JSON文件）================
+// ==================== 大参数模型自动加载（内置，无需JSON文件）================
 function loadCloudModels() {
     // 检查是否已经有角色
     if (state.characters.length > 0) {
-        if (!confirm('检测到已有角色，是否清除并加载12个云端AI角色？')) {
+        if (!confirm('检测到已有角色，是否清除并加载大参数模型角色？')) {
             return;
         }
         state.characters = [];
     }
     
-    // 云端模型配置（内置）
+    // 大参数模型配置（内置）
     const cloudCharacters = [
-        {name: "DeepSeek-V3.2", description: "深度求索V3.2模型，全面升级版", model: "deepseek-v3.2:cloud"},
-        {name: "GPT-OSS", description: "开源大模型GPT-OSS，120B参数", model: "gpt-oss:120b-cloud"},
-        {name: "MiniMax-M2.5", description: "MiniMax M2.5模型，多模态能力强", model: "minimax-m2.5:cloud"},
-        {name: "Cogito-2.1", description: "Cogito 2.1推理模型，671B参数", model: "cogito-2.1:671b-cloud"},
-        {name: "Mistral-Large-3", description: "Mistral大型模型，675B参数", model: "mistral-large-3:675b-cloud"},
-        {name: "Devstral-2", description: "开发者友好模型，123B参数", model: "devstral-2:123b-cloud"},
-        {name: "Nemotron-3-Nano", description: "英伟达Nemotron模型，30B参数", model: "nemotron-3-nano:30b-cloud"},
         {name: "Qwen3.5", description: "阿里云千问3.5，397B参数", model: "qwen3.5:397b-cloud"},
-        {name: "Ministral-3", description: "MistralMinistral系列，14B参数", model: "ministral-3:14b-cloud"},
+        {name: "Mistral-Large-3", description: "Mistral大型模型，675B参数", model: "mistral-large-3:675b-cloud"},
+        {name: "Cogito-2.1", description: "Cogito 2.1推理模型，671B参数", model: "cogito-2.1:671b-cloud"},
+        {name: "DeepSeek-V3.1", description: "深度求索V3.1，671B参数", model: "deepseek-v3.1:671b-cloud"},
+        {name: "GPT-OSS", description: "开源大模型GPT-OSS，120B参数", model: "gpt-oss:120b-cloud"},
+        {name: "Devstral-2", description: "开发者友好模型，123B参数", model: "devstral-2:123b-cloud"},
+        {name: "DeepSeek-V3.2", description: "深度求索V3.2模型，全面升级版", model: "deepseek-v3.2:cloud"},
+        {name: "Minimax-M2.7", description: "MiniMax M2.7模型，云端最新版", model: "minimax-m2.7:cloud"},
+        {name: "Qwen3-Coder-Next", description: "阿里云千问3-Coder-Next，编程专用", model: "qwen3-coder-next:cloud"},
         {name: "Kimi-K2.5", description: "月之暗面Kimi K2.5模型", model: "kimi-k2.5:cloud"},
         {name: "GLM-5", description: "智谱GLM-5模型", model: "glm-5:cloud"}
     ];
@@ -232,8 +248,8 @@ function loadCloudModels() {
     renderCharacters();
     updateControlButtons();
     
-    console.log('已加载 ' + cloudCharacters.length + ' 个云端AI角色');
-    alert('已自动加载12个云端AI角色！');
+    console.log('已加载 ' + cloudCharacters.length + ' 个大参数模型角色');
+    alert('已自动加载' + cloudCharacters.length + '个大参数模型角色！');
 }
 
 // ==================== 事件监听 ====================
@@ -741,8 +757,14 @@ async function callOllamaAPI(character, prompt, forcedModel = null, maxTokens = 
     const model = forcedModel || (character.model === 'custom' ? character.customModel : character.model);
     const tokens = maxTokens || state.maxTokens || 500;
 
+    // 带超时的 fetch（120秒）
+    const fetchTimeout = 120000;
+
     // 尝试本地 Ollama，失败时自动使用云端备用
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), fetchTimeout);
+
         const response = await fetch(`${character.endpoint}/chat/completions`, {
             method: 'POST',
             headers: {
@@ -754,8 +776,10 @@ async function callOllamaAPI(character, prompt, forcedModel = null, maxTokens = 
                 messages: [{ role: 'user', content: prompt }],
                 stream: false,
                 max_tokens: tokens
-            })
+            }),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -1110,7 +1134,7 @@ function startAutoSave() {
     autoSaveInterval = setInterval(() => {
         if (state.messages.length > 0) {
             saveToStorage();
-            console.log('自动缓存已保存');
+            // console.log('自动缓存已保存');
         }
     }, 5000);
 }

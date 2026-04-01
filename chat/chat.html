@@ -6,7 +6,8 @@
     <title>AI模拟箱 - 对话模拟</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        onerror="this.href='https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/css/all.min.css'">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
 </head>
 <body>
@@ -23,7 +24,7 @@
                     <div class="section-header">
                         <h2><i class="fas fa-users"></i> AI角色</h2>
                         <div class="generate-controls">
-                            <button id="load-cloud-models-btn" class="btn-small btn-cloud" title="一键加载12个云端AI角色" onclick="loadCloudModels()"><i class="fas fa-cloud"></i> 加载云模型</button>
+                            <button id="load-cloud-models-btn" class="btn-small btn-cloud" title="一键加载大参数模型AI角色" onclick="loadCloudModels()"><i class="fas fa-cloud"></i> 大模型</button>
                             <select id="generate-model" class="generate-model-select"></select>
                             <select id="generate-count" class="generate-count-select">
                                 <option value="2">2个</option>
@@ -65,30 +66,36 @@
                         <label>单次回复最大Token</label>
                         <input type="number" id="max-tokens" value="500" min="50" max="4096" placeholder="默认500">
                     </div>
-                    <div class="form-group">
-                        <label>
+                    <div class="settings-row">
+                        <span class="settings-label">每轮结束后等待用户发言</span>
+                        <label class="switch">
                             <input type="checkbox" id="wait-user-turn">
-                            每轮结束后等待用户发言
+                            <span class="slider"></span>
                         </label>
                     </div>
-                    <div class="form-group">
-                        <label>
+                    <div class="settings-row">
+                        <span class="settings-label">显示AI模型信息</span>
+                        <label class="switch">
                             <input type="checkbox" id="show-model-info" checked>
-                            显示AI模型信息
+                            <span class="slider"></span>
                         </label>
                     </div>
-                    <div class="form-group">
-                        <label>
+                    <div class="settings-row">
+                        <span class="settings-label">AI能看到其他AI模型</span>
+                        <label class="switch">
                             <input type="checkbox" id="ai-knows-models" checked>
-                            AI能看到其他AI模型
+                            <span class="slider"></span>
                         </label>
                     </div>
-                    <div class="form-group">
-                        <label>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">启用联网搜索</div>
+                            <small style="color: var(--text-muted); display: block; margin-top: 2px;">AI可使用 [SEARCH:关键词] 触发搜索</small>
+                        </div>
+                        <label class="switch">
                             <input type="checkbox" id="enable-search" checked>
-                            启用联网搜索
+                            <span class="slider"></span>
                         </label>
-                        <small style="color: var(--text-muted); display: block; margin-top: 4px;">AI可使用 [SEARCH:关键词] 触发搜索</small>
                     </div>
                 </section>
 

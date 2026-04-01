@@ -832,13 +832,13 @@ function renderResults(stats) {
         
         let bodyHTML = '';
         let idx = 0;
-        if (includeHexagram) bodyHTML += `<div class="card-item"><span class="card-item-label">卦象</span><span class="card-item-value hexagram">${parts[idx++]}</span></div>`;
-        if (includeTarot) bodyHTML += `<div class="card-item"><span class="card-item-label">塔罗</span><span class="card-item-value tarot">${parts[idx++]}</span></div>`;
-        if (includeRune) bodyHTML += `<div class="card-item"><span class="card-item-label">符文</span><span class="card-item-value rune">${parts[idx++]}</span></div>`;
-        if (includeNumerology) bodyHTML += `<div class="card-item"><span class="card-item-label">灵数</span><span class="card-item-value numerology">${parts[idx++]}</span></div>`;
-        if (includeMeihua) bodyHTML += `<div class="card-item"><span class="card-item-label">梅花</span><span class="card-item-value meihua">${parts[idx++]}</span></div>`;
-        if (includeLiuyao) bodyHTML += `<div class="card-item"><span class="card-item-label">六爻</span><span class="card-item-value liuyao">${parts[idx++]}</span></div>`;
-        if (includeQimen) bodyHTML += `<div class="card-item"><span class="card-item-label">奇门</span><span class="card-item-value qimen">${parts[idx++]}</span></div>`;
+        if (includeHexagram) bodyHTML += `<div class="card-item"><span class="card-item-label">卦象</span><span class="card-item-value hexagram">${escapeHtml(parts[idx++])}</span></div>`;
+        if (includeTarot) bodyHTML += `<div class="card-item"><span class="card-item-label">塔罗</span><span class="card-item-value tarot">${escapeHtml(parts[idx++])}</span></div>`;
+        if (includeRune) bodyHTML += `<div class="card-item"><span class="card-item-label">符文</span><span class="card-item-value rune">${escapeHtml(parts[idx++])}</span></div>`;
+        if (includeNumerology) bodyHTML += `<div class="card-item"><span class="card-item-label">灵数</span><span class="card-item-value numerology">${escapeHtml(parts[idx++])}</span></div>`;
+        if (includeMeihua) bodyHTML += `<div class="card-item"><span class="card-item-label">梅花</span><span class="card-item-value meihua">${escapeHtml(parts[idx++])}</span></div>`;
+        if (includeLiuyao) bodyHTML += `<div class="card-item"><span class="card-item-label">六爻</span><span class="card-item-value liuyao">${escapeHtml(parts[idx++])}</span></div>`;
+        if (includeQimen) bodyHTML += `<div class="card-item"><span class="card-item-label">奇门</span><span class="card-item-value qimen">${escapeHtml(parts[idx++])}</span></div>`;
 
         card.innerHTML = `
             <div class="card-header">
@@ -871,78 +871,78 @@ function showDetail(key) {
     if (includeHexagram) {
         const h = HEXAGRAMS.find(x => x.name === parts[idx++]);
         if (h) content += `<div class="detail-section">
-            <h3>☯ 卦象: ${h.name}</h3>
-            <p><strong>卦辞：</strong>${h.meaning}</p>
-            <p><strong>五行：</strong>${h.element}</p>
-            <p><strong>方位：</strong>${h.direction}</p>
+            <h3>☯ 卦象: ${escapeHtml(h.name)}</h3>
+            <p><strong>卦辞：</strong>${escapeHtml(h.meaning)}</p>
+            <p><strong>五行：</strong>${escapeHtml(h.element)}</p>
+            <p><strong>方位：</strong>${escapeHtml(h.direction)}</p>
         </div>`;
     }
     
     if (includeTarot) {
         const t = TAROT_CARDS.find(x => x.name === parts[idx++]);
         if (t) content += `<div class="detail-section">
-            <h3>🔮 塔罗: ${t.name}</h3>
-            <p><strong>含义：</strong>${t.meaning}</p>
-            <p><strong>正位：</strong>${t.upright}</p>
-            <p><strong>逆位：</strong>${t.reversed || '暂无'}</p>
+            <h3>🔮 塔罗: ${escapeHtml(t.name)}</h3>
+            <p><strong>含义：</strong>${escapeHtml(t.meaning)}</p>
+            <p><strong>正位：</strong>${escapeHtml(t.upright)}</p>
+            <p><strong>逆位：</strong>${escapeHtml(t.reversed || '暂无')}</p>
         </div>`;
     }
     
     if (includeRune) {
         const r = RUNE_SYMBOLS.find(x => x.symbol === parts[idx++]);
         if (r) content += `<div class="detail-section">
-            <h3>⚡ 符文: ${r.symbol} ${r.name}</h3>
-            <p><strong>含义：</strong>${r.meaning}</p>
-            <p><strong>解读：</strong>${r.upright}</p>
+            <h3>⚡ 符文: ${escapeHtml(r.symbol)} ${escapeHtml(r.name)}</h3>
+            <p><strong>含义：</strong>${escapeHtml(r.meaning)}</p>
+            <p><strong>解读：</strong>${escapeHtml(r.upright)}</p>
         </div>`;
     }
     
     if (includeNumerology) {
         const n = NUMEROLOGY.find(x => x.number === parseInt(parts[idx++]));
         if (n) content += `<div class="detail-section">
-            <h3>🔢 灵数: ${n.number}</h3>
-            <p><strong>名称：</strong>${n.name}</p>
-            <p><strong>含义：</strong>${n.meaning}</p>
-            <p><strong>解读：</strong>${n.upright}</p>
+            <h3>🔢 灵数: ${escapeHtml(n.number)}</h3>
+            <p><strong>名称：</strong>${escapeHtml(n.name)}</p>
+            <p><strong>含义：</strong>${escapeHtml(n.meaning)}</p>
+            <p><strong>解读：</strong>${escapeHtml(n.upright)}</p>
         </div>`;
     }
     
     if (includeMeihua) {
         const m = MEIHUA.find(x => x.name === parts[idx++]);
         if (m) content += `<div class="detail-section">
-            <h3>🌸 梅花易数: ${m.name}</h3>
-            <p><strong>五行：</strong>${m.meaning}</p>
-            <p><strong>方位：</strong>${m.direction}</p>
-            <p><strong>吉凶：</strong>${m.fortune}</p>
-            <p><strong>解读：</strong>${m.interpretation}</p>
-            <p><strong>占法：</strong>${m.method}</p>
+            <h3>🌸 梅花易数: ${escapeHtml(m.name)}</h3>
+            <p><strong>五行：</strong>${escapeHtml(m.meaning)}</p>
+            <p><strong>方位：</strong>${escapeHtml(m.direction)}</p>
+            <p><strong>吉凶：</strong>${escapeHtml(m.fortune)}</p>
+            <p><strong>解读：</strong>${escapeHtml(m.interpretation)}</p>
+            <p><strong>占法：</strong>${escapeHtml(m.method)}</p>
         </div>`;
     }
     
     if (includeLiuyao) {
         const l = LIUYAO.find(x => x.name === parts[idx++]);
         if (l) content += `<div class="detail-section">
-            <h3>☰ 六爻: ${l.name}</h3>
-            <p><strong>天干：</strong>${l.gan}</p>
-            <p><strong>地支：</strong>${l.zhi}</p>
-            <p><strong>五行：</strong>${l.wuxing}</p>
-            <p><strong>吉凶：</strong>${l.fortune}</p>
-            <p><strong>卦辞：</strong>${l.interpretation}</p>
-            <p><strong>方位：</strong>${l.direction}</p>
+            <h3>☰ 六爻: ${escapeHtml(l.name)}</h3>
+            <p><strong>天干：</strong>${escapeHtml(l.gan)}</p>
+            <p><strong>地支：</strong>${escapeHtml(l.zhi)}</p>
+            <p><strong>五行：</strong>${escapeHtml(l.wuxing)}</p>
+            <p><strong>吉凶：</strong>${escapeHtml(l.fortune)}</p>
+            <p><strong>卦辞：</strong>${escapeHtml(l.interpretation)}</p>
+            <p><strong>方位：</strong>${escapeHtml(l.direction)}</p>
         </div>`;
     }
     
     if (includeQimen) {
         const q = QIMEN.find(x => (x.palace + x.gate) === parts[idx++]);
         if (q) content += `<div class="detail-section">
-            <h3>⛩️ 奇门遁甲: ${q.palace}</h3>
-            <p><strong>八门：</strong>${q.gate}</p>
-            <p><strong>九星：</strong>${q.star}</p>
-            <p><strong>吉凶：</strong>${q.spirit}</p>
-            <p><strong>五行：</strong>${q.wuxing}</p>
-            <p><strong>方位：</strong>${q.direction}</p>
-            <p><strong>解读：</strong>${q.interpretation}</p>
-            <p><strong>对应卦象：</strong>${q.yijing}</p>
+            <h3>⛩️ 奇门遁甲: ${escapeHtml(q.palace)}</h3>
+            <p><strong>八门：</strong>${escapeHtml(q.gate)}</p>
+            <p><strong>九星：</strong>${escapeHtml(q.star)}</p>
+            <p><strong>吉凶：</strong>${escapeHtml(q.spirit)}</p>
+            <p><strong>五行：</strong>${escapeHtml(q.wuxing)}</p>
+            <p><strong>方位：</strong>${escapeHtml(q.direction)}</p>
+            <p><strong>解读：</strong>${escapeHtml(q.interpretation)}</p>
+            <p><strong>对应卦象：</strong>${escapeHtml(q.yijing)}</p>
         </div>`;
     }
     
@@ -985,7 +985,7 @@ function showHistory() {
                     <span class="history-date">${new Date(item.datetime).toLocaleString()}</span>
                     <span class="history-count">${item.count.toLocaleString()}次</span>
                 </div>
-                <div class="history-summary">${item.results.map(r => r[0]).join(' | ')}</div>
+                <div class="history-summary">${item.results.map(r => escapeHtml(r[0])).join(' | ')}</div>
             </div>
         `).join('');
     }
@@ -1095,7 +1095,7 @@ async function aiInterpret() {
         }
         
     } catch (error) {
-        document.getElementById('aiResult').innerHTML = `<p style="color: var(--danger);">AI解读失败: ${error.message}</p>
+        document.getElementById('aiResult').innerHTML = `<p style="color: var(--danger);">AI解读失败: ${escapeHtml(error.message)}</p>
             <p>请检查Ollama是否运行，或在设置中配置正确的API地址。</p>`;
     } finally {
         document.getElementById('aiLoading').classList.add('hidden');
@@ -1200,7 +1200,7 @@ function formatAIResponse(text) {
         .split('\n')
         .map(line => line.trim())
         .filter(line => line)
-        .map(line => line.startsWith('#') ? `<h3>${line.replace(/^#+\s*/, '')}</h3>` : `<p>${line}</p>`)
+        .map(line => line.startsWith('#') ? `<h3>${escapeHtml(line.replace(/^#+\s*/, ''))}</h3>` : `<p>${escapeHtml(line)}</p>`)
         .join('');
 }
 

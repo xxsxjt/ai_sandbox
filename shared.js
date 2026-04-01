@@ -40,6 +40,41 @@ const CLOUD_FALLBACK_CONFIG = {
     }
 };
 
+// ==================== 统一设置管理 ====================
+const AppSettings = {
+    _defaults: {
+        apiEndpoint: 'http://localhost:11434',
+        apiKey: 'ollama',
+        defaultModel: 'qwen3:8b'
+    },
+
+    get: function(key) {
+        return localStorage.getItem('sandbox_' + key) || this._defaults[key];
+    },
+
+    set: function(key, value) {
+        localStorage.setItem('sandbox_' + key, value);
+    },
+
+    getEndpoint: function() {
+        return this.get('apiEndpoint');
+    },
+
+    getApiKey: function() {
+        return this.get('apiKey');
+    },
+
+    getDefaultModel: function() {
+        return this.get('defaultModel');
+    },
+
+    // 便捷方法：获取带 /v1 后缀的 endpoint
+    getEndpointV1: function() {
+        let ep = this.getEndpoint();
+        return ep.endsWith('/v1') ? ep : ep.replace(/\/$/, '') + '/v1';
+    }
+};
+
 // ==================== 模型列表 ====================
 // 本地模型
 const LOCAL_MODELS = [
@@ -264,10 +299,70 @@ async function callOllamaAPI(endpoint, apiKey, model, prompt, maxTokens = 500, u
     }
 }
 
+// ==================== 增强版 API 调用 ====================
+async function callAPI({ endpoint, apiKey, model, messages, maxTokens = 500, timeout = 120000, stream = false, useCloudFallback = true }) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    const url = (endpoint || AppSettings.getEndpointV1()) + '/chat/completions';
+    const key = apiKey || AppSettings.getApiKey();
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${key}`
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: messages || [{ role: 'user', content: '' }],
+                stream: stream,
+                max_tokens: maxTokens
+            }),
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            const errorText = await response.text().catch(() => '');
+            throw new Error(`API调用失败: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json();
+        return data.choices[0].message.content;
+    } catch (error) {
+        clearTimeout(timeoutId);
+
+        if (error.name === 'AbortError') {
+            throw new Error('API请求超时，请检查Ollama是否运行');
+        }
+
+        if (!useCloudFallback || !CLOUD_FALLBACK_CONFIG.enabled) {
+            throw error;
+        }
+
+        console.warn('本地API不可用，尝试云端备用...');
+        // Extract prompt from messages for fallback
+        const prompt = Array.isArray(messages) && messages.length > 0
+            ? messages.map(m => m.content).join('\n')
+            : '';
+        return await callCloudFallbackAPI(prompt, maxTokens);
+    }
+}
+
 // ==================== 工具函数 ====================
 // HTML 转义
 function escapeHtml(text) {
+    if (text == null) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// 更安全的HTML转义，处理null/undefined
+function safeHtml(text) {
+    if (text == null) return '';
+    return escapeHtml(String(text));
 }

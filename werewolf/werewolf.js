@@ -1544,10 +1544,6 @@ function loadFromStorage() {
     } catch (e) { console.error('加载失败:', e); }
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div'); div.textContent = text; return div.innerHTML;
-}
-
 function closeAllModals() {
     document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
     gameState.editingPlayerId = null;
@@ -2382,10 +2378,10 @@ function renderUserWolfTeamChat() {
         return;
     }
     
-    elements.userWolfTeamChat.innerHTML = msgs.map(m => 
-        `<div class="chat-message ${m.sender === userPlayer.name ? 'my-message' : ''}">
-            <span class="msg-sender">${m.sender}:</span>
-            <span class="msg-text">${m.text}</span>
+    elements.userWolfTeamChat.innerHTML = msgs.map(m =>
+        `<div class="chat-message ${escapeHtml(m.sender === userPlayer.name ? 'my-message' : '')}">
+            <span class="msg-sender">${escapeHtml(m.sender)}:</span>
+            <span class="msg-text">${escapeHtml(m.text)}</span>
         </div>`
     ).join('');
     
