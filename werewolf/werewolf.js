@@ -1071,10 +1071,10 @@ function buildDaySpeakPrompt(speaker, alive) {
         const otherPlayers = alive.filter(p => p.id !== speaker.id).map(p => {
             const model = resolveModel(p.model);
             const displayModel = getDisplayModel(p.model, model);
-            return `${p.name}(${displayModel})`;
+            return `${p.name}使用的是${displayModel}模型`;
         });
         if (otherPlayers.length > 0) {
-            modelInfo = `\n【其他玩家模型】${otherPlayers.join('、')}`;
+            modelInfo = `\n【其他玩家AI信息】${otherPlayers.join('；')}`;
         }
     }
 
@@ -2498,7 +2498,7 @@ function resumeFromUserAction() {
 // 初始化角色能力系统
 function initializeRoleSystem() {
     roleAbilitySystem = new RoleAbilitySystem(gameState);
-    aiImprovements = new WerewolfAIImprovements();
+    aiImprovements = new WerewolfAI();
 
     // 添加角色能力说明到界面
     addRoleAbilityDescriptions();

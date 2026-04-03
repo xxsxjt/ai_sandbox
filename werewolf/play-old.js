@@ -37,8 +37,8 @@ const gameState = {
     witchPoisoned: null,
     seerResult: null,
     randomSpeakOrder: false,
-    aiKnowsModels: true,
-    showModelInfo: true,
+    aiKnowsModels: false,
+    showModelInfo: false,
     intervalSeconds: 3,
     gameModel: 'llama3.1',
     hostModel: 'llama3.1',
@@ -146,7 +146,7 @@ function initEventListeners() {
 function generateMultiplePlayers() {
     const model = elements.gameModel ? elements.gameModel.value : 'llama3.1';
     const count = parseInt(document.getElementById('generate-count')?.value || 8);
-    const names = ['预言家', '女巫', '猎人', '守卫', '平民', '狼人', '白狼王', '小明', '小红', '小刚', '小丽', '大白'];
+    const names = ['小明', '小红', '小刚', '小丽', '大白', '阿杰', '小芳', '阿强', '小华', '阿龙', '小美', '阿伟'];
 
     const personalities = [
         '冷静分析，发言有条理',
@@ -1097,7 +1097,7 @@ function renderMessages() {
         return;
     }
 
-    const showModel = true;
+    const showModel = gameState.showModelInfo;
 
     elements.gameMessages.innerHTML = gameState.messages.map(msg => {
         const icon = msg.type === 'system' ? 'fa-crown' : (msg.type === 'user' ? 'fa-user' : 'fa-robot');

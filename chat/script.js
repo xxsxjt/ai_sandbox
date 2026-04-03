@@ -167,6 +167,15 @@ const elements = {
 
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', () => {
+    // 页面关闭/刷新时强制标记为未运行，防止重开后自动恢复
+    window.addEventListener('beforeunload', () => {
+        if (state.isRunning) {
+            state.isRunning = false;
+            state.isPaused = false;
+            saveToStorage();
+        }
+    });
+
     // 动态填充模型下拉框
     populateModelSelect(elements.generateModel, false, 'qwen3:8b');
     populateModelSelect(elements.charModel, true);
@@ -787,7 +796,12 @@ async function callOllamaAPI(character, prompt, forcedModel = null, maxTokens = 
         }
 
         const data = await response.json();
-        return data.choices[0].message.content;
+        const content = data.choices?.[0]?.message?.content || '';
+        if (!content.trim()) {
+            console.error('AI空回复详情:', JSON.stringify(data).substring(0, 500));
+            throw new Error('AI返回了空回复');
+        }
+        return content;
     } catch (localError) {
         if (!useCloudFallback || !CLOUD_FALLBACK_CONFIG.enabled) {
             throw localError;
@@ -820,7 +834,12 @@ function clearAll() {
         stopSimulation();
     }
     state.messages = [];
+    state.currentRound = 0;
+    state.currentSpeakerIndex = 0;
+    state.waitingForUser = false;
+    state.waitingForUserPaused = false;
     renderMessages();
+    saveToStorage();
 }
 
 // ==================== 消息管理 ====================
@@ -1117,6 +1136,7 @@ function saveToStorage() {
             maxRounds: elements.maxRounds.value,
             intervalSeconds: elements.intervalSeconds.value,
             isRunning: state.isRunning,
+            isPaused: state.isPaused,
             currentRound: state.currentRound,
             currentSpeakerIndex: state.currentSpeakerIndex,
             aiKnowsModels: elements.aiKnowsModels ? elements.aiKnowsModels.checked : true,
@@ -1160,11 +1180,11 @@ function loadFromStorage() {
                 if (elements.aiKnowsModels) elements.aiKnowsModels.checked = data.settings.aiKnowsModels !== false;
                 if (elements.showModelInfo) elements.showModelInfo.checked = data.settings.showModelInfo !== false;
             }
-            // 检查是否有未完成的对话
+            // 恢复进度（不自动运行，等用户手动开始）
             if (data.settings && data.settings.isRunning) {
-                state.isRunning = true;
                 state.currentRound = data.settings.currentRound || 0;
                 state.currentSpeakerIndex = data.settings.currentSpeakerIndex || 0;
+                state.isPaused = data.settings.isPaused || false;
             }
         }
     } catch (e) {

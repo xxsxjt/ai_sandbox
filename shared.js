@@ -93,6 +93,7 @@ const LOCAL_MODELS = [
 // 云端模型
 const CLOUD_MODELS = [
     'minimax-m2.7:cloud',
+    'minimax-m2.5:cloud',
     'qwen3-coder-next:cloud',
     'cogito-2.1:671b-cloud',
     'mistral-large-3:675b-cloud',
