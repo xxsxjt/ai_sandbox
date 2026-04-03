@@ -48,9 +48,9 @@ const AppState = {
     currentSavePage: 1,
     itemsPerPage: 10,
     settings: {
-        apiKey: 'ollama',
-        apiModel: 'minimax-m2.5:cloud',
-        apiEndpoint: 'http://localhost:11434',
+        apiKey: AppSettings.getApiKey(),
+        apiModel: 'minimax-m2.5',
+        apiEndpoint: AppSettings.getEndpoint(),
         playerName: '冒险者',
         autoSave: 'enabled',
         maxSaves: 20,
@@ -2156,55 +2156,29 @@ ${context}
 // 调用OpenAI API (Ollama)
 async function callOpenAI(prompt) {
     const endpoint = AppState.settings.apiEndpoint.replace(/\/$/, '');
-    const apiModel = typeof AppState.settings.apiModel === 'string' ? AppState.settings.apiModel : 'minimax-m2.5:cloud';
-    const isCloud = apiModel.includes('-cloud');
-    
+    const apiModel = typeof AppState.settings.apiModel === 'string' ? AppState.settings.apiModel : 'minimax-m2.5';
+    const startTime = Date.now();
+
     let url, body;
-    
+
     if (isCloud) {
-        // 云端模型使用 OpenAI 兼容格式
         url = `${endpoint}/v1/chat/completions`;
-        body = {
-            model: apiModel.replace('-cloud', ''),
-            messages: [
-                {
-                    role: 'user',
-                    content: prompt
-                }
-            ],
-            temperature: 0.7
-        };
+        body = { model: apiModel.replace('-cloud', ''), messages: [{ role: 'user', content: prompt }], temperature: 0.7 };
     } else {
-        // 本地模型使用 Ollama 格式
         url = `${endpoint}/api/generate`;
-        body = {
-            model: apiModel,
-            prompt: prompt,
-            stream: false,
-            temperature: 0.7,
-            num_predict: 2000
-        };
+        body = { model: apiModel, prompt: prompt, stream: false, temperature: 0.7, num_predict: 2000 };
     }
-    
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    });
-    
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `API请求失败 (${response.status})`);
-    }
-    
-    const data = await response.json();
-    
-    if (isCloud) {
-        return data.choices[0].message.content;
-    } else {
-        return data.response;
+
+    try {
+        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (!response.ok) { const errorData = await response.json().catch(() => ({})); throw new Error(errorData.error?.message || `API请求失败 (${response.status})`); }
+        const data = await response.json();
+        const result = isCloud ? (data.choices?.[0]?.message?.content || '') : (data.response || '');
+        APILogger.log({ source: 'AI文字游戏', model: apiModel, endpoint, prompt, response: result, duration: Date.now() - startTime, success: true });
+        return result;
+    } catch (e) {
+        APILogger.log({ source: 'AI文字游戏', model: apiModel, endpoint, prompt, duration: Date.now() - startTime, success: false, error: e.message });
+        throw e;
     }
 }
 
@@ -2926,9 +2900,9 @@ function clearAllData() {
         
         // 重置设置为默认值
         AppState.settings = {
-            apiKey: 'ollama',
-            apiModel: 'minimax-m2.5:cloud',
-            apiEndpoint: 'http://localhost:11434',
+            apiKey: AppSettings.getApiKey(),
+            apiModel: 'minimax-m2.5',
+            apiEndpoint: AppSettings.getEndpoint(),
             playerName: '冒险者',
             autoSave: 'enabled',
             maxSaves: 20
@@ -3063,7 +3037,7 @@ function loadSettings() {
     // 更新UI元素
     Elements.apiKey.value = AppState.settings.apiKey || '';
     Elements.apiModel.value = AppState.settings.apiModel || 'qwen3:8b';
-    Elements.apiEndpoint.value = AppState.settings.apiEndpoint || 'http://localhost:11434';
+    Elements.apiEndpoint.value = AppState.settings.apiEndpoint || AppSettings.getEndpoint();
     Elements.playerNameInput.value = AppState.settings.playerName || '冒险者';
     Elements.autoSave.value = AppState.settings.autoSave || 'enabled';
     Elements.maxSaves.value = AppState.settings.maxSaves || 20;
@@ -3076,41 +3050,31 @@ function loadSettings() {
 // 动态加载模型列表
 function loadModelOptions() {
     // 检查 shared.js 是否已加载
-    if (typeof LOCAL_MODELS === 'undefined' || typeof CLOUD_MODELS === 'undefined') {
+    if (typeof AVAILABLE_MODELS === 'undefined') {
         console.warn('shared.js 未加载，使用默认模型列表');
         return;
     }
 
-    const localGroup = document.getElementById('local-models-group');
-    const cloudGroup = document.getElementById('cloud-models-group');
+    const modelGroup = document.getElementById('local-models-group');
 
-    if (!localGroup || !cloudGroup) {
+    if (!modelGroup) {
         console.warn('模型选择器元素未找到');
         return;
     }
 
     // 清空现有选项
-    localGroup.innerHTML = '';
-    cloudGroup.innerHTML = '';
+    modelGroup.innerHTML = '';
 
-    // 添加本地模型
-    LOCAL_MODELS.forEach(model => {
+    // 添加模型
+    AVAILABLE_MODELS.forEach(model => {
         const option = document.createElement('option');
         option.value = model;
         option.textContent = formatModelName(model);
-        localGroup.appendChild(option);
-    });
-
-    // 添加云端模型
-    CLOUD_MODELS.forEach(model => {
-        const option = document.createElement('option');
-        option.value = model;
-        option.textContent = formatModelName(model);
-        cloudGroup.appendChild(option);
+        modelGroup.appendChild(option);
     });
 
     // 恢复之前选择的模型
-    const savedModel = AppState.settings.apiModel || 'minimax-m2.5:cloud';
+    const savedModel = AppState.settings.apiModel || 'minimax-m2.5';
     Elements.apiModel.value = savedModel;
 }
 
@@ -3118,7 +3082,6 @@ function loadModelOptions() {
 function formatModelName(model) {
     return model
         .replace(/:latest/g, '')
-        .replace(/:cloud/g, '')
         .replace(/-/g, ' ')
         .replace(/\b\w/g, c => c.toUpperCase());
 }

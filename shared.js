@@ -1,44 +1,6 @@
 // ==================== AI 模拟箱 - 公共模块 ====================
-// 提供模型列表、随机选择、云端备用等通用功能
+// 提供模型列表、随机选择、设置管理等通用功能
 // 所有子模块引用此文件以共享代码
-
-// ==================== 云端备用 API 配置 ====================
-// 用户的云端 Ollama 兼容服务器配置
-const CLOUD_FALLBACK_CONFIG = {
-    enabled: true,
-    // 用户自己的云端服务器地址（Ollama 兼容）
-    baseURL: 'https://your-ollama-cloud.com',
-    apiKey: 'ollama',
-    // 云端可用的模型列表
-    fallbackModels: [
-        'llama3.1:latest',
-        'qwen3:8b',
-        'deepseek-r1:8b',
-        'gemma3:12b'
-    ],
-    currentModelIndex: 0,
-
-    getModel: function() {
-        return this.fallbackModels[this.currentModelIndex];
-    },
-
-    nextModel: function() {
-        this.currentModelIndex = (this.currentModelIndex + 1) % this.fallbackModels.length;
-        return this.getModel();
-    },
-
-    reset: function() {
-        this.currentModelIndex = 0;
-    },
-
-    // 设置云端服务器配置
-    configure: function(baseURL, apiKey, models) {
-        if (baseURL) this.baseURL = baseURL;
-        if (apiKey) this.apiKey = apiKey;
-        if (models && models.length > 0) this.fallbackModels = models;
-        this.reset();
-    }
-};
 
 // ==================== 统一设置管理 ====================
 const AppSettings = {
@@ -68,205 +30,192 @@ const AppSettings = {
         return this.get('defaultModel');
     },
 
-    // 便捷方法：获取带 /v1 后缀的 endpoint
     getEndpointV1: function() {
         let ep = this.getEndpoint();
         return ep.endsWith('/v1') ? ep : ep.replace(/\/$/, '') + '/v1';
     }
 };
 
-// ==================== 模型列表 ====================
-// 本地模型
-const LOCAL_MODELS = [
-    'qwen3.5:latest',
-    'deepseek-r1:8b',
-    'granite4:latest',
-    'ministral-3:8b',
-    'olmo-3:latest',
-    'rnj-1:latest',
-    'openchat:latest',
-    'gemma3:12b',
-    'qwen3:8b',
-    'llama3.1:latest'
-];
+// ==================== API 调用日志 ====================
+const APILogger = {
+    _KEY: 'sandbox_api_logs',
+    _MAX: 300,
 
-// 云端模型
-const CLOUD_MODELS = [
+    log({ source, model, endpoint, prompt, response, reasoning, maxTokens, duration, success, error }) {
+        try {
+            const logs = this.getAll();
+            logs.push({
+                id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+                time: new Date().toLocaleString(),
+                source: source || 'unknown',
+                model: model || '',
+                endpoint: (endpoint || '').replace(/\/v1\/chat\/completions$/, ''),
+                prompt: (prompt || '').substring(0, 500),
+                response: (response || '').substring(0, 1000),
+                reasoning: (reasoning || '').substring(0, 1000),
+                maxTokens: maxTokens || 0,
+                duration: Math.round(duration || 0),
+                success: success !== false,
+                error: (error || '').substring(0, 200)
+            });
+            while (logs.length > this._MAX) logs.shift();
+            localStorage.setItem(this._KEY, JSON.stringify(logs));
+        } catch (e) {
+            // 存储满，尝试裁剪
+            try { localStorage.setItem(this._KEY, JSON.stringify(this.getAll().slice(-100))); } catch (e2) {}
+        }
+    },
+
+    getAll() {
+        try { return JSON.parse(localStorage.getItem(this._KEY)) || []; }
+        catch (e) { return []; }
+    },
+
+    getStats() {
+        const stats = {};
+        this.getAll().forEach(log => {
+            if (!stats[log.source]) stats[log.source] = { total: 0, success: 0, failed: 0 };
+            stats[log.source].total++;
+            log.success ? stats[log.source].success++ : stats[log.source].failed++;
+        });
+        return stats;
+    },
+
+    clear() {
+        localStorage.removeItem(this._KEY);
+    }
+};
+
+// ==================== 最近使用模块 ====================
+const RecentModule = {
+    _KEY: 'sandbox_recent_module',
+
+    record(name) {
+        localStorage.setItem(this._KEY, name);
+    },
+
+    get() {
+        return localStorage.getItem(this._KEY) || '';
+    }
+};
+
+// 各模块页面加载时自动记录
+document.addEventListener('DOMContentLoaded', function() {
+    const path = window.location.pathname;
+    const modules = { 'chat': '对话模拟', 'werewolf': '狼人杀', 'battle': '战斗模拟', 'divination': '混沌玄卜', 'analyzer': 'AI分析工具', 'textgame': 'AI文字游戏' };
+    for (const [dir, name] of Object.entries(modules)) {
+        if (path.includes('/' + dir + '/')) { RecentModule.record(name); break; }
+    }
+});
+
+// ==================== 默认模型列表 ====================
+const DEFAULT_MODELS = [
+    'qwen3.5:latest',
+    'qwen3.5:397b-cloud',
+    'deepseek-r1:8b',
+    'deepseek-v3.2:cloud',
+    'deepseek-v3.1:671b-cloud',
+    'granite4:latest',
     'minimax-m2.7:cloud',
     'minimax-m2.5:cloud',
     'qwen3-coder-next:cloud',
     'cogito-2.1:671b-cloud',
     'mistral-large-3:675b-cloud',
     'devstral-2:123b-cloud',
-    'deepseek-v3.2:cloud',
-    'deepseek-v3.1:671b-cloud',
     'gpt-oss:120b-cloud',
     'nemotron-3-nano:30b-cloud',
-    'qwen3.5:397b-cloud',
+    'ministral-3:8b',
     'ministral-3:14b-cloud',
+    'olmo-3:latest',
+    'rnj-1:latest',
+    'openchat:latest',
+    'gemma3:12b',
+    'qwen3:8b',
+    'llama3.1:latest',
     'kimi-k2.5:cloud',
     'glm-5:cloud'
 ];
 
-// 全部模型
-const AVAILABLE_MODELS = [...LOCAL_MODELS, ...CLOUD_MODELS];
+// ==================== 模型列表管理 ====================
+const ModelManager = {
+    _KEY: 'sandbox_custom_models',
+
+    getActiveModels() {
+        const custom = this.getCustomModels();
+        return custom.length > 0 ? custom : DEFAULT_MODELS;
+    },
+
+    getCustomModels() {
+        try { return JSON.parse(localStorage.getItem(this._KEY)) || []; }
+        catch (e) { return []; }
+    },
+
+    setCustomModels(models) {
+        localStorage.setItem(this._KEY, JSON.stringify(models.filter(m => m.trim())));
+    },
+
+    reset() {
+        localStorage.removeItem(this._KEY);
+    }
+};
+
+// 向后兼容
+const AVAILABLE_MODELS = DEFAULT_MODELS;
 
 // ==================== 动态填充模型下拉框 ====================
 function populateModelSelect(selectElement, includeRandomRound = false, defaultModel) {
     selectElement.innerHTML = '';
+    const models = ModelManager.getActiveModels();
 
-    // 随机选项组
     const randomGroup = document.createElement('optgroup');
-    randomGroup.label = '全部模型';
+    randomGroup.label = '随机';
     [
-        ['__random_all__', '🔀 随机(全部)'],
-        ['__random_local__', '🏠 随机(本地)'],
-        ['__random_cloud__', '☁️ 随机(云端)']
+        ['__random_all__', '🔀 随机模型'],
+        ['__random_round__', '🎲 每轮随机']
     ].forEach(([val, text]) => {
         const opt = document.createElement('option');
         opt.value = val;
         opt.textContent = text;
         randomGroup.appendChild(opt);
     });
-    if (includeRandomRound) {
-        const opt = document.createElement('option');
-        opt.value = '__random_round__';
-        opt.textContent = '🎲 每轮随机(全部)';
-        randomGroup.appendChild(opt);
-    }
     selectElement.appendChild(randomGroup);
 
-    // 本地模型组
-    const localGroup = document.createElement('optgroup');
-    localGroup.label = '本地模型';
-    LOCAL_MODELS.forEach(model => {
+    const modelGroup = document.createElement('optgroup');
+    modelGroup.label = '可用模型';
+    models.forEach(model => {
         const opt = document.createElement('option');
         opt.value = model;
         opt.textContent = model;
-        localGroup.appendChild(opt);
+        modelGroup.appendChild(opt);
     });
-    selectElement.appendChild(localGroup);
+    selectElement.appendChild(modelGroup);
 
-    // 云端模型组
-    const cloudGroup = document.createElement('optgroup');
-    cloudGroup.label = '云端模型';
-    CLOUD_MODELS.forEach(model => {
-        const opt = document.createElement('option');
-        opt.value = model;
-        opt.textContent = model;
-        cloudGroup.appendChild(opt);
-    });
-    selectElement.appendChild(cloudGroup);
-
-    // 设置默认选中
-    if (defaultModel) {
-        selectElement.value = defaultModel;
-    }
+    if (defaultModel) selectElement.value = defaultModel;
 }
 
 // ==================== 随机模型选择 ====================
 function getRandomModel() {
-    return AVAILABLE_MODELS[Math.floor(Math.random() * AVAILABLE_MODELS.length)];
-}
-
-function getRandomLocalModel() {
-    return LOCAL_MODELS[Math.floor(Math.random() * LOCAL_MODELS.length)];
-}
-
-function getRandomCloudModel() {
-    return CLOUD_MODELS[Math.floor(Math.random() * CLOUD_MODELS.length)];
+    const models = ModelManager.getActiveModels();
+    return models[Math.floor(Math.random() * models.length)];
 }
 
 function resolveModel(model) {
-    if (model === '__random__' || model === '__random_all__') {
-        return getRandomModel();
-    } else if (model === '__random_local__') {
-        return getRandomLocalModel();
-    } else if (model === '__random_cloud__') {
-        return getRandomCloudModel();
-    } else if (model === '__random_round__') {
+    if (model === '__random__' || model === '__random_all__' || model === '__random_round__') {
         return getRandomModel();
     }
     return model;
 }
 
 function getDisplayModel(originalModel, actualModel) {
-    if (originalModel === '__random__' || originalModel === '__random_all__') {
+    if (originalModel === '__random__' || originalModel === '__random_all__' || originalModel === '__random_round__') {
         return `随机(${actualModel})`;
-    } else if (originalModel === '__random_local__') {
-        return `随机本地(${actualModel})`;
-    } else if (originalModel === '__random_cloud__') {
-        return `随机云端(${actualModel})`;
-    } else if (originalModel === '__random_round__') {
-        return `每轮随机(${actualModel})`;
     }
     return actualModel;
 }
 
-// ==================== 云端备用 API 调用 ====================
-// 内部实现 - 使用 CloudBase 云函数调用 Ollama
-async function callCloudFallbackAPI_Impl(prompt, maxTokens = 500) {
-    // 尝试使用 CloudBase SDK 调用云函数
-    if (typeof cloudbase !== 'undefined') {
-        try {
-            const result = await cloudbase.callFunction({
-                name: 'ollama-proxy',
-                data: {
-                    prompt: prompt,
-                    model: 'deepseek-v3.2',
-                    maxTokens: maxTokens
-                }
-            });
-
-            if (result.result.success) {
-                return result.result.content;
-            } else {
-                throw new Error(result.result.error);
-            }
-        } catch (error) {
-            console.warn('云函数调用失败:', error.message);
-            throw new Error('云端备用API失败: ' + error.message);
-        }
-    }
-
-    // 如果没有 CloudBase SDK，使用 HTTP 代理（需要先开启 HTTP 服务）
-    const CLOUD_FUNCTION_URL = 'https://xxjt-4gq22f9f00e67368.service.tcloudbase.com/proxy';
-    
-    try {
-        const response = await fetch(CLOUD_FUNCTION_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                prompt: prompt,
-                model: 'deepseek-v3.2',
-                maxTokens: maxTokens
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`云端API失败: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (data.success) {
-            return data.content;
-        } else {
-            throw new Error(data.error);
-        }
-    } catch (error) {
-        throw new Error('云端备用API失败: ' + error.message);
-    }
-}
-
-// 公开接口
-async function callCloudFallbackAPI(prompt, maxTokens = 500, model = null) {
-    return await callCloudFallbackAPI_Impl(prompt, maxTokens);
-}
-
 // ==================== 通用 API 调用 ====================
-// 通用的 Ollama API 调用函数，支持本地和云端备用
-async function callOllamaAPI(endpoint, apiKey, model, prompt, maxTokens = 500, useCloudFallback = true) {
-    // 尝试本地 Ollama
+async function callOllamaAPI(endpoint, apiKey, model, prompt, maxTokens = 500) {
+    const startTime = Date.now();
     try {
         const response = await fetch(`${endpoint}/chat/completions`, {
             method: 'POST',
@@ -288,25 +237,23 @@ async function callOllamaAPI(endpoint, apiKey, model, prompt, maxTokens = 500, u
         }
 
         const data = await response.json();
-        return data.choices[0].message.content;
-    } catch (localError) {
-        // 本地 Ollama 失败，检查是否启用云端备用
-        if (!useCloudFallback || !CLOUD_FALLBACK_CONFIG.enabled) {
-            throw localError;
-        }
-
-        console.warn('本地Ollama不可用，尝试使用云端备用API...');
-        return await callCloudFallbackAPI(prompt, maxTokens);
+        const msg = data.choices?.[0]?.message || {};
+        const result = msg.content || msg.reasoning || '';
+        APILogger.log({ source: 'global', model, endpoint, prompt, response: result, reasoning: msg.reasoning || '', maxTokens, duration: Date.now() - startTime, success: true });
+        return result;
+    } catch (error) {
+        APILogger.log({ source: 'global', model, endpoint, prompt, maxTokens, duration: Date.now() - startTime, success: false, error: error.message });
+        throw error;
     }
 }
 
 // ==================== 增强版 API 调用 ====================
-async function callAPI({ endpoint, apiKey, model, messages, maxTokens = 500, timeout = 120000, stream = false, useCloudFallback = true }) {
+async function callAPI({ endpoint, apiKey, model, messages, maxTokens = 500, timeout = 120000, stream = false, source = 'global' }) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
-
     const url = (endpoint || AppSettings.getEndpointV1()) + '/chat/completions';
     const key = apiKey || AppSettings.getApiKey();
+    const promptText = Array.isArray(messages) ? messages.map(m => m.content).join('\n') : '';
 
     try {
         const response = await fetch(url, {
@@ -332,24 +279,17 @@ async function callAPI({ endpoint, apiKey, model, messages, maxTokens = 500, tim
         }
 
         const data = await response.json();
-        return data.choices[0].message.content;
+        const msg = data.choices?.[0]?.message || {};
+        const result = msg.content || msg.reasoning || '';
+        APILogger.log({ source, model, endpoint: url, prompt: promptText, response: result, reasoning: msg.reasoning || '', maxTokens, duration: 0, success: true });
+        return result;
     } catch (error) {
         clearTimeout(timeoutId);
-
+        APILogger.log({ source, model, endpoint: url, prompt: promptText, maxTokens, duration: 0, success: false, error: error.message });
         if (error.name === 'AbortError') {
-            throw new Error('API请求超时，请检查Ollama是否运行');
+            throw new Error('API请求超时，请检查API是否运行');
         }
-
-        if (!useCloudFallback || !CLOUD_FALLBACK_CONFIG.enabled) {
-            throw error;
-        }
-
-        console.warn('本地API不可用，尝试云端备用...');
-        // Extract prompt from messages for fallback
-        const prompt = Array.isArray(messages) && messages.length > 0
-            ? messages.map(m => m.content).join('\n')
-            : '';
-        return await callCloudFallbackAPI(prompt, maxTokens);
+        throw error;
     }
 }
 

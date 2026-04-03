@@ -10,9 +10,9 @@ const AppState = {
     selectedCases: new Set(),
     summaries: [],
     settings: {
-        apiKey: 'ollama',
+        apiKey: AppSettings.getApiKey(),
         apiModel: 'qwen3.5:latest',
-        apiEndpoint: 'http://localhost:11434',
+        apiEndpoint: AppSettings.getEndpoint(),
         storageLocation: 'local',
         maxEntries: 1000
     }
@@ -314,57 +314,30 @@ ${context}
 // 调用API (Ollama)
 async function callOpenAI(prompt) {
     const endpoint = AppState.settings.apiEndpoint.replace(/\/$/, '');
-    const isCloud = AppState.settings.apiModel.includes('-cloud');
-    
+    const apiModel = AppState.settings.apiModel;
+    const isCloud = apiModel.includes('-cloud');
+    const startTime = Date.now();
+
     let url, body;
-    
+
     if (isCloud) {
-        // 云端模型使用 OpenAI 兼容格式
         url = `${endpoint}/v1/chat/completions`;
-        body = {
-            model: AppState.settings.apiModel.replace('-cloud', ''),
-            messages: [
-                {
-                    role: 'system',
-                    content: '你是一个专业的内容分析专家，擅长识别内容中的问题、不准确性和偏见。请始终以有效的JSON格式返回分析结果。'
-                },
-                {
-                    role: 'user',
-                    content: prompt
-                }
-            ],
-            temperature: 0.2
-        };
+        body = { model: apiModel.replace('-cloud', ''), messages: [{ role: 'system', content: '你是一个专业的内容分析专家，擅长识别内容中的问题、不准确性和偏见。请始终以有效的JSON格式返回分析结果。' }, { role: 'user', content: prompt }], temperature: 0.2 };
     } else {
-        // 本地模型使用 Ollama 格式
         url = `${endpoint}/api/generate`;
-        body = {
-            model: AppState.settings.apiModel,
-            prompt: `你是一个专业的内容分析专家，擅长识别内容中的问题、不准确性和偏见。请始终以有效的JSON格式返回分析结果。\n\n${prompt}`,
-            stream: false,
-            temperature: 0.2
-        };
+        body = { model: apiModel, prompt: `你是一个专业的内容分析专家，擅长识别内容中的问题、不准确性和偏见。请始终以有效的JSON格式返回分析结果。\n\n${prompt}`, stream: false, temperature: 0.2 };
     }
-    
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    });
-    
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `API请求失败 (${response.status})`);
-    }
-    
-    const data = await response.json();
-    
-    if (isCloud) {
-        return data.choices[0].message.content;
-    } else {
-        return data.response;
+
+    try {
+        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (!response.ok) { const errorData = await response.json().catch(() => ({})); throw new Error(errorData.error?.message || `API请求失败 (${response.status})`); }
+        const data = await response.json();
+        const result = isCloud ? (data.choices?.[0]?.message?.content || '') : (data.response || '');
+        APILogger.log({ source: 'AI分析工具', model: apiModel, endpoint, prompt, response: result, duration: Date.now() - startTime, success: true });
+        return result;
+    } catch (e) {
+        APILogger.log({ source: 'AI分析工具', model: apiModel, endpoint, prompt, duration: Date.now() - startTime, success: false, error: e.message });
+        throw e;
     }
 }
 
@@ -1966,9 +1939,9 @@ function clearAllData() {
         
         // 重置设置为默认值
         AppState.settings = {
-            apiKey: 'ollama',
+            apiKey: AppSettings.getApiKey(),
             apiModel: 'qwen3.5:latest',
-            apiEndpoint: 'http://localhost:11434',
+            apiEndpoint: AppSettings.getEndpoint(),
             storageLocation: 'local',
             maxEntries: 1000
         };
@@ -2095,7 +2068,7 @@ function loadSettings() {
     // 更新UI元素
     Elements.apiKey.value = AppState.settings.apiKey || '';
     Elements.apiModel.value = AppState.settings.apiModel || 'zai-org/GLM-4.5';
-    Elements.apiEndpoint.value = AppState.settings.apiEndpoint || 'http://localhost:11434';
+    Elements.apiEndpoint.value = AppState.settings.apiEndpoint || AppSettings.getEndpoint();
     Elements.storageLocation.value = AppState.settings.storageLocation || 'local';
     Elements.maxEntries.value = AppState.settings.maxEntries || 1000;
 }

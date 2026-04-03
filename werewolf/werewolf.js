@@ -84,8 +84,8 @@ const gameState = {
     gameModel: 'llama3.1',
     hostModel: 'llama3.1',
     playerDefaultModel: '__random_all__',
-    gameApiKey: 'ollama',
-    gameEndpoint: 'http://localhost:11434/v1',
+    gameApiKey: AppSettings.getApiKey(),
+    gameEndpoint: AppSettings.getEndpointV1(),
     phaseInterval: null,
     editingPlayerId: null,
     hostSelectedPlayerId: null,
@@ -417,8 +417,8 @@ function startGame() {
     gameState.hostModel = elements.gameModel ? elements.gameModel.value : 'llama3.1';
     gameState.playerDefaultModel = elements.playerDefaultModel ? elements.playerDefaultModel.value : '__random__';
     gameState.intervalSeconds = parseInt(elements.intervalSeconds.value) || 3;
-    gameState.gameApiKey = 'ollama';
-    gameState.gameEndpoint = 'http://localhost:11434/v1';
+    gameState.gameApiKey = AppSettings.getApiKey();
+    gameState.gameEndpoint = AppSettings.getEndpointV1();
 
     // 清除所有玩家角色，准备重新分配
     gameState.players.forEach(p => { p.role = ''; });
@@ -917,6 +917,7 @@ function buildNightWitchPrompt(witch, killed) {
 
 async function callGameAI(prompt) {
     const model = resolveModel(gameState.hostModel);
+    const startTime = Date.now();
     try {
         const response = await fetch(`${gameState.gameEndpoint}/chat/completions`, {
             method: 'POST',
@@ -924,16 +925,13 @@ async function callGameAI(prompt) {
             body: JSON.stringify({ model: model, messages: [{ role: 'user', content: prompt }], stream: false })
         });
         const data = await response.json();
-        return data.choices[0].message.content;
+        const msg = data.choices[0].message;
+        const result = msg.content || msg.reasoning || '';
+        APILogger.log({ source: '狼人杀', model, endpoint: gameState.gameEndpoint, prompt, response: result, reasoning: msg.reasoning || '', duration: Date.now() - startTime, success: true });
+        return result;
     } catch (e) {
-        console.error('本地AI调用失败，尝试云端备用...', e);
-        if (CLOUD_FALLBACK_CONFIG.enabled) {
-            try {
-                return await callCloudFallbackAPI(prompt);
-            } catch (cloudError) {
-                console.error('云端备用也失败:', cloudError);
-            }
-        }
+        APILogger.log({ source: '狼人杀', model, endpoint: gameState.gameEndpoint, prompt, duration: Date.now() - startTime, success: false, error: e.message });
+        console.error('本地AI调用失败:', e);
         return '';
     }
 }
@@ -1106,14 +1104,7 @@ async function callPlayerAI(player, prompt) {
         const data = await response.json();
         return data.choices[0].message.content;
     } catch (e) {
-        console.error('玩家AI调用失败，尝试云端备用...', e);
-        if (CLOUD_FALLBACK_CONFIG.enabled) {
-            try {
-                return await callCloudFallbackAPI(prompt);
-            } catch (cloudError) {
-                console.error('云端备用也失败:', cloudError);
-            }
-        }
+        console.error('玩家AI调用失败:', e);
         return '';
     }
 }
@@ -2106,11 +2097,8 @@ async function generatePlayer(event) {
 
     const selectedModel = modelSelect ? modelSelect.value : '__random_all__';
     const model = resolveModel(selectedModel);
-    const endpoint = endpointInput ? endpointInput.value.trim() : 'http://localhost:11434/v1';
-    const apiKey = apiKeyInput ? apiKeyInput.value.trim() : 'ollama';
-
-    // 判断是否为云端模型（根据原始选择值或解析后的模型名）
-    const isCloudModel = selectedModel.includes(':cloud') || model.includes(':cloud');
+    const endpoint = endpointInput ? endpointInput.value.trim() : AppSettings.getEndpointV1();
+    const apiKey = apiKeyInput ? apiKeyInput.value.trim() : AppSettings.getApiKey();
 
     let prompt;
     if (nameInput.value.trim() && descInput.value.trim()) {
@@ -2128,32 +2116,23 @@ async function generatePlayer(event) {
     }
 
     try {
-        let text;
+        const response = await fetch(`${endpoint}/chat/completions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [{ role: 'user', content: prompt }],
+                stream: false
+            })
+        });
 
-        if (isCloudModel) {
-            // 云端模型：直接使用 CloudBase 云函数
-            console.log('使用云端模型生成玩家:', model);
-            text = await callCloudFallbackAPI(prompt, 500);
-        } else {
-            // 本地模型：调用本地 Ollama
-            const response = await fetch(`${endpoint}/chat/completions`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [{ role: 'user', content: prompt }],
-                    stream: false
-                })
-            });
+        if (!response.ok) throw new Error('API调用失败');
 
-            if (!response.ok) throw new Error('API调用失败');
-
-            const data = await response.json();
-            text = data.choices[0].message.content;
-        }
+        const data = await response.json();
+        const text = data.choices[0].message.content;
 
         // 解析返回的内容
         const nameMatch = text.match(/名字[：:]\s*(.+?)(?:\n|$)/);
@@ -2247,8 +2226,8 @@ async function generateMultiplePlayers() {
                 role: shuffledRoles[i] || '平民',
                 description: char.desc || '普通玩家',
                 model: gameState.playerDefaultModel || '__random_all__',
-                endpoint: 'http://localhost:11434/v1',
-                apiKey: 'ollama',
+                endpoint: AppSettings.getEndpointV1(),
+                apiKey: AppSettings.getApiKey(),
                 alive: true,
                 isUser: false
             };
@@ -2261,36 +2240,6 @@ async function generateMultiplePlayers() {
         alert(`已生成 ${count} 名AI玩家`);
 
     } catch (e) {
-        // 尝试云端备用
-        if (CLOUD_FALLBACK_CONFIG.enabled) {
-            try {
-                const cloudContent = await callCloudFallbackAPI(prompt);
-                let characters = JSON.parse(cloudContent);
-                while (characters.length < count) {
-                    characters.push({ name: `玩家${characters.length + 1}`, desc: '普通玩家' });
-                }
-                for (let i = 0; i < count; i++) {
-                    const char = characters[i] || {};
-                    const player = {
-                        id: Date.now().toString() + i,
-                        name: char.name || `玩家${i+1}`,
-                        role: shuffledRoles[i] || '平民',
-                        description: char.desc || '普通玩家',
-                        model: gameState.playerDefaultModel || '__random_all__',
-                        endpoint: player.endpoint || gameState.gameEndpoint,
-                        apiKey: player.apiKey || gameState.gameApiKey
-                    };
-                    gameState.players.push(player);
-                }
-                saveToStorage();
-                renderPlayers();
-                updateControlButtons();
-                alert(`已生成 ${count} 名AI玩家（使用云端备用）`);
-                return;
-            } catch (cloudError) {
-                console.error('云端备用也失败:', cloudError);
-            }
-        }
         alert('生成失败: ' + e.message);
         console.error(e);
     } finally {

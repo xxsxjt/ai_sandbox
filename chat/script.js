@@ -133,6 +133,7 @@ const elements = {
     maxRounds: document.getElementById('max-rounds'),
     intervalSeconds: document.getElementById('interval-seconds'),
     maxTokens: document.getElementById('max-tokens'),
+    showReasoning: document.getElementById('show-reasoning'),
     waitUserTurn: document.getElementById('wait-user-turn'),
     showModelInfo: document.getElementById('show-model-info'),
     aiKnowsModels: document.getElementById('ai-knows-models'),
@@ -235,16 +236,16 @@ function loadCloudModels() {
         {name: "GPT-OSS", description: "开源大模型GPT-OSS，120B参数", model: "gpt-oss:120b-cloud"},
         {name: "Devstral-2", description: "开发者友好模型，123B参数", model: "devstral-2:123b-cloud"},
         {name: "DeepSeek-V3.2", description: "深度求索V3.2模型，全面升级版", model: "deepseek-v3.2:cloud"},
-        {name: "Minimax-M2.7", description: "MiniMax M2.7模型，云端最新版", model: "minimax-m2.7:cloud"},
+        {name: "Minimax-M2.7", description: "MiniMax M2.7模型", model: "minimax-m2.7:cloud"},
         {name: "Qwen3-Coder-Next", description: "阿里云千问3-Coder-Next，编程专用", model: "qwen3-coder-next:cloud"},
         {name: "Kimi-K2.5", description: "月之暗面Kimi K2.5模型", model: "kimi-k2.5:cloud"},
         {name: "GLM-5", description: "智谱GLM-5模型", model: "glm-5:cloud"}
     ];
     
     // 添加默认配置
-    const endpoint = 'http://localhost:11434/v1';
-    const apiKey = 'ollama';
-    
+    const endpoint = AppSettings.getEndpointV1();
+    const apiKey = AppSettings.getApiKey();
+
     cloudCharacters.forEach((char, index) => {
         char.id = (Date.now() + index).toString();
         char.customModel = '';
@@ -334,8 +335,8 @@ function openCharacterModal(character = null) {
     } else {
         elements.characterForm.reset();
         elements.charModel.value = 'qwen3:8b';
-        elements.charEndpoint.value = 'http://localhost:11434/v1';
-        elements.charApiKey.value = 'ollama';
+        elements.charEndpoint.value = AppSettings.getEndpointV1();
+        elements.charApiKey.value = AppSettings.getApiKey();
         elements.customModelGroup.style.display = 'none';
     }
 }
@@ -527,7 +528,7 @@ function startSimulation() {
     state.waitingForUser = false;
     state.maxRounds = parseInt(elements.maxRounds.value) || 10;
     state.intervalSeconds = parseInt(elements.intervalSeconds.value) || 2;
-    state.maxTokens = parseInt(elements.maxTokens.value) || 500;
+    state.maxTokens = parseInt(elements.maxTokens.value) || 1000;
     state.aiKnowsModels = elements.aiKnowsModels ? elements.aiKnowsModels.checked : false;
     state.enableSearch = elements.enableSearch ? elements.enableSearch.checked : true;
 
@@ -762,14 +763,12 @@ function buildPrompt(character) {
 }
 
 // API 调用 - 使用 shared.js 中的通用函数
-async function callOllamaAPI(character, prompt, forcedModel = null, maxTokens = null, useCloudFallback = true) {
-    const model = forcedModel || (character.model === 'custom' ? character.customModel : character.model);
-    const tokens = maxTokens || state.maxTokens || 500;
-
-    // 带超时的 fetch（120秒）
+async function callOllamaAPI(character, prompt, forcedModel = null, maxTokens = null) {
+    let model = forcedModel || (character.model === 'custom' ? character.customModel : character.model);
+    const tokens = maxTokens || state.maxTokens || 1000;
+    const startTime = Date.now();
     const fetchTimeout = 120000;
 
-    // 尝试本地 Ollama，失败时自动使用云端备用
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), fetchTimeout);
@@ -796,18 +795,27 @@ async function callOllamaAPI(character, prompt, forcedModel = null, maxTokens = 
         }
 
         const data = await response.json();
-        const content = data.choices?.[0]?.message?.content || '';
+        const msg = data.choices?.[0]?.message || {};
+        const content = msg.content || '';
         if (!content.trim()) {
-            console.error('AI空回复详情:', JSON.stringify(data).substring(0, 500));
+            if (msg.reasoning) {
+                const showReasoning = elements.showReasoning && elements.showReasoning.checked;
+                if (showReasoning) {
+                    const result = '【思考中断】\n' + msg.reasoning;
+                    APILogger.log({ source: '对话模拟', model, endpoint: character.endpoint, prompt, response: result, reasoning: msg.reasoning, maxTokens: tokens, duration: Date.now() - startTime, success: true });
+                    return result;
+                }
+                APILogger.log({ source: '对话模拟', model, endpoint: character.endpoint, prompt, maxTokens: tokens, duration: Date.now() - startTime, success: false, error: '思考中断：token不足' });
+                throw new Error('思考中断：token 不足，请增大最大Token数');
+            }
+            APILogger.log({ source: '对话模拟', model, endpoint: character.endpoint, prompt, maxTokens: tokens, duration: Date.now() - startTime, success: false, error: 'AI返回了空回复' });
             throw new Error('AI返回了空回复');
         }
+        APILogger.log({ source: '对话模拟', model, endpoint: character.endpoint, prompt, response: content, reasoning: msg.reasoning || '', maxTokens: tokens, duration: Date.now() - startTime, success: true });
         return content;
     } catch (localError) {
-        if (!useCloudFallback || !CLOUD_FALLBACK_CONFIG.enabled) {
-            throw localError;
-        }
-        console.warn('本地Ollama不可用，尝试使用云端备用API...');
-        return await callCloudFallbackAPI(prompt, tokens);
+        APILogger.log({ source: '对话模拟', model, endpoint: character.endpoint, prompt, maxTokens: tokens, duration: Date.now() - startTime, success: false, error: localError.message });
+        throw localError;
     }
 }
 
@@ -1048,8 +1056,8 @@ function importConversation(e) {
                                 description: '从导入文件恢复的角色',
                                 model: charModel,
                                 customModel: '',
-                                endpoint: 'http://localhost:11434/v1',
-                                apiKey: 'ollama'
+                                endpoint: AppSettings.getEndpointV1(),
+                                apiKey: AppSettings.getApiKey()
                             });
                         }
                     }
@@ -1135,12 +1143,14 @@ function saveToStorage() {
             topic: elements.discussionTopic.value,
             maxRounds: elements.maxRounds.value,
             intervalSeconds: elements.intervalSeconds.value,
+            maxTokens: elements.maxTokens ? elements.maxTokens.value : 1000,
             isRunning: state.isRunning,
             isPaused: state.isPaused,
             currentRound: state.currentRound,
             currentSpeakerIndex: state.currentSpeakerIndex,
             aiKnowsModels: elements.aiKnowsModels ? elements.aiKnowsModels.checked : true,
-            showModelInfo: elements.showModelInfo ? elements.showModelInfo.checked : true
+            showModelInfo: elements.showModelInfo ? elements.showModelInfo.checked : true,
+            showReasoning: elements.showReasoning ? elements.showReasoning.checked : false
         }
     };
     localStorage.setItem('ai_sandbox_data', JSON.stringify(data));
@@ -1177,8 +1187,10 @@ function loadFromStorage() {
                 elements.discussionTopic.value = data.settings.topic || '';
                 elements.maxRounds.value = data.settings.maxRounds || 10;
                 elements.intervalSeconds.value = data.settings.intervalSeconds || 2;
+                if (elements.maxTokens) elements.maxTokens.value = data.settings.maxTokens || 1000;
                 if (elements.aiKnowsModels) elements.aiKnowsModels.checked = data.settings.aiKnowsModels !== false;
                 if (elements.showModelInfo) elements.showModelInfo.checked = data.settings.showModelInfo !== false;
+                if (elements.showReasoning) elements.showReasoning.checked = data.settings.showReasoning || false;
             }
             // 恢复进度（不自动运行，等用户手动开始）
             if (data.settings && data.settings.isRunning) {
@@ -1206,17 +1218,14 @@ window.insertUserMessage = insertUserMessage;
 // ==================== AI生成角色 ====================
 async function generateCharacter(event) {
     const model = document.getElementById('char-model').value;
-    const endpoint = elements.charEndpoint ? elements.charEndpoint.value.trim() : 'http://localhost:11434/v1';
-    const apiKey = elements.charApiKey ? elements.charApiKey.value.trim() : 'ollama';
+    const endpoint = elements.charEndpoint ? elements.charEndpoint.value.trim() : AppSettings.getEndpointV1();
+    const apiKey = elements.charApiKey ? elements.charApiKey.value.trim() : AppSettings.getApiKey();
     const nameInput = document.getElementById('char-name');
     const descInput = document.getElementById('char-description');
     const btn = event?.target;
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 生成中...';
     btn.disabled = true;
-
-    // 判断是否为云端模型
-    const isCloudModel = model.includes(':cloud');
 
     let prompt;
     if (nameInput.value.trim() && descInput.value.trim()) {
@@ -1236,32 +1245,23 @@ async function generateCharacter(event) {
     }
 
     try {
-        let text;
+        const response = await fetch(`${endpoint}/chat/completions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [{ role: 'user', content: prompt }],
+                stream: false
+            })
+        });
 
-        if (isCloudModel) {
-            // 云端模型：直接使用 CloudBase 云函数
-            console.log('使用云端模型生成角色:', model);
-            text = await callCloudFallbackAPI(prompt, 500);
-        } else {
-            // 本地模型：调用本地 Ollama
-            const response = await fetch(`${endpoint}/chat/completions`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [{ role: 'user', content: prompt }],
-                    stream: false
-                })
-            });
+        if (!response.ok) throw new Error('API调用失败');
 
-            if (!response.ok) throw new Error('API调用失败');
-
-            const data = await response.json();
-            text = data.choices[0].message.content;
-        }
+        const data = await response.json();
+        const text = data.choices?.[0]?.message.content;
 
         if (nameInput.value.trim() && descInput.value.trim()) {
             // 已有内容，只更新描述
@@ -1274,31 +1274,8 @@ async function generateCharacter(event) {
             if (descMatch) descInput.value = descMatch[1].trim();
         }
     } catch (e) {
-        // 本地Ollama失败，尝试云端备用
-        if (!isCloudModel && CLOUD_FALLBACK_CONFIG.enabled && (e.message.includes('Failed to fetch') || e.message.includes('NetworkError') || e.message.includes('API调用失败'))) {
-            console.warn('本地Ollama不可用，尝试使用云端备用API...');
-            try {
-                const cloudText = await callCloudFallbackAPI(prompt, 500);
-                if (nameInput.value.trim() && descInput.value.trim()) {
-                    descInput.value = cloudText.trim();
-                } else {
-                    const nameMatch = cloudText.match(/角色名[:：]\s*(.+)/);
-                    const descMatch = cloudText.match(/性格描述[:：]\s*(.+)/);
-                    if (nameMatch) nameInput.value = nameMatch[1].trim();
-                    if (descMatch) descInput.value = descMatch[1].trim();
-                }
-                return; // 成功，直接返回
-            } catch (cloudError) {
-                console.error('云端备用API也失败:', cloudError);
-            }
-        }
-
         console.error('生成失败:', e);
-        let errorMsg = e.message || '未知错误';
-        if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
-            errorMsg = '本地Ollama不可用，正在尝试云端备用API...';
-        }
-        alert('生成失败: ' + errorMsg);
+        alert('生成失败: ' + (e.message || '未知错误'));
     } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
@@ -1431,8 +1408,8 @@ async function generateMultipleCharacters() {
     const count = parseInt(elements.generateCount ? elements.generateCount.value : 3);
     // 使用用户选择的生成模型
     const model = elements.generateModel ? elements.generateModel.value : 'qwen3:8b';
-    const endpoint = elements.charEndpoint ? elements.charEndpoint.value.trim() : 'http://localhost:11434/v1';
-    const apiKey = elements.charApiKey ? elements.charApiKey.value.trim() : 'ollama';
+    const endpoint = elements.charEndpoint ? elements.charEndpoint.value.trim() : AppSettings.getEndpointV1();
+    const apiKey = elements.charApiKey ? elements.charApiKey.value.trim() : AppSettings.getApiKey();
     const btn = elements.generateCharactersBtn;
     
     const background = elements.sceneBackground.value.trim();

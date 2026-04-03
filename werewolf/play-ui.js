@@ -4,8 +4,8 @@
 // 初始化配置
 WerewolfCore.gameState.showModelInfo = false;  // 游玩模式不显示模型
 WerewolfCore.gameState.aiKnowsModels = false;  // AI 不知道其他玩家模型
-WerewolfCore.gameState.gameApiKey = 'ollama';
-WerewolfCore.gameState.gameEndpoint = 'http://localhost:11434/v1';
+WerewolfCore.gameState.gameApiKey = AppSettings.getApiKey();
+WerewolfCore.gameState.gameEndpoint = AppSettings.getEndpointV1();
 
 // DOM 元素引用
 const elements = {
@@ -134,8 +134,8 @@ function generateMultiplePlayers() {
         description: personalities[i % personalities.length],
         isUser: false,
         model: getRandomModel(),
-        endpoint: 'http://localhost:11434/v1',
-        apiKey: 'ollama',
+        endpoint: AppSettings.getEndpointV1(),
+        apiKey: AppSettings.getApiKey(),
         alive: true,
         potions: { antidote: true, poison: true }  // 女巫初始药水
     }));

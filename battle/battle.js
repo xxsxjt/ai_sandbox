@@ -58,11 +58,11 @@ const gameState = {
     showModelInfo: true,
     // 主持人模型配置
     hostModel: 'qwen3:8b',
-    hostEndpoint: 'http://localhost:11434/v1',
-    hostApiKey: 'ollama',
+    hostEndpoint: AppSettings.getEndpointV1(),
+    hostApiKey: AppSettings.getApiKey(),
     // 战斗角色默认配置（使用主持人相同的设置）
-    gameApiKey: 'ollama',
-    gameEndpoint: 'http://localhost:11434/v1',
+    gameApiKey: AppSettings.getApiKey(),
+    gameEndpoint: AppSettings.getEndpointV1(),
     gameModel: 'qwen3:8b',
     phaseInterval: null,
     editingFighterId: null,
@@ -356,7 +356,7 @@ async function generateMultipleFighters() {
 
     // 根据选择确定模型
     let model = selectedModel;
-    if (selectedModel === '__random_all__' || selectedModel === '__random_local__' || selectedModel === '__random_cloud__') {
+    if (selectedModel === '__random_all__') {
         model = resolveModel(selectedModel);
     }
 
@@ -411,13 +411,9 @@ async function AIGenerateFighters() {
 
     try {
         let model = selectedModel;
-        let isCloudModel = false;
 
-        if (selectedModel === '__random_all__' || selectedModel === '__random_local__' || selectedModel === '__random_cloud__') {
+        if (selectedModel === '__random_all__') {
             model = resolveModel(selectedModel);
-            isCloudModel = model.includes(':cloud');
-        } else {
-            isCloudModel = selectedModel.includes(':cloud');
         }
 
         let content;
@@ -430,7 +426,8 @@ async function AIGenerateFighters() {
                 apiKey: apiKey,
                 model: model,
                 messages: [{ role: 'user', content: prompt }],
-                temperature: 0.8
+                temperature: 0.8,
+                source: '战斗模拟'
             });
         } catch (error) {
             console.error('生成战斗角色失败:', error);
@@ -647,7 +644,8 @@ async function getFighterAction(fighter, aliveFighters) {
             apiKey: fighter.apiKey,
             model: model,
             messages: [{ role: 'user', content: prompt }],
-            timeout: 30000
+            timeout: 30000,
+            source: '战斗模拟'
         });
 
         // 解析行动
@@ -739,6 +737,7 @@ Miss：闪避时可以触发，触发后完全躲避伤害，根据角色设定�
             apiKey: gameState.hostApiKey,
             model: gameState.hostModel,
             messages: [{ role: 'user', content: prompt }],
+            source: '战斗模拟',
             timeout: 30000
         });
 
@@ -786,6 +785,7 @@ async function continueJudgment() {
             apiKey: gameState.hostApiKey,
             model: gameState.hostModel,
             messages: [{ role: 'user', content: prompt }],
+            source: '战斗模拟',
             timeout: 30000
         });
 
@@ -995,12 +995,12 @@ function loadFromStorage() {
                 
                 // 主持人模型设置
                 gameState.hostModel = data.settings.hostModel || 'qwen3:8b';
-                gameState.hostEndpoint = data.settings.hostEndpoint || 'http://localhost:11434/v1';
-                gameState.hostApiKey = data.settings.hostApiKey || 'ollama';
-                
+                gameState.hostEndpoint = data.settings.hostEndpoint || AppSettings.getEndpointV1();
+                gameState.hostApiKey = data.settings.hostApiKey || AppSettings.getApiKey();
+
                 // 新增：加载游戏角色配置
                 gameState.gameModel = data.settings.gameModel || 'qwen3:8b';
-                gameState.gameEndpoint = data.settings.gameEndpoint || 'http://localhost:11434/v1';
+                gameState.gameEndpoint = data.settings.gameEndpoint || AppSettings.getEndpointV1();
                 gameState.gameApiKey = data.settings.gameApiKey || 'ollama';
                 
                 // 更新 UI

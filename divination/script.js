@@ -309,7 +309,7 @@ let historyData = JSON.parse(localStorage.getItem('divinationHistory') || '[]');
 
 // 设置
 let settings = {
-    ollamaUrl: localStorage.getItem('ollamaUrl') || 'http://localhost:11434',
+    ollamaUrl: localStorage.getItem('ollamaUrl') || AppSettings.getEndpoint(),
     aiModel: localStorage.getItem('aiModel') || 'qwen3:8b',
     autoSave: localStorage.getItem('autoSave') !== 'false'
 };
@@ -415,37 +415,27 @@ function initSettings() {
 // 动态加载模型列表
 function initModelOptions() {
     // 检查 shared.js 是否已加载
-    if (typeof LOCAL_MODELS === 'undefined' || typeof CLOUD_MODELS === 'undefined') {
+    if (typeof AVAILABLE_MODELS === 'undefined') {
         console.warn('shared.js 未加载，使用默认模型列表');
         return;
     }
 
-    const localGroup = document.getElementById('local-models-group');
-    const cloudGroup = document.getElementById('cloud-models-group');
+    const modelGroup = document.getElementById('local-models-group');
 
-    if (!localGroup || !cloudGroup) {
+    if (!modelGroup) {
         console.warn('模型选择器元素未找到');
         return;
     }
 
     // 清空现有选项
-    localGroup.innerHTML = '';
-    cloudGroup.innerHTML = '';
+    modelGroup.innerHTML = '';
 
-    // 添加本地模型
-    LOCAL_MODELS.forEach(model => {
+    // 添加模型
+    AVAILABLE_MODELS.forEach(model => {
         const option = document.createElement('option');
         option.value = model;
         option.textContent = formatModelName(model);
-        localGroup.appendChild(option);
-    });
-
-    // 添加云端模型
-    CLOUD_MODELS.forEach(model => {
-        const option = document.createElement('option');
-        option.value = model;
-        option.textContent = formatModelName(model);
-        cloudGroup.appendChild(option);
+        modelGroup.appendChild(option);
     });
 
     // 恢复之前选择的模型
@@ -457,7 +447,6 @@ function initModelOptions() {
 function formatModelName(model) {
     return model
         .replace(/:latest/g, '')
-        .replace(/:cloud/g, '')
         .replace(/-/g, ' ')
         .replace(/\b\w/g, c => c.toUpperCase());
 }
@@ -1059,42 +1048,37 @@ async function aiInterpret() {
     document.getElementById('aiLoading').classList.remove('hidden');
     document.getElementById('aiResult').innerHTML = '';
     
+    const startTime = Date.now();
     try {
         const response = await fetch(`${settings.ollamaUrl}/api/generate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: settings.aiModel,
-                prompt: prompt,
-                stream: true
-            })
+            body: JSON.stringify({ model: settings.aiModel, prompt: prompt, stream: true })
         });
-        
+
         if (!response.ok) throw new Error('API请求失败');
-        
+
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let result = '';
-        
+
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            
             const chunk = decoder.decode(value);
             const lines = chunk.split('\n').filter(line => line.trim());
-            
             for (const line of lines) {
                 try {
                     const data = JSON.parse(line);
-                    if (data.response) {
-                        result += data.response;
-                        document.getElementById('aiResult').innerHTML = formatAIResponse(result);
-                    }
+                    if (data.response) { result += data.response; document.getElementById('aiResult').innerHTML = formatAIResponse(result); }
                 } catch (e) {}
             }
         }
-        
+
+        APILogger.log({ source: '混沌玄卜', model: settings.aiModel, endpoint: settings.ollamaUrl, prompt, response: result, duration: Date.now() - startTime, success: true });
+
     } catch (error) {
+        APILogger.log({ source: '混沌玄卜', model: settings.aiModel, endpoint: settings.ollamaUrl, prompt, duration: Date.now() - startTime, success: false, error: error.message });
         document.getElementById('aiResult').innerHTML = `<p style="color: var(--danger);">AI解读失败: ${escapeHtml(error.message)}</p>
             <p>请检查Ollama是否运行，或在设置中配置正确的API地址。</p>`;
     } finally {

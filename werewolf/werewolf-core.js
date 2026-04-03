@@ -48,8 +48,8 @@ const gameState = {
     intervalSeconds: 3,
     gameModel: 'llama3.1',
     playerDefaultModel: '__random_all__',
-    gameApiKey: 'ollama',
-    gameEndpoint: 'http://localhost:11434/v1',
+    gameApiKey: AppSettings.getApiKey(),
+    gameEndpoint: AppSettings.getEndpointV1(),
     phaseInterval: null,
     nightActions: {},
     nightRoundRecords: [],
@@ -626,6 +626,7 @@ function endGame(result) {
 
 // ==================== AI 调用 ====================
 async function callAI(prompt, model, endpoint, apiKey) {
+    const startTime = Date.now();
     try {
         const response = await fetch(`${endpoint}/chat/completions`, {
             method: 'POST',
@@ -640,8 +641,12 @@ async function callAI(prompt, model, endpoint, apiKey) {
             })
         });
         const data = await response.json();
-        return data.choices?.[0]?.message?.content || '';
+        const msg = data.choices?.[0]?.message || {};
+        const result = msg.content || msg.reasoning || '';
+        APILogger.log({ source: '狼人杀', model, endpoint, prompt, response: result, reasoning: msg.reasoning || '', duration: Date.now() - startTime, success: true });
+        return result;
     } catch (e) {
+        APILogger.log({ source: '狼人杀', model, endpoint, prompt, duration: Date.now() - startTime, success: false, error: e.message });
         console.error('AI 调用失败:', e);
         throw e;
     }

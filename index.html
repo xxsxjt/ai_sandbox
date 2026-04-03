@@ -6,9 +6,11 @@
     <title>AI模拟箱 - 选择模式</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-        onerror="this.href='https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/css/all.min.css'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+        crossorigin="anonymous"
+        onerror="this.href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css'">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    <script src="shared.js"></script>
     <style>
         /* 导航页样式 */
         * {
@@ -408,6 +410,300 @@
             }
 
             .corner { width: 80px; height: 80px; }
+
+            .settings-panel { width: 90vw; }
+        }
+
+        /* ===== 设置按钮 ===== */
+        .settings-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 200;
+            width: 48px;
+            height: 48px;
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .settings-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+            transform: rotate(45deg);
+        }
+
+        /* ===== 设置面板 ===== */
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .settings-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .settings-panel {
+            width: 460px;
+            max-width: 90vw;
+            background: rgba(20, 20, 30, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 32px;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .settings-overlay.show .settings-panel {
+            transform: scale(1);
+        }
+
+        .settings-panel h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .settings-panel h2 i {
+            color: var(--primary);
+        }
+
+        .settings-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .settings-close:hover {
+            background: rgba(255, 0, 110, 0.2);
+            color: var(--accent);
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+        }
+        .setting-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .setting-group input,
+        .setting-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: 'Noto Sans SC', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .setting-group input:focus,
+        .setting-group select:focus {
+            border-color: var(--primary);
+        }
+        .setting-group select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+        .setting-hint {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 4px;
+        }
+
+        .settings-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+        .settings-actions button {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .btn-save {
+            background: linear-gradient(135deg, var(--primary), #008fa3);
+            color: #000;
+        }
+        .btn-save:hover {
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+        }
+        .btn-test {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        .btn-test:hover {
+            border-color: var(--primary) !important;
+        }
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+        }
+        .btn-reset:hover {
+            color: var(--accent);
+        }
+
+        .settings-status {
+            margin-top: 16px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            display: none;
+        }
+        .settings-status.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        .settings-status.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        /* Tab 栏 */
+        .settings-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 0;
+        }
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .tab-btn:hover { color: var(--text-primary); }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        /* 统计卡片 */
+        .stats-summary {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            flex: 1;
+            text-align: center;
+            padding: 14px 8px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .stat-num { font-size: 1.5rem; font-weight: 800; font-family: 'Orbitron', sans-serif; }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        .stats-modules { margin-top: 8px; }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+        }
+        .stat-row:nth-child(even) { background: rgba(255,255,255,0.02); }
+        .stat-source { color: var(--text-primary); font-weight: 600; }
+        .stat-nums { color: var(--text-muted); font-size: 0.78rem; }
+
+        /* 日志条目 */
+        .log-entry { border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; margin-bottom: 8px; overflow: hidden; cursor: pointer; transition: border-color 0.2s; }
+        .log-entry:hover { border-color: rgba(255,255,255,0.15); }
+        .log-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+        }
+        .log-time { color: var(--text-muted); font-size: 0.75rem; min-width: 120px; }
+        .log-model { color: var(--primary); font-weight: 600; }
+        .log-source { color: var(--text-muted); font-size: 0.75rem; margin-left: auto; }
+        .log-status { font-size: 0.78rem; }
+        .log-detail { display: none; padding: 0 14px 12px; border-top: 1px solid rgba(255,255,255,0.04); }
+        .log-entry.expanded .log-detail { display: block; }
+        .log-field { margin-top: 8px; }
+        .log-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .log-field pre {
+            margin: 4px 0 0;
+            padding: 8px 10px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.3);
+            font-size: 0.78rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 120px;
+            overflow-y: auto;
+            font-family: 'Noto Sans SC', monospace;
+            color: rgba(255,255,255,0.8);
+        }
+        .log-field pre.reasoning { border-left: 2px solid var(--secondary); color: rgba(255,255,255,0.5); }
+
+        /* 最近使用标记 */
+        .recent-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--primary);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 6px;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -502,5 +798,279 @@
             </a>
         </div>
     </div>
+
+    <!-- 设置按钮 -->
+    <button class="settings-btn" onclick="openSettings()" title="设置">
+        <i class="fas fa-cog"></i>
+    </button>
+
+    <!-- 设置面板 -->
+    <div class="settings-overlay" id="settingsOverlay" onclick="closeSettingsOutside(event)">
+        <div class="settings-panel">
+            <button class="settings-close" onclick="closeSettings()"><i class="fas fa-times"></i></button>
+            <h2><i class="fas fa-sliders-h"></i> 设置</h2>
+
+            <!-- Tab 栏 -->
+            <div class="settings-tabs">
+                <button class="tab-btn active" onclick="switchTab('api')">API</button>
+                <button class="tab-btn" onclick="switchTab('models')">模型</button>
+                <button class="tab-btn" onclick="switchTab('stats')">统计</button>
+                <button class="tab-btn" onclick="switchTab('logs')">日志</button>
+            </div>
+
+            <!-- Tab: API 设置 -->
+            <div class="tab-content" id="tab-api">
+                <div class="setting-group">
+                    <label>API 地址</label>
+                    <input type="text" id="settingEndpoint" placeholder="http://localhost:11434">
+                    <div class="setting-hint">Ollama 默认地址，或任意 OpenAI 兼容 API 地址</div>
+                </div>
+                <div class="setting-group">
+                    <label>API Key</label>
+                    <input type="text" id="settingApiKey" placeholder="ollama">
+                    <div class="setting-hint">Ollama 本地可填 ollama，云端 API 填写你的 Key</div>
+                </div>
+                <div class="setting-group">
+                    <label>默认模型</label>
+                    <input type="text" id="settingModel" placeholder="qwen3:8b">
+                    <div class="setting-hint">各模块未指定模型时使用此模型</div>
+                </div>
+                <div class="settings-actions">
+                    <button class="btn-test" onclick="testConnection()">测试连接</button>
+                    <button class="btn-save" onclick="saveSettings()">保存</button>
+                    <button class="btn-reset" onclick="resetSettings()">重置</button>
+                </div>
+                <div class="settings-status" id="apiStatus"></div>
+            </div>
+
+            <!-- Tab: 模型列表 -->
+            <div class="tab-content" id="tab-models" style="display:none">
+                <div class="setting-group">
+                    <label>模型列表 <span style="color:var(--text-muted);font-weight:400">（每行一个模型名称）</span></label>
+                    <textarea id="settingModels" rows="12" style="width:100%;padding:10px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:10px;background:rgba(255,255,255,0.04);color:var(--text-primary);font-size:0.85rem;font-family:'Noto Sans SC',monospace;resize:vertical;outline:none;" placeholder="qwen3:8b&#10;deepseek-r1:8b&#10;..."></textarea>
+                    <div class="setting-hint">自定义模型列表会替换默认列表。留空则恢复默认。</div>
+                </div>
+                <div class="settings-actions">
+                    <button class="btn-save" onclick="saveModels()">保存模型列表</button>
+                    <button class="btn-reset" onclick="resetModels()">恢复默认</button>
+                </div>
+                <div class="settings-status" id="modelsStatus"></div>
+            </div>
+
+            <!-- Tab: 调用统计 -->
+            <div class="tab-content" id="tab-stats" style="display:none">
+                <div id="statsContent"></div>
+                <div class="settings-actions" style="margin-top:16px">
+                    <button class="btn-reset" onclick="clearLogs()">清除所有日志</button>
+                </div>
+            </div>
+
+            <!-- Tab: 调用日志 -->
+            <div class="tab-content" id="tab-logs" style="display:none">
+                <div id="logsContent" style="max-height:50vh;overflow-y:auto;"></div>
+                <div class="settings-actions" style="margin-top:16px">
+                    <button class="btn-reset" onclick="clearLogs()">清除所有日志</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== Tab 切换 =====
+        function switchTab(name) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + name).style.display = 'block';
+            event.target.classList.add('active');
+            if (name === 'stats') renderStats();
+            if (name === 'logs') renderLogs();
+        }
+
+        // ===== 面板开关 =====
+        function openSettings() {
+            const overlay = document.getElementById('settingsOverlay');
+            document.getElementById('settingEndpoint').value = AppSettings.getEndpoint();
+            document.getElementById('settingApiKey').value = AppSettings.getApiKey();
+            document.getElementById('settingModel').value = AppSettings.getDefaultModel();
+            // 模型列表
+            const models = ModelManager.getCustomModels();
+            document.getElementById('settingModels').value = models.length > 0 ? models.join('\n') : '';
+            // 清除状态
+            ['apiStatus', 'modelsStatus'].forEach(id => { const el = document.getElementById(id); if(el) el.className = 'settings-status'; });
+            overlay.classList.add('show');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsOverlay').classList.remove('show');
+        }
+
+        function closeSettingsOutside(e) {
+            if (e.target === e.currentTarget) closeSettings();
+        }
+
+        // ===== API 设置 =====
+        function saveSettings() {
+            const endpoint = document.getElementById('settingEndpoint').value.trim();
+            const apiKey = document.getElementById('settingApiKey').value.trim();
+            const model = document.getElementById('settingModel').value.trim();
+            if (!endpoint) { showStatus('apiStatus', 'error', '请填写 API 地址'); return; }
+            AppSettings.set('apiEndpoint', endpoint);
+            AppSettings.set('apiKey', apiKey || 'ollama');
+            if (model) AppSettings.set('defaultModel', model);
+            showStatus('apiStatus', 'success', '设置已保存，所有模块将使用新配置');
+        }
+
+        function resetSettings() {
+            localStorage.removeItem('sandbox_apiEndpoint');
+            localStorage.removeItem('sandbox_apiKey');
+            localStorage.removeItem('sandbox_defaultModel');
+            document.getElementById('settingEndpoint').value = AppSettings.getEndpoint();
+            document.getElementById('settingApiKey').value = AppSettings.getApiKey();
+            document.getElementById('settingModel').value = AppSettings.getDefaultModel();
+            showStatus('apiStatus', 'success', '已重置为默认设置');
+        }
+
+        async function testConnection() {
+            const endpoint = document.getElementById('settingEndpoint').value.trim();
+            const apiKey = document.getElementById('settingApiKey').value.trim() || 'ollama';
+            const model = document.getElementById('settingModel').value.trim() || 'qwen3:8b';
+            if (!endpoint) { showStatus('apiStatus', 'error', '请填写 API 地址'); return; }
+            const statusEl = document.getElementById('apiStatus');
+            statusEl.className = 'settings-status';
+            statusEl.style.cssText = 'display:block;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text-muted);';
+            statusEl.textContent = '正在测试连接...';
+            let url = endpoint;
+            if (!url.endsWith('/v1')) url = url.replace(/\/$/, '') + '/v1';
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                const resp = await fetch(url + '/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+                    body: JSON.stringify({ model, messages: [{ role: 'user', content: '说"连接成功"，不要说其他话' }], stream: false, max_tokens: 20 }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (!resp.ok) { const err = await resp.text().catch(() => ''); showStatus('apiStatus', 'error', '连接失败 (' + resp.status + '): ' + err.substring(0, 100)); return; }
+                const data = await resp.json();
+                const reply = (data.choices?.[0]?.message?.content) || '';
+                showStatus('apiStatus', 'success', '连接成功！模型 ' + model + ' 回复: ' + reply.substring(0, 50));
+            } catch (e) {
+                showStatus('apiStatus', 'error', e.name === 'AbortError' ? '连接超时 (10s)' : '连接失败: ' + e.message);
+            }
+        }
+
+        // ===== 模型列表 =====
+        function saveModels() {
+            const text = document.getElementById('settingModels').value.trim();
+            const models = text ? text.split('\n').map(m => m.trim()).filter(m => m) : [];
+            ModelManager.setCustomModels(models);
+            showStatus('modelsStatus', 'success', '已保存 ' + models.length + ' 个模型');
+        }
+
+        function resetModels() {
+            ModelManager.reset();
+            document.getElementById('settingModels').value = '';
+            showStatus('modelsStatus', 'success', '已恢复默认模型列表');
+        }
+
+        // ===== 统计 =====
+        function renderStats() {
+            const stats = APILogger.getStats();
+            const logs = APILogger.getAll();
+            const el = document.getElementById('statsContent');
+            const total = logs.length;
+            const success = logs.filter(l => l.success).length;
+            const failed = logs.filter(l => !l.success).length;
+            let html = '<div class="stats-summary">';
+            html += '<div class="stat-card"><div class="stat-num">' + total + '</div><div class="stat-label">总调用</div></div>';
+            html += '<div class="stat-card"><div class="stat-num" style="color:#10b981">' + success + '</div><div class="stat-label">成功</div></div>';
+            html += '<div class="stat-card"><div class="stat-num" style="color:#ef4444">' + failed + '</div><div class="stat-label">失败</div></div>';
+            html += '</div>';
+            if (Object.keys(stats).length > 0) {
+                html += '<div class="stats-modules">';
+                for (const [source, s] of Object.entries(stats)) {
+                    html += '<div class="stat-row"><span class="stat-source">' + escapeHtml(source) + '</span>';
+                    html += '<span class="stat-nums">' + s.total + ' 次，成功 ' + s.success + '，失败 ' + s.failed + '</span></div>';
+                }
+                html += '</div>';
+            }
+            if (total === 0) html += '<div style="text-align:center;color:var(--text-muted);padding:30px;">暂无调用记录</div>';
+            el.innerHTML = html;
+        }
+
+        // ===== 日志 =====
+        function renderLogs() {
+            const logs = APILogger.getAll();
+            const el = document.getElementById('logsContent');
+            if (logs.length === 0) { el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:30px;">暂无日志</div>'; return; }
+            let html = '';
+            for (let i = logs.length - 1; i >= 0; i--) {
+                const l = logs[i];
+                const statusColor = l.success ? '#10b981' : '#ef4444';
+                const statusIcon = l.success ? 'fa-check-circle' : 'fa-times-circle';
+                html += '<div class="log-entry" onclick="this.classList.toggle(\'expanded\')">';
+                html += '<div class="log-header">';
+                html += '<span class="log-time">' + l.time + '</span>';
+                html += '<span class="log-model">' + escapeHtml(l.model) + '</span>';
+                html += '<span class="log-source">' + escapeHtml(l.source) + '</span>';
+                html += '<span class="log-status" style="color:' + statusColor + '"><i class="fas ' + statusIcon + '"></i> ' + (l.success ? (l.duration + 'ms') : escapeHtml(l.error).substring(0, 40)) + '</span>';
+                html += '</div>';
+                html += '<div class="log-detail">';
+                html += '<div class="log-field"><span class="log-label">Max Tokens:</span>' + (l.maxTokens || '-') + '</div>';
+                html += '<div class="log-field"><span class="log-label">Endpoint:</span>' + escapeHtml(l.endpoint || '-') + '</div>';
+                if (l.prompt) html += '<div class="log-field"><span class="log-label">输入:</span><pre>' + escapeHtml(l.prompt) + '</pre></div>';
+                if (l.response) html += '<div class="log-field"><span class="log-label">输出:</span><pre>' + escapeHtml(l.response) + '</pre></div>';
+                if (l.reasoning) html += '<div class="log-field"><span class="log-label">思考:</span><pre class="reasoning">' + escapeHtml(l.reasoning) + '</pre></div>';
+                html += '</div></div>';
+            }
+            el.innerHTML = html;
+        }
+
+        function clearLogs() {
+            if (!confirm('确定要清除所有调用日志？')) return;
+            APILogger.clear();
+            renderStats();
+            renderLogs();
+        }
+
+        // ===== 工具 =====
+        function showStatus(elId, type, msg) {
+            const el = document.getElementById(elId);
+            el.className = 'settings-status ' + type;
+            el.textContent = msg;
+        }
+
+        function escapeHtml(text) {
+            if (text == null) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ===== 最近使用高亮 =====
+        (function highlightRecent() {
+            const recent = RecentModule.get();
+            if (!recent) return;
+            const nameMap = { '对话模拟': 'chat', '狼人杀': 'werewolf', '战斗模拟': 'battle', '混沌玄卜': 'divination', 'AI分析工具': 'analyzer', 'AI文字游戏': 'textgame' };
+            const cls = nameMap[recent];
+            if (cls) {
+                const card = document.querySelector('.nav-card.' + cls);
+                if (card) {
+                    card.style.boxShadow = '0 0 30px var(--card-glow)';
+                    card.style.borderColor = 'var(--card-color)';
+                    const badge = document.createElement('div');
+                    badge.className = 'recent-badge';
+                    badge.textContent = '最近';
+                    card.querySelector('.card-icon').appendChild(badge);
+                }
+            }
+        })();
+
+        // ESC 关闭
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeSettings();
+        });
+    </script>
 </body>
 </html>
