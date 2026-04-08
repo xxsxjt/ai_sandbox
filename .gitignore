@@ -34,5 +34,12 @@ build/
 ### Mac OS ###
 .DS_Store
 
-### Sub-projects ###
-src/main/webapp/ai_sandbox/
+### Sub-projects (excluded large/generated dirs only) ###
+src/main/webapp/ai_sandbox/node_modules/
+src/main/webapp/ai_sandbox/dist/
+src/main/webapp/ai_sandbox/dist-win/
+src/main/webapp/ai_sandbox/.vscode/
+src/main/webapp/ai_sandbox/.claude/
+*.zip
+*.rar
+src/main/webapp/ai_sandbox/analyzer/backup/

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>混沌۞玄卜 | 量子占卜系统</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 星空背景 -->
+    <div id="starMap" class="star-field">
+        <canvas id="starCanvas"></canvas>
+    </div>
+
+    <!-- 返回首页 -->
+    <a href="../index.html" class="back-home" title="返回首页">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </a>
+
+    <div class="app-container">
+        <!-- 头部 -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="title">
+                    <span class="title-symbol">۞</span>
+                    混沌玄卜
+                    <span class="title-symbol">۞</span>
+                </h1>
+                <p class="subtitle">量子占卜系统 · 仅供娱乐</p>
+            </div>
+            <div class="header-controls">
+                <button class="btn-icon" onclick="showHistory()" title="历史记录">
+                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 0 1 7-7 7 7 0 0 1 7 7 7 7 0 0 1-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                </button>
+                <button class="btn-icon" onclick="showSettings()" title="设置">
+                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- 占卜体系选择 -->
+        <nav class="system-tabs">
+            <button class="tab-btn active" data-system="fortune">
+                <span class="tab-icon">🔮</span>
+                <span>玄卜</span>
+            </button>
+        </nav>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 左侧控制面板 -->
+            <aside class="control-panel">
+                <!-- 玄卜控制区 -->
+                <div class="panel-section" id="fortune-panel">
+                    <h2><span class="section-icon">⚡</span> 玄卜参数</h2>
+                    
+                    <div class="form-group">
+                        <label>抽取数量</label>
+                        <div class="input-row">
+                            <input type="number" id="count" min="6" max="10000000" value="1000">
+                            <button class="btn-small" onclick="randomCount()">随机</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>启测之时</label>
+                        <input type="datetime-local" id="datetime">
+                    </div>
+
+                    <div class="form-group">
+                        <label>占卜类型</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="includeHexagram" checked>
+                                <span class="checkbox-custom"></span>
+                                卦象
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="includeTarot" checked>
+                                <span class="checkbox-custom"></span>
+                                塔罗
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="includeRune" checked>
+                                <span class="checkbox-custom"></span>
+                                </label>
+                            符文
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="includeNumerology" checked>
+                                <span class="checkbox-custom"></span>
+                                灵数
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="includeMeihua" checked>
+                                <span class="checkbox-custom"></span>
+                                🌸 梅花
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="includeLiuyao" checked>
+                                <span class="checkbox-custom"></span>
+                                ☰ 六爻
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="includeQimen" checked>
+                                <span class="checkbox-custom"></span>
+                                ⛩️ 奇门
+                            </label>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary btn-start" onclick="startDivination()">
+                        <span class="btn-glow"></span>
+                        赦令 · 玄卜执行
+                    </button>
+                </div>
+            </aside>
+
+            <!-- 右侧结果区 -->
+            <section class="result-area">
+                <!-- 进度条 -->
+                <div class="progress-section" id="progressSection">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress"></div>
+                    </div>
+                    <span class="progress-text" id="progressText">准备就绪</span>
+                </div>
+
+                <!-- 结果展示 -->
+                <div class="results-container" id="resultsContainer">
+                    <!-- 空状态 -->
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon">۞</div>
+                        <h3>静候启示</h3>
+                        <p>输入参数，召唤量子意志</p>
+                    </div>
+
+                    <!-- 统计面板 -->
+                    <div class="stats-panel hidden" id="statsPanel">
+                        <div class="stat-item">
+                            <span class="stat-label">总组合</span>
+                            <span class="stat-value" id="statTotal">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">最高频</span>
+                            <span class="stat-value highlight" id="statMax">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">最低频</span>
+                            <span class="stat-value" id="statMin">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">平均概率</span>
+                            <span class="stat-value" id="statAvg">-</span>
+                        </div>
+                    </div>
+
+                    <!-- 结果卡片列表 -->
+                    <div class="results-grid" id="resultsGrid"></div>
+                </section>
+
+                <!-- 底部操作栏 -->
+                <div class="action-bar hidden" id="actionBar">
+                    <button class="btn-secondary" onclick="exportResult('xlsx')">
+                        <span class="btn-icon-text">📊</span> Excel
+                    </button>
+                    <button class="btn-secondary" onclick="exportResult('docx')">
+                        <span class="btn-icon-text">📝</span> Word
+                    </button>
+                    <button class="btn-secondary" onclick="exportResult('txt')">
+                        <span class="btn-icon-text">📄</span> TXT
+                    </button>
+                    <button class="btn-primary" onclick="showAIDialog()" id="aiBtn">
+                        <span class="btn-icon-text">🤖</span> AI解读
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 历史记录弹窗 -->
+        <div class="modal" id="historyModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>占卜历史</h2>
+                    <button class="close" onclick="closeHistory()">&times;</button>
+                </div>
+                <div class="modal-body" id="historyList">
+                    <div class="empty-history">暂无记录</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设置弹窗 -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>系统设置</h2>
+                    <button class="close" onclick="closeSettings()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Ollama API 地址</label>
+                        <input type="text" id="ollamaUrl" placeholder="http://localhost:11434">
+                    </div>
+                    <div class="form-group">
+                        <label>AI 模型</label>
+                        <select id="aiModel">
+                            <optgroup label="可用模型" id="local-models-group"></optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="switch-label">
+                            <span>自动保存结果</span>
+                            <label class="switch">
+                                <input type="checkbox" id="autoSave" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </label>
+                    </div>
+                    <button class="btn-primary" onclick="saveSettings()">保存设置</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI解读弹窗 -->
+        <div class="modal" id="aiModal">
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h2>🤖 量子解读</h2>
+                    <button class="close" onclick="closeAI()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>你的问题（可选）</label>
+                        <textarea id="userQuestion" rows="2" placeholder="例如：事业运如何？最近有什么需要注意的吗？"></textarea>
+                    </div>
+                    <div id="aiStartSection">
+                        <button class="btn-primary" onclick="aiInterpret()">开始解读</button>
+                    </div>
+                    <div class="ai-loading hidden" id="aiLoading">
+                        <div class="loading-spinner"></div>
+                        <p>量子意志正在解读...</p>
+                    </div>
+                    <div class="ai-result" id="aiResult"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 详情弹窗 -->
+        <div class="modal" id="detailModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="detailTitle">详情</h2>
+                    <button class="close" onclick="closeDetail()">&times;</button>
+                </div>
+                <div class="modal-body" id="detailContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../shared.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
