@@ -1,0 +1,33 @@
+{
+  "name": "ai-sandbox",
+  "version": "1.0.0",
+  "description": "AI模拟箱 - 全功能AI应用集合",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-packager . \"AI模拟箱\" --platform=win32 --arch=x64 --out=dist-win --overwrite"
+  },
+  "build": {
+    "appId": "com.ai-sandbox",
+    "productName": "AI模拟箱",
+    "files": [
+      "electron/**/*",
+      "index.html",
+      "shared.js",
+      "analyzer/**/*",
+      "battle/**/*",
+      "chat/**/*",
+      "divination/**/*",
+      "textgame/**/*",
+      "werewolf/**/*"
+    ],
+    "directories": {
+      "output": "dist"
+    }
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-packager": "^17.1.2",
+    "electron-winstaller": "^5.4.0"
+  }
+}

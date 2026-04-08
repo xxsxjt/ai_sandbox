@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+    
+    <display-name>AI Sandbox</display-name>
+    
+    <!-- 禁用Jersey自动扫描，因为我们使用普通Servlet -->
+    <context-param>
+        <param-name>jersey.config.server.providerPackages</param-name>
+        <param-value></param-value>
+    </context-param>
+    
+    <!-- Health Check Servlet -->
+    <servlet>
+        <servlet-name>HealthCheckServlet</servlet-name>
+        <servlet-class>com.dx.ai_sandbox.HealthCheckServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HealthCheckServlet</servlet-name>
+        <url-pattern>/api/health</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Search Servlet -->
+    <servlet>
+        <servlet-name>SearchServlet</servlet-name>
+        <servlet-class>com.dx.ai_sandbox.SearchServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SearchServlet</servlet-name>
+        <url-pattern>/api/search</url-pattern>
+    </servlet-mapping>
+    
+    <!-- 欢迎文件 -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>ai_sandbox/index.html</welcome-file>
+    </welcome-file-list>
+    
+</web-app>

@@ -1,0 +1,20 @@
+# Electron 打包输出
+dist-win/
+dist/
+
+# Node modules
+node_modules/
+
+# 依赖目录
+-p/
+
+# 临时文件
+*.log
+*.tmp
+.DS_Store
+
+# IDE 配置
+.vscode/
+.codebuddy/
+*.swp
+*.swo

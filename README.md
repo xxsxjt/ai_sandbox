@@ -1,179 +1,50 @@
-# AI模拟箱 - 全功能AI应用集合
+# AI Sandbox
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![HTML5](https://img.shields.io/badge/HTML5-orange.svg)](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML)
+## 项目简介
 
-一个功能丰富的AI模拟器集合，支持多种AI交互场景。基于本地Ollama API，可扩展云端模型，纯前端实现，支持Electron桌面打包。
+AI 沙箱 —— 一个综合性的 AI 实验与测试平台。用户可以在多种互动场景中测试和体验 AI 模型的能力，包括多角色对话模拟、桌游对战、文字冒险等。
 
-## ✨ 功能特性
+## 功能模块
 
-### 🎮 六大核心模块
+### 对话模拟
+多角色 AI 对话模拟，支持自定义角色性格与话题背景，AI 可联网搜索实时信息，用户可随时加入对话。
 
-| 模块 | 描述 | 特色功能 |
-|------|------|----------|
-| **🗣️ 对话模拟** | 多个AI角色根据设定背景进行自由对话 | 角色设定、对话历史、联网搜索、消息暂停 |
-| **🐺 狼人杀** | AI角色自动进行狼人杀游戏 | 多种角色、自动判定、夜间行动、投票系统 |
-| **⚔️ 战斗模拟** | AI角色进行战斗对决 | 单挑/乱斗/团队战、实时战斗、AI主持判定 |
-| **🔮 混沌玄卜** | 量子占卜系统 | 塔罗牌、易经卦象、符文、灵数、AI智能解读 |
-| **🔍 AI分析工具** | 检测回答中的可疑陈述 | 问题识别、案例库管理、可信度分析 |
-| **📚 AI文字游戏** | 与AI共同创造精彩故事 | 角色扮演、物品收集、多分支剧情 |
+### 狼人杀
+完整的狼人杀桌游，包含预言家、女巫、猎人、守卫等经典角色及多种进阶角色，全部由 AI 驱动决策。
 
-### 🛠️ 技术特性
+### 战斗模拟
+支持单挑、乱斗、团队战、大逃杀等多种战斗模式，AI 实时做出战术判断。
 
-- **🔒 安全第一**: 修复了所有XSS漏洞，所有动态内容均经过HTML转义
-- **⚡ 高性能**: 统一API调用，超时控制，消息列表管理
-- **🌐 多模型支持**: 本地Ollama + 云端模型无缝切换
-- **💾 自动保存**: 实时缓存游戏进度，断点续玩
-- **🎨 精美UI**: 赛博朋克风格设计，响应式布局
-- **📱 跨平台**: 浏览器直接运行，支持Electron打包
+### 混沌玄卜
+集成易经、塔罗牌、卢恩符文、数字命理等多种占卜体系，AI 提供详细解读。
 
-## 🚀 快速开始
+### AI 分析工具
+AI 回复可信度检测，支持案例管理与批量分析，可导出 JSON/Word/Excel 报告。
 
-### 环境要求
+### AI 文字游戏
+RPG 风格文字冒险，包含角色成长、装备系统、炼金术、地图探索等完整游戏机制。
 
-- **Node.js**: v16+ (如需打包或代理)
-- **Ollama**: 本地大模型运行时（可选，支持云端备用）
-- **浏览器**: 现代浏览器（Chrome 80+, Firefox 75+, Safari 13+）
+## 纯前端 vs Java Web 后端
 
-### 安装步骤
+本项目前端可独立运行（配合本地 Ollama 或云端 API），**大部分功能均可正常使用**。
 
-1. **下载项目**
-   ```bash
-   # 克隆仓库
-   git clone <repository-url>
-   cd ai_sandbox
-   
-   # 或直接下载并解压
-   ```
+部署 Java Web 后端后，额外获得以下增强功能：
 
-2. **启动本地Ollama**（可选）
-   ```bash
-   # 安装Ollama
-   # 访问 https://ollama.com/download 安装
-   
-   # 拉取模型
-   ollama pull qwen3.5:latest
-   ollama pull deepseek-r1:8b
-   ```
+| 功能 | 纯前端 | + 后端 |
+|------|--------|--------|
+| AI 对话/游戏/占卜等核心功能 | 正常 | 正常 |
+| 联网搜索（对话中 AI 实时检索信息） | 不可用 | 可用 |
+| 服务健康监控 | 不可用 | 可用 |
+| 后端代理请求（避免跨域限制） | 不可用 | 可用 |
 
-3. **运行项目**
-   ```bash
-   # 方法一：直接打开浏览器（推荐）
-   open index.html
-   
-   # 方法二：使用Python简单服务器
-   python -m http.server 8080
-   # 访问 http://localhost:8080
-   
-   # 方法三：使用Node.js服务器
-   npx serve
-   ```
+> **总结**：仅使用前端只会缺失联网搜索和服务监控功能，其余所有 AI 互动模块均不受影响。
 
-4. **使用Electron打包**（可选）
-   ```bash
-   # 安装依赖
-   npm install
-   
-   # 启动应用
-   npm start
-   
-   # 打包为桌面应用
-   npm run dist
-   ```
-
-## 📖 使用指南
-
-### 基础操作
-
-1. **选择模型**
-   - 点击首页各模块卡片进入
-   - 在设置中选择AI模型
-   - 支持本地和云端模型混合使用
-
-2. **配置API**
-   - 默认API: `http://localhost:11434`
-   - 默认密钥: `ollama`
-   - 支持自定义端点和密钥
-
-3. **保存进度**
-   - 所有模块自动保存进度
-   - 数据存储在浏览器localStorage
-   - 支持手动导入/导出
-
-### 各模块详解
-
-#### 对话模拟
-- 设置多个AI角色背景和性格
-- 观察AI之间的自由对话
-- 支持实时联网搜索增强对话
-- 可暂停/继续对话进程
-
-#### 狼人杀游戏
-- AI自动分配角色（狼人、预言家、女巫等）
-- 自动进行夜间行动和白天讨论
-- 智能投票判定和游戏流程控制
-- 支持自定义游戏规则
-
-#### 战斗模拟
-- 创建不同的战斗角色
-- 支持多种战斗模式（1v1, 3v3, 自由乱斗）
-- AI实时计算伤害和判定
-- 可设置主持AI进行公正裁决
-
-#### 混沌玄卜
-- 六种占卜方式：塔罗牌、易经、符文、灵数、梅花易数、奇门遁甲
-- AI智能解读占卜结果
-- 历史记录和结果分析
-- 支持多次抽签对比
-
-#### AI分析工具
-- 输入文本让AI检测问题
-- 识别事实错误、偏见、不确定性
-- 生成可信度评分和改进建议
-- 案例库管理和历史记录
-
-#### AI文字游戏
-- 创建自定义角色和世界观
-- 与AI共同编织故事
-- 收集物品，选择行动
-- 多分支剧情发展
-
-## ⚙️ 配置说明
-
-### 模型配置
-
-```javascript
-// 本地模型示例
-'qwen3.5:latest'
-'deepseek-r1:8b'
-'granite4:latest'
-
-// 云端模型示例  
-'minimax-m2.7:cloud'
-'qwen3-coder-next:cloud'
-'cogito-2.1:671b-cloud'
-```
-
-### API配置
-
-```javascript
-// 默认配置
-{
-  apiEndpoint: "http://localhost:11434",
-  apiKey: "ollama",
-  defaultModel: "qwen3:8b"
-}
-```
-
-## 🔧 开发说明
-
-### 项目结构
+## 项目结构
 
 ```
 ai_sandbox/
-├── index.html              # 主导航页
-├── shared.js               # 核心公共模块
+├── index.html              # 前端主导航页
+├── shared.js               # 前端核心公共模块
 ├── chat/                   # 对话模拟模块
 ├── werewolf/               # 狼人杀模块
 ├── battle/                 # 战斗模拟模块
@@ -181,76 +52,42 @@ ai_sandbox/
 ├── analyzer/               # AI分析工具
 ├── textgame/               # 文字游戏模块
 ├── electron/               # Electron打包配置
-├── dist-win/               # Windows打包输出
-└── README.md              # 项目说明
+├── package.json            # 前端依赖配置
+├── pom.xml                 # Java Web Maven配置
+├── src/main/java/          # Java后端源码
+│   └── com/dx/ai_sandbox/
+│       ├── HelloServlet.java
+│       ├── SearchServlet.java
+│       └── HealthCheckServlet.java
+├── src/main/webapp/
+│   ├── WEB-INF/web.xml
+│   ├── index.jsp
+│   └── ai_sandbox/         # 前端副本（WAR部署用）
+└── README.md
 ```
 
-### 核心模块说明
+## 技术栈
 
-#### shared.js
-- 统一的模型管理
-- API调用封装
-- 安全工具函数（escapeHtml, safeHtml）
-- 配置管理系统（AppSettings）
+### 前端
+- HTML / CSS / JavaScript（原生）
+- Electron（桌面端打包）
+- 支持接入 Ollama、OpenAI 兼容 API
 
-#### 各模块脚本
-- 使用ES6+语法
-- 模块化设计
-- 统一的错误处理
-- 响应式数据管理
+### 后端（Java Web）
+- Java 24
+- Jakarta EE 10（Servlet API）
+- Jersey (JAX-RS)
+- EclipseLink (JPA)
+- Jackson (JSON)
 
-### 安全特性
+## 开发者
 
-1. **XSS防护**
-   - 所有用户输入均进行HTML转义
-   - 使用escapeHtml()函数处理动态内容
-   - 防止脚本注入攻击
+**虚无圣熙** / xxsxjt
 
-2. **API安全**
-   - 支持自定义认证头
-   - 统一的错误处理机制
-   - 超时和重试机制
+## 项目地址
 
-3. **数据安全**
-   - 客户端数据存储
-   - 无敏感信息传输
-   - 支持数据导入导出
+https://github.com/xxsxjt/ai_sandbox
 
-## 🚨 已知问题
+## 联系方式
 
-1. **CORS限制**: 某些浏览器的隐私保护可能阻止外部CDN，已添加备选CDN
-2. **联网搜索**: 因浏览器安全策略，搜索功能可能被自动禁用
-3. **模型兼容**: 不同模型API响应格式可能有差异，已做兼容处理
-
-## 🤝 贡献指南
-
-欢迎提交Issue和Pull Request！
-
-### 开发流程
-
-1. Fork项目
-2. 创建特性分支: `git checkout -b feature/new-feature`
-3. 提交更改: `git commit -m 'Add new feature'`
-4. 推送分支: `git push origin feature/new-feature`
-5. 提交Pull Request
-
-### 代码规范
-
-- 使用ES6+语法
-- 遵循现有代码风格
-- 添加必要的注释
-- 确保功能完整性
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
-
-## 📞 联系方式
-
-- 项目地址: [GitHub Repository]
-- 问题反馈: [Issues]
-- 开发者: [Your Name]
-
----
-
-**提示**: 这是一个纯前端项目，所有数据处理均在浏览器端完成。请确保您的浏览器支持现代JavaScript特性。
+- GitHub: [xxsxjt](https://github.com/xxsxjt)

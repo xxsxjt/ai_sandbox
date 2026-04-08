@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI战斗模拟器</title>
+    <link rel="stylesheet" href="battle.css">
+    <script src="shared.js"></script>
+    <script src="combat-system.js"></script>
+    <script src="battle-flow.js"></script>
+    <script src="tactical-ai.js"></script>
+    <script src="game-modes.js"></script>
+    <script src="../ui-enhancements.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        onerror="this.href='https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/css/all.min.css'">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <a href="../index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回</a>
+            <h1><i class="fas fa-khanda"></i> AI战斗模拟器</h1>
+            <p class="subtitle">AI角色自动进行战斗对决</p>
+        </header>
+
+        <main class="main-content">
+            <!-- 左侧：设置面板 -->
+            <aside class="settings-panel">
+                <!-- 战斗模式选择 -->
+                <section class="panel-section">
+                    <h2><i class="fas fa-bolt"></i> 战斗模式</h2>
+                    <div class="battle-modes">
+                        <button class="mode-btn active" data-mode="duel">
+                            <i class="fas fa-user-ninja"></i>
+                            <span>单挑</span>
+                        </button>
+                        <button class="mode-btn" data-mode="chaos">
+                            <i class="fas fa-fist-raised"></i>
+                            <span>乱斗</span>
+                        </button>
+                        <button class="mode-btn" data-mode="team">
+                            <i class="fas fa-users"></i>
+                            <span>团队战</span>
+                        </button>
+                        <button class="mode-btn" data-mode="battle royale">
+                            <i class="fas fa-skull"></i>
+                            <span>大逃杀</span>
+                        </button>
+                    </div>
+                    <div class="mode-desc" id="mode-desc">
+                        1v1单挑，双方各选择一项行动，由主持模型判定胜负
+                    </div>
+                </section>
+
+                <!-- 战斗角色 -->
+                <section class="panel-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-users"></i> 战斗角色</h2>
+                        <button id="add-fighter-btn" class="btn-small"><i class="fas fa-plus"></i> 添加</button>
+                    </div>
+                    <div id="fighters-list" class="fighters-list">
+                        <div class="empty-state" style="min-height:80px;padding:15px;">
+                            <p>点击"添加"或"生成"创建战斗角色</p>
+                        </div>
+                    </div>
+                    <div class="generate-controls">
+                        <button id="generate-fighters-btn" class="btn-small"><i class="fas fa-dice"></i> 随机生成</button>
+                        <button id="ai-generate-btn" class="btn-small btn-cloud"><i class="fas fa-magic"></i> AI生成</button>
+                        <select id="generate-model" class="generate-model-select"></select>
+                        <select id="generate-count" class="generate-count-select">
+                            <option value="2">2人</option>
+                            <option value="3">3人</option>
+                            <option value="4" selected>4人</option>
+                            <option value="6">6人</option>
+                            <option value="8">8人</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- 战斗设置 -->
+                <section class="panel-section">
+                    <h2><i class="fas fa-cog"></i> 战斗设置</h2>
+                    <div class="form-group">
+                        <label>最大回合数</label>
+                        <input type="number" id="max-rounds" value="10" min="1" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label>回合间隔（秒）</label>
+                        <input type="number" id="interval-seconds" value="3" min="1" max="30">
+                    </div>
+                    <div class="form-group">
+                        <label>每回合最大思考时间（秒）</label>
+                        <input type="number" id="think-time" value="30" min="10" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="show-model-info" checked>
+                            显示AI模型信息
+                        </label>
+                    </div>
+                </section>
+
+                <!-- 主持人模型设置 -->
+                <section class="panel-section">
+                    <h2><i class="fas fa-microphone"></i> 主持人模型</h2>
+                    <div class="form-group">
+                        <label>选择模型</label>
+                        <select id="host-model"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>API Endpoint</label>
+                        <input type="text" id="host-endpoint" value="http://localhost:11434/v1" placeholder="http://localhost:11434/v1">
+                    </div>
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="password" id="host-api-key" value="ollama" placeholder="API Key">
+                    </div>
+                </section>
+
+                <!-- 控制按钮 -->
+                <div class="control-buttons">
+                    <button id="start-btn" class="btn-primary"><i class="fas fa-play"></i> 开始战斗</button>
+                    <button id="pause-btn" class="btn-secondary" disabled><i class="fas fa-pause"></i> 暂停</button>
+                    <button id="continue-btn" class="btn-warning" style="display:none;"><i class="fas fa-redo"></i> 继续判定</button>
+                    <button id="stop-btn" class="btn-danger" disabled><i class="fas fa-stop"></i> 停止</button>
+                </div>
+            </aside>
+
+            <!-- 右侧：战斗区域 -->
+            <section class="battle-area">
+                <div class="battle-header">
+                    <div class="battle-status">
+                        <span id="phase-display">等待开始</span>
+                        <span id="round-display">第 0 回合</span>
+                    </div>
+                    <div class="battle-info">
+                        <div class="health-bars" id="health-bars"></div>
+                    </div>
+                </div>
+                
+                <div id="battle-field" class="battle-field">
+                    <div class="empty-state">
+                        <i class="fas fa-khanda"></i>
+                        <p>添加战斗角色后，点击"开始战斗"</p>
+                    </div>
+                </div>
+
+                <!-- 战斗回放列表 -->
+                <div class="replay-section">
+                    <h3><i class="fas fa-history"></i> 战斗回放</h3>
+                    <div id="replay-list" class="replay-list">
+                        <!-- 回放列表将在这里动态生成 -->
+                    </div>
+                </div>
+
+                <div id="battle-messages" class="battle-messages">
+                    <!-- 战斗消息 -->
+                </div>
+
+                <div class="chat-input-area">
+                    <input type="text" id="user-msg-input" placeholder="输入用户消息..." disabled>
+                    <button id="send-user-msg-btn" class="btn-primary" disabled><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 添加角色模态框 -->
+    <div id="fighter-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>添加/编辑战斗角色</h2>
+            <form id="fighter-form">
+                <div class="form-group">
+                    <label>角色名称 *</label>
+                    <input type="text" id="fighter-name" required placeholder="如：剑圣">
+                </div>
+                <div class="form-group">
+                    <label>角色描述/特点 *</label>
+                    <textarea id="fighter-desc" rows="3" required placeholder="描述角色的战斗风格、擅长武器、特点等..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>初始生命值</label>
+                    <input type="number" id="fighter-hp" value="100" min="1" max="1000">
+                </div>
+                <div class="form-group">
+                    <label>AI模型</label>
+                    <select id="fighter-model" size="6" class="model-select-scroll"></select>
+                </div>
+                <div class="form-group">
+                    <label>API端点</label>
+                    <input type="text" id="fighter-endpoint" value="http://localhost:11434/v1" autocomplete="url">
+                </div>
+                <div class="form-group">
+                    <label>API密钥</label>
+                    <input type="password" id="fighter-api-key" value="ollama" autocomplete="current-password">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeFighterModal()">取消</button>
+                    <button type="submit" class="btn-primary">保存角色</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../shared.js"></script>
+    <script src="battle.js"></script>
+</body>
+</html>

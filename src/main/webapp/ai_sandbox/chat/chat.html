@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI模拟箱 - 对话模拟</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+        onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css'">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <a href="../index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回</a>
+            <h1><i class="fas fa-robot"></i> AI模拟箱</h1>
+            <p class="subtitle">多角色AI对话模拟器</p>
+            <div class="service-status" id="service-status" style="position: absolute; right: 20px; top: 20px; font-size: 0.8rem;">
+                <span class="status-dot" id="java-status" style="background-color: #ccc; border-radius: 50%; width: 8px; height: 8px; display: inline-block;"></span> Java
+                <span class="status-dot" id="search-status" style="background-color: #ccc; border-radius: 50%; width: 8px; height: 8px; display: inline-block; margin-left: 10px;"></span> 搜索
+                <span class="status-dot" id="ollama-status" style="background-color: #ccc; border-radius: 50%; width: 8px; height: 8px; display: inline-block; margin-left: 10px;"></span> Ollama
+            </div>
+        </header>
+
+        <main class="main-content">
+            <aside class="settings-panel">
+                <section class="panel-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-users"></i> AI角色</h2>
+                        <div class="generate-controls">
+                            <button id="load-cloud-models-btn" class="btn-small btn-cloud" title="一键加载大参数模型AI角色" onclick="loadCloudModels()"><i class="fas fa-cloud"></i> 大模型</button>
+                            <select id="generate-model" class="generate-model-select"></select>
+                            <select id="generate-count" class="generate-count-select">
+                                <option value="2">2个</option>
+                                <option value="3" selected>3个</option>
+                                <option value="4">4个</option>
+                                <option value="5">5个</option>
+                                <option value="6">6个</option>
+                            </select>
+                            <button id="generate-characters-btn" class="btn-small" title="AI根据背景生成多个角色"><i class="fas fa-magic"></i> 生成</button>
+                            <button id="add-character-btn" class="btn-small"><i class="fas fa-plus"></i> 添加</button>
+                        </div>
+                    </div>
+                    <div id="characters-list" class="characters-list"></div>
+                </section>
+
+                <section class="panel-section">
+                    <h2><i class="fas fa-map"></i> 场景设置</h2>
+                    <div class="form-group">
+                        <label>背景描述</label>
+                        <textarea id="scene-background" rows="4" placeholder="设定故事发生的背景、世界观、场景等..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>讨论主题（可选）</label>
+                        <input type="text" id="discussion-topic" placeholder="让AI讨论的话题">
+                    </div>
+                </section>
+
+                <section class="panel-section">
+                    <h2><i class="fas fa-cog"></i> 运行设置</h2>
+                    <div class="form-group">
+                        <label>每轮最大回合数</label>
+                        <input type="number" id="max-rounds" value="10" min="1" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label>发言间隔（秒）</label>
+                        <input type="number" id="interval-seconds" value="2" min="1" max="30">
+                    </div>
+                    <div class="form-group">
+                        <label>单次回复最大Token</label>
+                        <input type="number" id="max-tokens" value="1000" min="50" max="32768" placeholder="默认1000，推理模型建议4000+">
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-label">思考中断时输出思考内容</span>
+                        <label class="switch">
+                            <input type="checkbox" id="show-reasoning">
+                            <span class="slider"></span>
+                        </label>
+                        <small style="color: var(--text-muted); display: block; margin-top: 2px;">推理模型 token 不足时，是否将思考过程作为回复输出</small>
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-label">每轮结束后等待用户发言</span>
+                        <label class="switch">
+                            <input type="checkbox" id="wait-user-turn">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-label">显示AI模型信息</span>
+                        <label class="switch">
+                            <input type="checkbox" id="show-model-info" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-label">AI能看到其他AI模型</span>
+                        <label class="switch">
+                            <input type="checkbox" id="ai-knows-models" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">启用联网搜索</div>
+                            <small style="color: var(--text-muted); display: block; margin-top: 2px;">AI可使用 [SEARCH:关键词] 触发搜索</small>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="enable-search">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </section>
+
+                <div class="control-buttons">
+                    <button id="start-btn" class="btn-primary"><i class="fas fa-play"></i> 开始模拟</button>
+                    <button id="pause-btn" class="btn-secondary" disabled><i class="fas fa-pause"></i> 暂停</button>
+                    <button id="stop-save-btn" class="btn-warning" disabled><i class="fas fa-save"></i> 停止保存</button>
+                    <button id="stop-btn" class="btn-danger" disabled><i class="fas fa-stop"></i> 停止</button>
+                    <button id="clear-btn" class="btn-secondary"><i class="fas fa-trash"></i> 清空对话</button>
+                </div>
+                
+                <div id="saved-state-indicator" class="saved-state-indicator" style="display: none;">
+                    <i class="fas fa-save"></i> 有保存的状态可以继续
+                </div>
+            </aside>
+
+            <section class="chat-area">
+                <div class="chat-header">
+                    <h2><i class="fas fa-comments"></i> 对话记录</h2>
+                    <div class="chat-actions">
+                        <button id="add-user-msg-btn" class="btn-small"><i class="fas fa-user"></i> 插入用户消息</button>
+                        <button id="export-btn" class="btn-small"><i class="fas fa-download"></i> 导出</button>
+                        <button id="import-btn" class="btn-small"><i class="fas fa-upload"></i> 导入</button>
+                        <button id="clear-btn2" class="btn-small"><i class="fas fa-trash"></i> 清空</button>
+                        <input type="file" id="import-file" accept=".md,.json" style="display:none;">
+                    </div>
+                </div>
+                <div id="chat-messages" class="chat-messages">
+                    <div class="empty-state">
+                        <i class="fas fa-comments"></i>
+                        <p>添加AI角色并设置场景后，点击"开始模拟"开始对话</p>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="user-msg-input" placeholder="输入用户消息..." disabled>
+                    <button id="send-user-msg-btn" class="btn-primary" disabled><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="character-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>添加/编辑AI角色</h2>
+            <form id="character-form">
+                <div class="form-group">
+                    <label>角色名称 *</label>
+                    <input type="text" id="char-name" required placeholder="如：理性博士">
+                </div>
+                <div class="form-group">
+                    <label>角色描述/性格 *</label>
+                    <textarea id="char-description" rows="3" required placeholder="描述角色的性格、说话风格、背景等..."></textarea>
+                    <button type="button" class="btn-small" style="margin-top:8px;" onclick="generateCharacter(event)"><i class="fas fa-magic"></i> AI自动生成</button>
+                </div>
+                <div class="form-group">
+                    <label>AI模型</label>
+                    <select id="char-model"></select>
+                </div>
+                <div id="custom-model-group" class="form-group" style="display:none;">
+                    <label>自定义模型名称</label>
+                    <input type="text" id="char-custom-model" placeholder="如：deepseek-ai/DeepSeek-R1">
+                </div>
+                <div class="form-group">
+                    <label>API端点</label>
+                    <input type="text" id="char-endpoint" value="http://localhost:11434/v1" placeholder="http://localhost:11434/v1" autocomplete="url">
+                </div>
+                <div class="form-group">
+                    <label>API密钥</label>
+                    <input type="password" id="char-api-key" value="ollama" placeholder="ollama" autocomplete="current-password">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn-primary">保存角色</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="user-msg-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>插入用户消息</h2>
+            <div class="form-group">
+                <label>消息内容</label>
+                <textarea id="user-message-content" rows="4" placeholder="输入你想说的话..."></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="closeUserMsgModal()">取消</button>
+                <button type="button" class="btn-primary" onclick="insertUserMessage()">插入</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../shared.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

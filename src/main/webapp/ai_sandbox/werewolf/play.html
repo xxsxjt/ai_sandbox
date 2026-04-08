@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>狼人杀 - 纯净体验</title>
+    <link rel="stylesheet" href="werewolf.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        onerror="this.href='https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/css/all.min.css'">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐺</text></svg>">
+    <style>
+        /* 纯净版额外样式 */
+        .pure-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+        }
+        .pure-header h1 {
+            background: linear-gradient(135deg, #64ffda, #48dbfb) !important;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .pure-header .subtitle {
+            color: #a0aec0 !important;
+        }
+        .pure-settings {
+            background: rgba(26, 26, 46, 0.95) !important;
+        }
+        .pure-settings .panel-section {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(100, 255, 218, 0.2) !important;
+        }
+        .pure-settings h2 {
+            color: #e2e8f0 !important;
+        }
+        .pure-settings h2 i {
+            color: #64ffda !important;
+        }
+        .pure-settings .form-group label {
+            color: #a0aec0 !important;
+        }
+        .pure-settings .form-group input,
+        .pure-settings .form-group select {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(100, 255, 218, 0.3) !important;
+            color: #e2e8f0 !important;
+        }
+        .pure-settings .form-group input:focus,
+        .pure-settings .form-group select:focus {
+            border-color: #64ffda !important;
+        }
+        .pure-settings .settings-label {
+            color: #a0aec0 !important;
+        }
+        .pure-chat {
+            background: rgba(26, 26, 46, 0.95) !important;
+        }
+        .pure-chat .chat-header {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(100, 255, 218, 0.2) !important;
+        }
+        .pure-chat .chat-header h2 {
+            color: #e2e8f0 !important;
+        }
+        .pure-chat .chat-header h2 i {
+            color: #64ffda !important;
+        }
+        .pure-chat .chat-messages {
+            background: rgba(0, 0, 0, 0.3) !important;
+        }
+        .pure-chat .chat-input-area {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(100, 255, 218, 0.2) !important;
+        }
+        .pure-chat .chat-input-area input {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(100, 255, 218, 0.3) !important;
+            color: #e2e8f0 !important;
+        }
+        .pure-chat .chat-input-area input::placeholder {
+            color: #718096 !important;
+        }
+        /* 玩家卡片样式 */
+        .player-card {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-color: rgba(100, 255, 218, 0.2) !important;
+        }
+        .player-card:hover {
+            border-color: #64ffda !important;
+        }
+        .player-card.dead {
+            opacity: 0.4 !important;
+            background: rgba(0, 0, 0, 0.2) !important;
+        }
+        .player-name {
+            color: #e2e8f0 !important;
+        }
+        .player-name i {
+            color: #64ffda !important;
+        }
+        .player-desc {
+            color: #a0aec0 !important;
+        }
+        .model-tag {
+            background: rgba(100, 255, 218, 0.2) !important;
+            color: #64ffda !important;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 8px;
+        }
+        /* 游戏状态 */
+        .pure-status {
+            background: rgba(100, 255, 218, 0.1) !important;
+            border-color: rgba(100, 255, 218, 0.3) !important;
+        }
+        .pure-status .status-title {
+            color: #64ffda !important;
+        }
+        .pure-status #phase-display {
+            color: #e2e8f0 !important;
+        }
+        .pure-status #day-display {
+            color: #64ffda !important;
+        }
+        /* 控制按钮 */
+        .control-buttons .btn-primary {
+            background: linear-gradient(135deg, #64ffda, #48dbfb) !important;
+            color: #1a1a2e !important;
+        }
+        .control-buttons .btn-primary:hover:not(:disabled) {
+            box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4) !important;
+        }
+        .control-buttons .btn-secondary {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #e2e8f0 !important;
+            border-color: rgba(100, 255, 218, 0.3) !important;
+        }
+        .control-buttons .btn-secondary:hover:not(:disabled) {
+            background: rgba(100, 255, 218, 0.2) !important;
+        }
+        .control-buttons .btn-danger {
+            background: rgba(239, 68, 68, 0.8) !important;
+        }
+        .btn-small {
+            background: rgba(100, 255, 218, 0.2) !important;
+            color: #64ffda !important;
+            border: 1px solid rgba(100, 255, 218, 0.3) !important;
+        }
+        .btn-small:hover {
+            background: rgba(100, 255, 218, 0.4) !important;
+        }
+        /* 消息样式 */
+        .message .message-content {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(100, 255, 218, 0.2) !important;
+        }
+        .message .message-sender {
+            color: #64ffda !important;
+        }
+        .message .message-text {
+            color: #e2e8f0 !important;
+        }
+        .message .message-time {
+            color: #718096 !important;
+        }
+        .message.system-message .message-content {
+            background: rgba(100, 255, 218, 0.1) !important;
+            border-left-color: #64ffda !important;
+        }
+        .message.ai-message .message-avatar {
+            background: linear-gradient(135deg, #64ffda, #48dbfb) !important;
+            color: #1a1a2e !important;
+        }
+        .empty-state {
+            color: #718096 !important;
+        }
+        /* 用户后台 - 纯净风格 */
+        .user-info-panel {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+        }
+        .user-secrets {
+            background: rgba(100, 255, 218, 0.1) !important;
+            border-left-color: #64ffda !important;
+        }
+        .user-secrets h4 {
+            color: #64ffda !important;
+        }
+        .user-status {
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+        .user-status p {
+            color: #a0aec0 !important;
+        }
+        .user-status strong {
+            color: #64ffda !important;
+        }
+        .user-tab-btn.active {
+            background: #64ffda !important;
+            color: #1a1a2e !important;
+        }
+        .user-chat-area {
+            background: rgba(0, 0, 0, 0.3) !important;
+        }
+        /* 模态框 */
+        .modal-content {
+            background: #1a1a2e !important;
+            color: #e2e8f0 !important;
+        }
+        .modal-content h2 {
+            color: #64ffda !important;
+        }
+        .modal-content .form-group label {
+            color: #a0aec0 !important;
+        }
+        .modal-content .form-group input,
+        .modal-content .form-group select,
+        .modal-content .form-group textarea {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(100, 255, 218, 0.3) !important;
+            color: #e2e8f0 !important;
+        }
+        .modal-content .form-group input:focus,
+        .modal-content .form-group select:focus,
+        .modal-content .form-group textarea:focus {
+            border-color: #64ffda !important;
+        }
+        .modal-content .form-actions {
+            border-color: rgba(100, 255, 218, 0.2) !important;
+        }
+        .modal-content .btn-primary {
+            background: linear-gradient(135deg, #64ffda, #48dbfb) !important;
+            color: #1a1a2e !important;
+        }
+        .modal-content .btn-secondary {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #e2e8f0 !important;
+            border: 1px solid rgba(100, 255, 218, 0.3) !important;
+        }
+        .modal .close {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #a0aec0 !important;
+        }
+        .modal .close:hover {
+            color: #64ffda !important;
+            background: rgba(100, 255, 218, 0.2) !important;
+        }
+        /* 模型选择面板 */
+        .model-select-panel {
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .model-select-panel h3 {
+            color: #64ffda;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        .model-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .model-option {
+            padding: 10px;
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+        .model-option:hover {
+            background: rgba(100, 255, 218, 0.2);
+            border-color: #64ffda;
+        }
+        .model-option.selected {
+            background: rgba(100, 255, 218, 0.3);
+            border-color: #64ffda;
+            color: #64ffda;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header pure-header">
+            <a href="werewolf.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回</a>
+            <h1><i class="fas fa-skull"></i> 狼人杀</h1>
+            <p class="subtitle">AI角色陪你一起玩</p>
+        </header>
+
+        <main class="main-content">
+            <aside class="settings-panel pure-settings">
+                <section class="panel-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-users"></i> 玩家列表</h2>
+                    </div>
+                    <div id="players-list" class="players-list"></div>
+                </section>
+
+                <section class="panel-section">
+                    <h2><i class="fas fa-cog"></i> 游戏设置</h2>
+                    <div class="form-group">
+                        <label>发言间隔（秒）</label>
+                        <input type="number" id="interval-seconds" value="3" min="1" max="30">
+                    </div>
+                    <div class="form-group">
+                        <label>你的AI模型</label>
+                        <select id="user-model-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>主持人模型</label>
+                        <select id="host-model"></select>
+                    </div>
+                    <div class="settings-row">
+                        <span class="settings-label">随机发言顺序</span>
+                        <label class="switch"><input type="checkbox" id="random-order"><span class="slider"></span></label>
+                    </div>
+                </section>
+
+                <div class="control-buttons">
+                    <button id="start-btn" class="btn-primary"><i class="fas fa-play"></i> 开始游戏</button>
+                    <button id="pause-btn" class="btn-secondary" disabled><i class="fas fa-pause"></i> 暂停</button>
+                    <button id="stop-btn" class="btn-danger" disabled><i class="fas fa-stop"></i> 停止</button>
+                    <button id="user-panel-btn" class="btn-secondary" style="display:none;"><i class="fas fa-user"></i> 我的后台</button>
+                </div>
+
+                <div id="game-status" class="game-status pure-status">
+                    <div class="status-title">游戏状态</div>
+                    <div class="status-info">
+                        <span id="phase-display">等待开始</span>
+                        <span id="day-display">第0天</span>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="chat-area pure-chat">
+                <div class="chat-header">
+                    <h2><i class="fas fa-scroll"></i> 游戏记录</h2>
+                    <div class="chat-actions">
+                        <button id="export-btn" class="btn-small"><i class="fas fa-download"></i> 导出</button>
+                        <button id="clear-btn" class="btn-small"><i class="fas fa-trash"></i> 清空</button>
+                    </div>
+                </div>
+                <div id="game-messages" class="chat-messages">
+                    <div class="empty-state">
+                        <i class="fas fa-scroll"></i>
+                        <p>点击"开始游戏"进入纯净狼人杀体验</p>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="user-msg-input" placeholder="轮到你发言了..." disabled>
+                    <button id="send-user-msg-btn" class="btn-primary" disabled><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 用户后台面板 -->
+    <div id="user-modal" class="modal">
+        <div class="modal-content" style="max-width:800px;width:95%;">
+            <span class="close" onclick="closeUserModal()">&times;</span>
+            <h2><i class="fas fa-user"></i> 我的信息</h2>
+            <div class="user-info-panel">
+                <div class="user-role-display">
+                    <span class="role-badge" id="user-role-badge">未知</span>
+                    <span id="user-role-desc"></span>
+                </div>
+            </div>
+            <div class="user-tabs">
+                <button class="user-tab-btn active" data-tab="info" onclick="switchUserTab('info')">📋 个人信息</button>
+                <button class="user-tab-btn" data-tab="night" onclick="switchUserTab('night')">🌙 夜间行动</button>
+                <button class="user-tab-btn" data-tab="team" onclick="switchUserTab('team')">🐺 团队聊天</button>
+            </div>
+            <div class="user-panel">
+                <div id="user-tab-info" class="user-tab-content">
+                    <div class="user-status">
+                        <p>你的身份：<strong id="user-my-role">-</strong></p>
+                        <p>存活状态：<strong id="user-alive-status">-</strong></p>
+                    </div>
+                    <div class="user-secrets" id="user-secrets">
+                        <h4>你的专属信息</h4>
+                        <div id="user-secret-content"></div>
+                    </div>
+                </div>
+                <div id="user-tab-night" class="user-tab-content" style="display:none;">
+                    <div id="user-night-action-area">
+                        <p>夜间行动阶段会在这里显示你的专属行动选项</p>
+                    </div>
+                    <div class="user-night-results" id="user-night-results">
+                        <h4>夜间行动记录</h4>
+                        <div id="user-night-history"></div>
+                    </div>
+                </div>
+                <div id="user-tab-team" class="user-tab-content" style="display:none;">
+                    <div id="user-wolf-team-chat" class="user-chat-area">
+                        <div class="empty-state"><p>只有狼人阵营才能看到团队聊天</p></div>
+                    </div>
+                    <div class="user-input-area">
+                        <input type="text" id="user-team-msg-input" placeholder="输入团队消息...">
+                        <button id="user-team-send-btn" class="btn-primary"><i class="fas fa-paper-plane"></i> 发送</button>
+                    </div>
+                </div>
+            </div>
+            <div class="user-action-buttons" id="user-action-buttons" style="display:none;">
+                <button id="user-action-btn" class="btn-primary btn-large"><i class="fas fa-check"></i> 确认行动</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../shared.js"></script>
+    <script src="werewolf-core.js"></script>
+    <script src="play-ui.js"></script>
+</body>
+</html>

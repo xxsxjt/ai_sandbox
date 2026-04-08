@@ -18,3 +18,47 @@ node_modules/
 .codebuddy/
 *.swp
 *.swo
+
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### Mac OS ###
+.DS_Store
+
+### Sub-projects (excluded large/generated dirs only) ###
+src/main/webapp/ai_sandbox/node_modules/
+src/main/webapp/ai_sandbox/dist/
+src/main/webapp/ai_sandbox/dist-win/
+src/main/webapp/ai_sandbox/.vscode/
+src/main/webapp/ai_sandbox/.claude/
+*.zip
+*.rar
+src/main/webapp/ai_sandbox/analyzer/backup/

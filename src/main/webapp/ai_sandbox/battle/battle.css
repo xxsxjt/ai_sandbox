@@ -1,0 +1,1329 @@
+/* ==================== 战斗模拟器样式 ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --danger-color: #ef4444;
+    --danger-hover: #dc2626;
+    --secondary-color: #6b7280;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --bg-dark: #1f2937;
+    --bg-card: #ffffff;
+    --bg-panel: #f9fafb;
+    --border-color: #e5e7eb;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+}
+
+body {
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.app-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+/* ==================== 头部 ==================== */
+.header {
+    position: relative;
+    text-align: center;
+    padding: 30px 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.header .back-btn {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 8px 16px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.header .back-btn:hover {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #dc2626, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+}
+
+.header h1 i {
+    background: none;
+    -webkit-text-fill-color: #dc2626;
+    margin-right: 10px;
+}
+
+.header .subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* ==================== 主布局 ==================== */
+.main-content {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 20px;
+    min-height: calc(100vh - 200px);
+}
+
+/* ==================== 左侧面板 ==================== */
+.settings-panel {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: calc(100vh - 220px);
+    overflow-y: auto;
+    backdrop-filter: blur(10px);
+}
+
+.panel-section {
+    background: var(--bg-panel);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.panel-section h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.panel-section h2 i {
+    color: #dc2626;
+}
+
+/* ==================== 战斗模式 ==================== */
+.battle-modes {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.mode-btn {
+    padding: 12px 8px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: white;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.mode-btn i {
+    font-size: 1.2rem;
+    color: #6b7280;
+}
+
+.mode-btn span {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.mode-btn:hover {
+    border-color: #dc2626;
+}
+
+.mode-btn:hover i,
+.mode-btn:hover span {
+    color: #dc2626;
+}
+
+.mode-btn.active {
+    border-color: #dc2626;
+    background: rgba(220, 38, 38, 0.1);
+}
+
+.mode-btn.active i,
+.mode-btn.active span {
+    color: #dc2626;
+}
+
+.mode-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    padding: 10px;
+    background: rgba(220, 38, 38, 0.05);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid #dc2626;
+}
+
+/* ==================== 战斗角色列表 ==================== */
+.fighters-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+}
+
+.fighter-card {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.fighter-card:hover {
+    border-color: #dc2626;
+    box-shadow: var(--shadow-sm);
+}
+
+.fighter-card.dead {
+    opacity: 0.5;
+    background: #f3f4f6;
+}
+
+.fighter-card .fighter-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.fighter-card .fighter-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fighter-card .fighter-hp {
+    font-size: 0.75rem;
+    color: #10b981;
+    font-weight: 600;
+}
+
+.fighter-card .fighter-hp.low {
+    color: #ef4444;
+}
+
+.fighter-card .fighter-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.fighter-card .fighter-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.fighter-card:hover .fighter-actions {
+    opacity: 1;
+}
+
+.fighter-action-btn {
+    background: var(--bg-panel);
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+}
+
+.fighter-action-btn:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.fighter-action-btn.delete:hover {
+    background: #dc2626;
+}
+
+.generate-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.generate-count-select,
+.generate-model-select {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.model-select-scroll {
+    max-height: 150px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #dc2626 #f0f0f0;
+}
+
+.model-select-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.model-select-scroll::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 3px;
+}
+
+.model-select-scroll::-webkit-scrollbar-thumb {
+    background: #dc2626;
+    border-radius: 3px;
+}
+    font-size: 0.8rem;
+    background: white;
+    cursor: pointer;
+}
+
+/* ==================== 表单元素 ==================== */
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: all 0.2s;
+    background: white;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.form-group input[type="number"] {
+    width: 100px;
+}
+
+/* ==================== 按钮 ==================== */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #dc2626, #f97316);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #b91c1c, #ea580c);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+    background: var(--bg-panel);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--border-color);
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: var(--danger-hover);
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.btn-small:hover {
+    background: #b91c1c;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.control-buttons button {
+    flex: 1;
+    min-width: 100px;
+}
+
+/* ==================== 右侧战斗区域 ==================== */
+.battle-area {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.battle-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+}
+
+.battle-status {
+    display: flex;
+    gap: 20px;
+}
+
+.battle-status span {
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+}
+
+#phase-display {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+}
+
+#round-display {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.health-bars {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.health-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.health-bar .name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.health-bar .bar {
+    width: 100px;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.health-bar .bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #34d399);
+    transition: width 0.3s;
+}
+
+.health-bar .bar .fill.low {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.health-bar .hp-text {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    min-width: 40px;
+}
+
+/* ==================== 战斗场地 ==================== */
+.battle-field {
+    padding: 20px;
+    background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+    min-height: 200px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+.fighter-sprite {
+    width: 80px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+.fighter-sprite.active {
+    border-color: #f59e0b;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+    animation: pulse 1s infinite;
+}
+
+.fighter-sprite.attacking {
+    animation: attack 0.5s;
+}
+
+.fighter-sprite.damaged {
+    animation: damaged 0.5s;
+}
+
+.fighter-sprite.dead {
+    opacity: 0.3;
+    filter: grayscale(100%);
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes attack {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(20px); }
+    75% { transform: translateX(-20px); }
+}
+
+@keyframes damaged {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+}
+
+.fighter-sprite .sprite-icon {
+    font-size: 2rem;
+    color: #dc2626;
+}
+
+.fighter-sprite .sprite-name {
+    font-size: 0.75rem;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fighter-sprite .sprite-action {
+    font-size: 0.65rem;
+    color: #f59e0b;
+    text-align: center;
+}
+
+/* ==================== 战斗消息 ==================== */
+.battle-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #f8fafc;
+    max-height: 300px;
+    min-height: 150px;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 150px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.3;
+    color: #dc2626;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    max-width: 300px;
+}
+
+.battle-message {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: var(--radius-md);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.battle-message.system {
+    background: rgba(220, 38, 38, 0.1);
+    border-left: 3px solid #dc2626;
+}
+
+.battle-message.round {
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 3px solid #f59e0b;
+    font-weight: 600;
+}
+
+.battle-message.action {
+    background: rgba(79, 70, 229, 0.1);
+    border-left: 3px solid #4f46e5;
+}
+
+.battle-message.result {
+    background: rgba(16, 185, 129, 0.1);
+    border-left: 3px solid #10b981;
+}
+
+.battle-message .msg-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.battle-message.system .msg-icon {
+    background: #dc2626;
+    color: white;
+}
+
+.battle-message.round .msg-icon {
+    background: #f59e0b;
+    color: white;
+}
+
+.battle-message.action .msg-icon {
+    background: #4f46e5;
+    color: white;
+}
+
+.battle-message.result .msg-icon {
+    background: #10b981;
+    color: white;
+}
+
+.battle-message .msg-content {
+    flex: 1;
+}
+
+.battle-message .msg-sender {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.battle-message .msg-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.battle-message .msg-time {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* ==================== 输入区域 ==================== */
+.chat-input-area {
+    padding: 16px 20px;
+    background: white;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 12px;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.chat-input-area input:focus {
+    outline: none;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.chat-input-area input:disabled {
+    background: var(--bg-panel);
+    cursor: not-allowed;
+}
+
+.chat-input-area button {
+    padding: 12px 20px;
+}
+
+/* ==================== 模态框 ==================== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-content h2 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.modal .close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--bg-panel);
+}
+
+.modal .close:hover {
+    color: var(--danger-color);
+    background: #fee2e2;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* ==================== 滚动条 ==================== */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* ==================== 响应式 ==================== */
+@media (max-width: 1024px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-panel {
+        max-height: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-container {
+        padding: 10px;
+    }
+
+    .header h1 {
+        font-size: 1.8rem;
+    }
+
+    .control-buttons {
+        flex-direction: column;
+    }
+
+    .battle-modes {
+        grid-template-columns: 1fr;
+    }
+
+    .health-bars {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* ==================== 开关样式 ==================== */
+.settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.settings-row:last-child {
+    border-bottom: none;
+}
+
+.settings-label {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/* ==================== 团战UI样式 ==================== */
+.team-info-panel {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(5px);
+}
+
+.team-1, .team-2 {
+    flex: 1;
+    padding: 15px;
+    border-radius: var(--radius-sm);
+}
+
+.team-1 {
+    background: rgba(59, 130, 246, 0.1);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.team-2 {
+    background: rgba(239, 68, 68, 0.1);
+    border: 2px solid rgba(239, 68, 68, 0.3);
+}
+
+.vs-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.team-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.team-stats span {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.member-status {
+    padding: 5px 10px;
+    margin: 5px 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hp-bar {
+    font-size: 0.8rem;
+    color: #10b981;
+    font-weight: bold;
+}
+
+/* ==================== 大逃杀UI样式 ==================== */
+.battle-royale-panel {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(5px);
+}
+
+.zone-info, .loot-info {
+    margin-bottom: 15px;
+}
+
+.zone-info h3, .loot-info h3 {
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.zone-stats, .loot-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.zone-stats span, .loot-stats span {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.zone-timer {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background: rgba(245, 158, 11, 0.2);
+    border-radius: var(--radius-sm);
+    text-align: center;
+    font-weight: bold;
+    color: var(--warning-color);
+}
+
+/* ==================== 回放系统样式 ==================== */
+.replay-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+}
+
+.replay-section h3 {
+    margin-bottom: 15px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.replay-list {
+    display: grid;
+    gap: 10px;
+}
+
+.replay-item {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.replay-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(5px);
+}
+
+.replay-header {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.replay-id {
+    font-family: monospace;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.replay-mode {
+    padding: 2px 8px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.replay-duration {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.replay-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.replay-actions button {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+}
+
+.replay-actions .play-btn {
+    background: var(--success-color);
+    color: white;
+}
+
+.replay-actions .download-btn {
+    background: var(--primary-color);
+    color: white;
+}
+
+.replay-actions .delete-btn {
+    background: var(--danger-color);
+    color: white;
+}
+
+.replay-actions button:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+}
+
+/* ==================== 单挑UI样式 ==================== */
+.duel-panel {
+    margin-bottom: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(5px);
+}
+
+.duel-arena {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
+}
+
+.fighter-1, .fighter-2 {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    min-width: 150px;
+}
+
+.fighter-1 {
+    border: 2px solid #3b82f6;
+}
+
+.fighter-2 {
+    border: 2px solid #ef4444;
+}
+
+.fighter-name {
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.fighter-hp {
+    font-size: 1.5rem;
+    color: #10b981;
+    font-weight: bold;
+}
+
+.vs-badge {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #f59e0b;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.duel-stats {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.duel-stats span {
+    color: var(--text-secondary);
+}
+
+/* ==================== 乱斗UI样式 ==================== */
+.chaos-panel {
+    margin-bottom: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(5px);
+}
+
+.chaos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.chaos-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.chaos-arena {
+    position: relative;
+    height: 400px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.chaos-fighter {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #10b981;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.chaos-fighter:hover {
+    transform: scale(1.1);
+    border-color: #f59e0b;
+}
+
+.chaos-fighter .fighter-name {
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 2px;
+}
+
+.chaos-fighter .fighter-hp {
+    font-size: 0.6rem;
+    color: #10b981;
+}
+
+/* ==================== 消息类型样式 ==================== */
+.message.damage {
+    color: #ef4444;
+    font-weight: bold;
+}
+
+.message.victory {
+    color: #10b981;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.message.replay {
+    color: #8b5cf6;
+    font-style: italic;
+}
+
+.message.report {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+    font-size: 0.9rem;
+    overflow-x: auto;
+}
